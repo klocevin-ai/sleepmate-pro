@@ -1,0 +1,4218 @@
+<!DOCTYPE html>
+<html lang="vi" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>SLEEPMATE Pro — Kỷ Luật Giấc Ngủ</title>
+
+<meta name="theme-color" content="#060914">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SLEEPMATE">
+<meta name="description" content="Theo dõi thời gian dùng máy ban đêm, tự khóa giới nghiêm và nhắc bạn đi ngủ.">
+<link rel="manifest" id="manifest-placeholder" href="./manifest.webmanifest">
+<link rel="apple-touch-icon" id="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+<meta name="application-name" content="SLEEPMATE">
+<meta name="format-detection" content="telephone=no">
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        night: {
+          950: '#060914', 900: '#0B1124', 850: '#111833',
+          800: '#192348', 750: '#222F5E',
+          accent: '#6366F1', cyan: '#00F0FF', emerald: '#10B981',
+          amber: '#F59E0B', rose: '#F43F5E', pinky: '#FF2A85'
+        }
+      },
+      fontFamily: {
+        sans: ['Quicksand', 'Inter', 'system-ui', 'sans-serif'],
+        mono: ['JetBrains Mono', 'ui-monospace', 'monospace']
+      },
+      boxShadow: {
+        'neon-pink': '0 0 25px rgba(255, 42, 133, 0.35)',
+        'neon-cyan': '0 0 25px rgba(0, 240, 255, 0.35)'
+      }
+    }
+  }
+}
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap');
+
+  * { -webkit-tap-highlight-color: transparent; }
+  :root {
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Quicksand', sans-serif;
+    background-color: #060914;
+    overscroll-behavior-y: none;
+    padding-bottom: var(--safe-bottom);
+  }
+  input, select, textarea { font-size: 16px !important; }
+
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  .stars-bg {
+    background-image:
+      radial-gradient(1.5px 1.5px at 20px 30px, #ffffff, rgba(0,0,0,0)),
+      radial-gradient(1px 1px at 80px 120px, #fbcfe8, rgba(0,0,0,0)),
+      radial-gradient(1.5px 1.5px at 160px 80px, #bae6fd, rgba(0,0,0,0)),
+      radial-gradient(2px 2px at 240px 190px, #fde047, rgba(0,0,0,0)),
+      linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+    background-size: 320px 220px, 320px 220px, 320px 220px, 320px 220px, 40px 40px, 40px 40px;
+  }
+
+  .glass-panel {
+    background: rgba(11, 17, 36, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  @keyframes floatZzz {
+    0% { transform: translate(0,0) scale(.6); opacity: 0; }
+    50% { opacity: .9; }
+    100% { transform: translate(25px,-45px) scale(1.1); opacity: 0; }
+  }
+  .animate-zzz-1 { animation: floatZzz 3s infinite ease-out; }
+  .animate-zzz-2 { animation: floatZzz 3.5s 1s infinite ease-out; }
+
+  @keyframes catBreathe {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.03) translateY(-2px); }
+  }
+  .animate-cat-breathe { animation: catBreathe 3s infinite ease-in-out; }
+
+  @keyframes catTail {
+    0%,100% { transform: rotate(0deg); }
+    50% { transform: rotate(18deg); }
+  }
+  .animate-tail { transform-origin: bottom left; animation: catTail 2.5s infinite ease-in-out; }
+
+  .btn-bouncy { transition: transform .15s cubic-bezier(.34,1.56,.64,1), background-color .2s, opacity .2s; }
+  .btn-bouncy:hover { transform: translateY(-2px) scale(1.02); }
+  .btn-bouncy:active { transform: translateY(1px) scale(.97); }
+
+  .flying-heart {
+    position: absolute; pointer-events: none;
+    animation: heartFly 1.2s forwards ease-out; z-index: 60;
+  }
+  @keyframes heartFly {
+    0% { transform: translateY(0) scale(.8); opacity: 1; }
+    100% { transform: translateY(-65px) scale(1.3); opacity: 0; }
+  }
+
+  #night-shift-overlay { pointer-events: none; transition: background-color .4s ease; }
+
+  @keyframes emergencyStrobe {
+    0%,100% { box-shadow: inset 0 0 30px rgba(244,63,94,.25); }
+    50% { box-shadow: inset 0 0 110px rgba(244,63,94,.75); }
+  }
+  .emergency-strobe { animation: emergencyStrobe .9s infinite ease-in-out; pointer-events: none; }
+
+  /* Toast trong app (fallback khi trình duyệt chặn push) */
+  #toast-stack { position: fixed; left: 50%; transform: translateX(-50%); bottom: 18px; z-index: 95; display: flex; flex-direction: column; gap: 8px; width: min(420px, calc(100vw - 24px)); pointer-events: none; }
+  .toast {
+    pointer-events: auto; cursor: pointer;
+    background: rgba(11,17,36,.97); border: 1px solid rgba(255,42,133,.45);
+    border-radius: 18px; padding: 12px 14px; box-shadow: 0 12px 40px rgba(0,0,0,.6);
+    opacity: 0; transform: translateY(14px) scale(.98); transition: all .28s ease;
+  }
+  .toast.show { opacity: 1; transform: translateY(0) scale(1); }
+  .toast.warn { border-color: rgba(245,158,11,.55); }
+  .toast.ok { border-color: rgba(16,185,129,.55); }
+
+  .usage-bar { transition: height .5s ease; }
+
+  .pulse-dot { animation: pulseDot 1.6s infinite; }
+  @keyframes pulseDot { 0%,100% { opacity: 1; } 50% { opacity: .25; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+  }
+
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+
+  /* Vùng tai thỏ / thanh home của iPhone & Android */
+  header.glass-panel { padding-top: calc(0.625rem + var(--safe-top)); }
+  #main-nav { top: calc(53px + var(--safe-top)); }
+  #toast-stack { bottom: calc(18px + var(--safe-bottom)); }
+  #auto-lock-countdown-bar { padding-top: calc(0.625rem + var(--safe-top)); }
+  #install-guide-modal .guide-sheet {
+    max-height: calc(100vh - 32px - var(--safe-top) - var(--safe-bottom));
+    max-height: calc(100dvh - 32px - var(--safe-top) - var(--safe-bottom));
+  }
+  #install-guide-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    background: linear-gradient(to top, rgba(11,17,36,.99) 72%, rgba(11,17,36,0));
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    padding-top: 10px;
+    padding-bottom: 2px;
+  }
+  body.guide-open #toast-stack { display: none; }
+</style>
+</head>
+
+<body class="bg-night-950 text-slate-100 min-h-screen flex flex-col selection:bg-pink-500 selection:text-white relative stars-bg">
+
+<div id="night-shift-overlay" class="fixed inset-0 z-40 bg-transparent pointer-events-none"></div>
+<div id="screen-strobe-overlay" class="fixed inset-0 z-40 emergency-strobe pointer-events-none hidden"></div>
+<div id="toast-stack" aria-live="polite"></div>
+
+<!-- BANNER ĐẾM NGƯỢC TỰ ĐỘNG KHÓA -->
+<div id="auto-lock-countdown-bar" class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-rose-600 via-pink-600 to-rose-700 text-white py-2.5 px-4 text-xs font-bold shadow-2xl flex items-center justify-between gap-3 hidden">
+  <span class="flex items-center gap-2 min-w-0">
+    <i class="fa-solid fa-triangle-exclamation animate-bounce text-amber-300 shrink-0"></i>
+    <span class="truncate">Tự động khóa sau <strong id="auto-lock-timer-sec" class="font-mono text-amber-300 text-sm">30</strong>s</span>
+  </span>
+  <span class="flex items-center gap-2 shrink-0">
+    <button onclick="snoozeLockout()" class="bg-night-950/70 hover:bg-black border border-white/20 text-white px-2.5 py-1.5 rounded-xl text-[11px] btn-bouncy">Hoãn 5p</button>
+    <button onclick="goToSleep()" class="bg-night-950 hover:bg-black border border-white/30 text-white px-3 py-1.5 rounded-xl text-[11px] btn-bouncy">Đi ngủ ngay</button>
+  </span>
+</div>
+
+<!-- MÀN HÌNH KHÓA CƯỠNG CHẾ -->
+<div id="hardcore-lock-overlay" class="fixed inset-0 z-[70] bg-[#030611]/98 backdrop-blur-2xl flex flex-col items-center justify-center p-6 text-center space-y-6 hidden">
+  <div class="w-24 h-24 bg-rose-500/20 text-rose-500 rounded-full flex items-center justify-center text-5xl border-2 border-rose-500 animate-pulse shadow-neon-pink">
+    <i class="fa-solid fa-lock"></i>
+  </div>
+  <div class="space-y-3 max-w-md">
+    <span class="px-3 py-1 bg-rose-500/20 text-rose-400 text-xs rounded-full font-mono font-bold tracking-wider border border-rose-500/30">
+      CURFEW LOCKOUT ENFORCED
+    </span>
+    <h2 class="text-3xl font-black text-white">MÁY ĐÃ KHÓA GIỚI NGHIÊM!</h2>
+    <p class="text-xs sm:text-sm text-slate-400 leading-relaxed" id="lockout-reason-text">
+      Hệ thống tự động khóa do vượt hạn mức dùng máy ban đêm hoặc đã chạm mốc giới nghiêm.
+    </p>
+    <div class="p-3 bg-night-900 border border-slate-800 rounded-2xl flex items-center justify-between text-xs font-mono">
+      <span class="text-slate-400">Trừ kỷ luật:</span>
+      <span class="text-rose-400 font-bold">-5 điểm</span>
+    </div>
+  </div>
+  <div class="flex flex-col gap-2 w-full max-w-xs">
+    <button onclick="openChallenge({fromLockout:true})" class="w-full py-3 bg-gradient-to-r from-pink-500 to-rose-600 text-white font-bold text-xs rounded-2xl shadow-lg btn-bouncy">
+      🧩 Giải câu đố để mở khóa
+    </button>
+    <button onclick="goToSleep()" class="w-full py-3 bg-night-900 border border-emerald-500/40 text-emerald-300 font-bold text-xs rounded-2xl btn-bouncy">
+      🌙 Gập máy đi ngủ
+    </button>
+    <button onclick="emergencyUnlockPrompt()" class="text-xs text-slate-500 hover:text-slate-300 underline transition py-2">
+      Mở khóa ngoại lệ (cần lý do khẩn cấp)
+    </button>
+  </div>
+</div>
+
+<!-- MODAL THỬ THÁCH -->
+<div id="mission-alarm-modal" class="fixed inset-0 z-[80] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 hidden">
+  <div class="glass-panel border-2 border-rose-500 rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center space-y-4 shadow-neon-pink">
+    <div class="text-5xl animate-bounce">⏰😾</div>
+    <div class="space-y-1">
+      <span id="challenge-mode-badge" class="px-2.5 py-0.5 bg-rose-500/20 text-rose-300 text-[10px] rounded-full font-mono font-bold uppercase">THỬ THÁCH</span>
+      <h3 class="text-xl font-black text-white">Dừng báo động!</h3>
+      <p id="challenge-instruction-text" class="text-xs text-slate-400">Trả lời đúng để tắt còi và dừng nhắc nhở.</p>
+    </div>
+    <div class="p-4 bg-night-950 rounded-2xl border border-slate-800 space-y-3">
+      <div id="challenge-question-display" class="text-lg sm:text-xl font-mono font-black text-pink-400 break-words leading-snug">-- + -- = ?</div>
+      <div id="challenge-hint-display" class="text-[11px] text-amber-300/90 italic hidden"></div>
+      <div class="flex flex-col sm:flex-row gap-2">
+        <input type="text" id="challenge-answer-input" placeholder="Nhập đáp án..." autocomplete="off" enterkeyhint="done"
+               class="w-full bg-night-900 border border-slate-700 rounded-xl px-4 py-2.5 text-center font-mono text-white text-base focus:border-pink-500 outline-none">
+        <button onclick="verifyChallengeAnswer()" class="px-5 py-2.5 bg-gradient-to-r from-pink-500 to-rose-600 text-white font-bold text-xs rounded-xl btn-bouncy shrink-0">Xác nhận</button>
+      </div>
+      <p id="challenge-error" class="text-[11px] text-rose-400 font-bold hidden"></p>
+    </div>
+    <button onclick="snoozeAlarm()" class="text-xs text-slate-500 hover:text-slate-400 transition py-1">Hoãn còi 5 phút (-3 điểm)</button>
+  </div>
+</div>
+
+<!-- MODAL TƯ THẾ NẰM BẤM MÁY -->
+<div id="phone-posture-modal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+  <div class="glass-panel border-2 border-amber-500 rounded-3xl p-6 sm:p-8 max-w-sm w-full text-center space-y-4">
+    <div class="text-5xl animate-pulse">😾🛏️</div>
+    <div class="space-y-1">
+      <span class="px-3 py-1 bg-amber-500/20 text-amber-300 text-xs rounded-full font-bold">CẢM BIẾN TƯ THẾ</span>
+      <h3 class="text-xl font-black text-white">Bạn đang nằm bấm máy!</h3>
+      <p class="text-xs text-slate-300">
+        Góc nghiêng <strong id="phone-angle-display" class="text-amber-400 font-mono">0°</strong> cho thấy bạn đang nằm rọi thẳng ánh sáng vào mắt. Đặt máy lên bàn ngay!
+      </p>
+    </div>
+    <button onclick="dismissPostureAlert()" class="w-full py-3.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold text-xs rounded-2xl btn-bouncy">
+      🐾 Đặt máy lên bàn (+2 kỷ luật)
+    </button>
+  </div>
+</div>
+
+<!-- MÀN HÌNH CHÚC NGỦ NGON -->
+<div id="goodnight-overlay" class="fixed inset-0 z-[75] bg-[#030611]/98 backdrop-blur-2xl flex flex-col items-center justify-center p-6 text-center space-y-5 hidden">
+  <div class="text-6xl">🌙</div>
+  <h2 class="text-3xl font-black text-white">Chúc ngủ ngon!</h2>
+  <p class="text-xs text-slate-400 max-w-xs leading-relaxed">Máy đã được đặt vào chế độ ngủ. Mọi báo động đã tắt để não bạn được nghỉ ngơi.</p>
+  <div class="grid grid-cols-3 gap-2 w-full max-w-sm text-center">
+    <div class="p-3 bg-night-900 border border-slate-800 rounded-2xl">
+      <span class="block text-[9px] text-slate-500 uppercase font-bold">Đêm nay</span>
+      <span id="goodnight-total" class="text-sm font-mono font-bold text-cyan-300">0p</span>
+    </div>
+    <div class="p-3 bg-night-900 border border-slate-800 rounded-2xl">
+      <span class="block text-[9px] text-slate-500 uppercase font-bold">Số lần rời</span>
+      <span id="goodnight-leaves" class="text-sm font-mono font-bold text-amber-300">0</span>
+    </div>
+    <div class="p-3 bg-night-900 border border-slate-800 rounded-2xl">
+      <span class="block text-[9px] text-slate-500 uppercase font-bold">Chuỗi ngày</span>
+      <span id="goodnight-streak" class="text-sm font-mono font-bold text-emerald-300">0</span>
+    </div>
+  </div>
+  <button onclick="wakeUpFromSleep()" class="text-xs text-slate-500 hover:text-slate-300 underline py-2">Tôi cần dùng máy (phải giải câu đố)</button>
+</div>
+
+<!-- HEADER -->
+<header class="glass-panel border-b border-slate-800/80 px-4 py-2.5 text-xs sticky top-0 z-30">
+  <div class="max-w-7xl mx-auto flex items-center justify-between gap-3">
+    <div class="flex items-center gap-2.5 min-w-0">
+      <div class="w-9 h-9 rounded-2xl bg-gradient-to-tr from-pink-500 via-purple-500 to-indigo-500 p-[1.5px] shadow-neon-pink shrink-0">
+        <div class="w-full h-full bg-night-950 rounded-[14px] flex items-center justify-center text-pink-400 text-sm">
+          <i class="fa-solid fa-moon"></i>
+        </div>
+      </div>
+      <div class="min-w-0">
+        <div class="flex items-center gap-1.5">
+          <span class="font-extrabold text-sm tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-purple-300 to-cyan-300 truncate">SLEEPMATE Pro</span>
+          <span class="text-[9px] px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-bold font-mono shrink-0">v3</span>
+        </div>
+        <span class="text-[10px] text-slate-400 hidden sm:inline">Suite Kỷ Luật &amp; Khoa Học Giấc Ngủ</span>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-2 text-slate-400">
+      <div class="hidden sm:flex items-center gap-1.5 text-xs bg-night-900/90 px-3 py-1.5 rounded-full border border-slate-800" title="Bám đuổi nền">
+        <i class="fa-solid fa-shield-cat text-emerald-400"></i>
+        <span id="hud-bg-guard-status" class="font-mono font-bold text-emerald-400">ON</span>
+      </div>
+      <div class="flex items-center gap-1.5 text-xs bg-night-900/90 px-3 py-1.5 rounded-full border border-slate-800" title="Điểm kỷ luật">
+        <i class="fa-solid fa-heart text-pink-400"></i>
+        <span id="hud-score-display" class="font-mono font-bold text-pink-300">100%</span>
+      </div>
+      <div class="flex items-center gap-1.5 text-xs bg-night-900/90 px-3 py-1.5 rounded-full border border-slate-800" title="Tổng thời gian dùng máy đêm nay">
+        <i class="fa-solid fa-clock text-cyan-400"></i>
+        <span id="hud-session-timer" class="font-mono text-cyan-300 font-bold">00:00</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav id="main-nav" class="bg-night-900/80 backdrop-blur-md border-b border-slate-800/80 px-2 sm:px-4 py-2 sticky top-[53px] z-20">
+  <div class="max-w-7xl mx-auto flex items-center justify-start sm:justify-center gap-2 overflow-x-auto no-scrollbar scroll-smooth py-0.5">
+    <button onclick="switchTab('screen-sentinel')" id="tab-btn-screen-sentinel" class="tab-btn shrink-0 px-4 py-2 rounded-2xl text-xs font-bold transition flex items-center gap-2 text-white bg-gradient-to-r from-pink-500 to-indigo-600 shadow-neon-pink btn-bouncy">
+      <i class="fa-solid fa-mobile-screen"></i> <span>Quản Lý Máy</span>
+    </button>
+    <button onclick="switchTab('stats')" id="tab-btn-stats" class="tab-btn shrink-0 px-4 py-2 rounded-2xl text-xs font-bold transition flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-night-850 btn-bouncy">
+      <i class="fa-solid fa-chart-column text-cyan-400"></i> <span>Thống Kê Đêm</span>
+    </button>
+    <button onclick="switchTab('ai')" id="tab-btn-ai" class="tab-btn shrink-0 px-4 py-2 rounded-2xl text-xs font-bold transition flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-night-850 btn-bouncy">
+      <i class="fa-solid fa-robot text-emerald-400"></i> <span>Trợ Lý AI</span>
+    </button>
+    <button onclick="switchTab('mobile-notif')" id="tab-btn-mobile-notif" class="tab-btn shrink-0 px-4 py-2 rounded-2xl text-xs font-bold transition flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-night-850 btn-bouncy">
+      <i class="fa-solid fa-bell text-amber-400"></i> <span>Câu Đố &amp; Thông Báo</span>
+    </button>
+    <button onclick="switchTab('sleep-calc')" id="tab-btn-sleep-calc" class="tab-btn shrink-0 px-4 py-2 rounded-2xl text-xs font-bold transition flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-night-850 btn-bouncy">
+      <i class="fa-solid fa-user-clock text-cyan-400"></i> <span>Lịch 4 Đối Tượng</span>
+    </button>
+    <button onclick="switchTab('directions')" id="tab-btn-directions" class="tab-btn shrink-0 px-4 py-2 rounded-2xl text-xs font-bold transition flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-night-850 btn-bouncy">
+      <i class="fa-solid fa-compass text-amber-400"></i> <span>Phương Hướng</span>
+    </button>
+    <button onclick="switchTab('journal')" id="tab-btn-journal" class="tab-btn shrink-0 px-4 py-2 rounded-2xl text-xs font-bold transition flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-night-850 btn-bouncy">
+      <i class="fa-solid fa-book-journal-whills text-rose-400"></i> <span>Nhật Ký</span>
+    </button>
+    <button onclick="switchTab('breath-lab')" id="tab-btn-breath-lab" class="tab-btn shrink-0 px-4 py-2 rounded-2xl text-xs font-bold transition flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-night-850 btn-bouncy">
+      <i class="fa-solid fa-lungs text-teal-400"></i> <span>Thở 4-7-8</span>
+    </button>
+    <button onclick="switchTab('binaural')" id="tab-btn-binaural" class="tab-btn shrink-0 px-4 py-2 rounded-2xl text-xs font-bold transition flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-night-850 btn-bouncy">
+      <i class="fa-solid fa-wave-square text-purple-400"></i> <span>Sóng Não</span>
+    </button>
+  </div>
+</nav>
+
+<main class="max-w-5xl mx-auto px-4 py-6 flex-1 w-full space-y-6 z-10 safe-bottom">
+
+<!-- ============ MỤC 1: QUẢN LÝ THIẾT BỊ ============ -->
+<section id="section-screen-sentinel" class="tab-content space-y-6">
+  <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-indigo-950/80 via-purple-950/60 to-pink-950/80 border border-pink-500/30 p-6 sm:p-8 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-6">
+    <div class="space-y-2 text-center sm:text-left z-10">
+      <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-pink-500/20 text-pink-300 border border-pink-500/30">
+        🐾 Auto Sentinel &amp; Usage Tracking
+      </span>
+      <h1 class="text-2xl sm:text-3xl font-black text-white">Quản Lý Thiết Bị &amp; Khóa Giới Nghiêm</h1>
+      <p class="text-xs sm:text-sm text-slate-300 max-w-md leading-relaxed">
+        Tự đo thời gian bạn thật sự nhìn màn hình, ghi lại khung giờ sử dụng, đếm số lần mở/rời app và nhắc nhở ngay cả khi bạn thoát ra ngoài.
+      </p>
+      <p id="usage-insight-text" class="text-[11px] text-cyan-300/90 font-mono leading-relaxed">Đang khởi tạo dữ liệu phiên dùng máy…</p>
+    </div>
+
+    <div class="relative cursor-pointer select-none shrink-0" onclick="petTheCat(event)" title="Chạm nhẹ để nựng bé Miu!">
+      <div class="relative w-36 h-36 flex items-center justify-center animate-cat-breathe">
+        <div class="absolute -top-3 right-2 text-sm font-black font-mono text-pink-300 animate-zzz-1 pointer-events-none">z</div>
+        <div class="absolute -top-6 right-5 text-base font-black font-mono text-purple-300 animate-zzz-2 pointer-events-none">Z</div>
+        <div class="w-28 h-24 bg-gradient-to-tr from-indigo-500 to-pink-400 rounded-[45px] relative shadow-neon-pink flex items-center justify-center border-2 border-white/20">
+          <div class="absolute -top-4 left-3 w-6 h-6 bg-pink-400 rounded-tl-xl transform -rotate-12 border-t border-l border-white/40"></div>
+          <div class="absolute -top-4 right-3 w-6 h-6 bg-indigo-500 rounded-tr-xl transform rotate-12 border-t border-r border-white/40"></div>
+          <div class="flex items-center gap-4 mt-1">
+            <span class="text-slate-900 font-black text-lg select-none">∪</span>
+            <div class="w-2 h-1.5 bg-pink-200 rounded-full"></div>
+            <span class="text-slate-900 font-black text-lg select-none">∪</span>
+          </div>
+          <div class="absolute bottom-5 left-4 w-3.5 h-2 bg-rose-400/80 rounded-full blur-[1px]"></div>
+          <div class="absolute bottom-5 right-4 w-3.5 h-2 bg-rose-400/80 rounded-full blur-[1px]"></div>
+          <div class="absolute -bottom-2 -left-4 w-7 h-3 bg-indigo-600 rounded-full animate-tail"></div>
+        </div>
+      </div>
+      <div class="text-[10px] text-center text-pink-300/80 font-bold mt-1">🐾 Chạm Miu (+1 tim)</div>
+      <div id="heart-container" class="absolute inset-0 pointer-events-none"></div>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 glass-panel p-6 sm:p-8 rounded-3xl space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4 gap-3">
+        <div>
+          <h3 class="text-base font-bold text-white flex items-center gap-2">
+            <i class="fa-solid fa-stopwatch text-amber-400"></i> Giám Sát Cầm Máy Đêm Nay
+          </h3>
+          <p class="text-xs text-slate-400 mt-0.5">Đếm ngầm bằng Web Worker, không mất dữ liệu khi tải lại trang</p>
+        </div>
+        <span id="active-state-tag" class="px-3 py-1 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1.5 shrink-0">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span> Đang mở app
+        </span>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3 text-center">
+        <div class="p-3.5 bg-night-950 rounded-2xl border border-slate-800">
+          <span class="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Mở máy lúc</span>
+          <span id="sentinel-opened-at" class="text-lg sm:text-xl font-mono font-bold text-amber-300">--:--</span>
+        </div>
+        <div class="p-3.5 bg-night-950 rounded-2xl border border-slate-800">
+          <span class="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Đã dùng đêm nay</span>
+          <span id="sentinel-live-counter" class="text-lg sm:text-xl font-mono font-bold text-cyan-300">00:00</span>
+        </div>
+        <div class="p-3.5 bg-night-950 rounded-2xl border border-slate-800">
+          <span class="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Hạn mức còn</span>
+          <span id="sentinel-remaining-counter" class="text-lg sm:text-xl font-mono font-bold text-pink-400">30:00</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+        <div class="p-3 bg-night-950 rounded-2xl border border-slate-800">
+          <span class="text-[9px] text-slate-500 uppercase font-bold block">Số lần mở</span>
+          <span id="sentinel-opens" class="text-sm font-mono font-bold text-indigo-300">0</span>
+        </div>
+        <div class="p-3 bg-night-950 rounded-2xl border border-slate-800">
+          <span class="text-[9px] text-slate-500 uppercase font-bold block">Số lần rời</span>
+          <span id="sentinel-leaves" class="text-sm font-mono font-bold text-amber-300">0</span>
+        </div>
+        <div class="p-3 bg-night-950 rounded-2xl border border-slate-800">
+          <span class="text-[9px] text-slate-500 uppercase font-bold block">Phiên dài nhất</span>
+          <span id="sentinel-longest" class="text-sm font-mono font-bold text-emerald-300">0p</span>
+        </div>
+        <div class="p-3 bg-night-950 rounded-2xl border border-slate-800">
+          <span class="text-[9px] text-slate-500 uppercase font-bold block">Chạy nền</span>
+          <span id="sentinel-bg" class="text-sm font-mono font-bold text-slate-300">0p</span>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <div class="flex justify-between text-xs text-slate-400">
+          <span>Mức tiêu thụ hạn mức:</span>
+          <span id="screen-limit-percent-text" class="text-amber-400 font-bold font-mono">0%</span>
+        </div>
+        <div class="w-full bg-night-950 h-3 rounded-full overflow-hidden border border-slate-800">
+          <div id="screen-limit-progress-bar" class="h-full bg-gradient-to-r from-emerald-500 via-amber-500 to-rose-500 w-0 transition-all duration-700"></div>
+        </div>
+        <p id="curfew-countdown-text" class="text-[11px] text-slate-500 font-mono">Giới nghiêm: --:--</p>
+      </div>
+
+      <div class="space-y-2 pt-1">
+        <label class="block text-xs font-bold text-slate-300 uppercase">1. Hạn mức dùng máy tối đa đêm nay:</label>
+        <div class="grid grid-cols-4 gap-2.5">
+          <button onclick="setScreenLimit(15)" id="limit-btn-15" class="p-2.5 rounded-xl border border-slate-800 bg-night-950 text-slate-300 text-xs font-bold btn-bouncy">15 Phút</button>
+          <button onclick="setScreenLimit(30)" id="limit-btn-30" class="p-2.5 rounded-xl border border-pink-500/60 bg-pink-950/30 text-pink-300 text-xs font-bold btn-bouncy">30 Phút</button>
+          <button onclick="setScreenLimit(45)" id="limit-btn-45" class="p-2.5 rounded-xl border border-slate-800 bg-night-950 text-slate-300 text-xs font-bold btn-bouncy">45 Phút</button>
+          <button onclick="setScreenLimit(60)" id="limit-btn-60" class="p-2.5 rounded-xl border border-slate-800 bg-night-950 text-slate-300 text-xs font-bold btn-bouncy">60 Phút</button>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row gap-2.5">
+        <button onclick="goToSleep()" class="flex-1 py-3.5 bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:opacity-95 text-white font-bold text-xs rounded-2xl shadow-lg btn-bouncy flex items-center justify-center gap-2">
+          <i class="fa-solid fa-power-off"></i> Hoàn thành &amp; đi ngủ (+2 điểm)
+        </button>
+        <button onclick="switchTab('mobile-notif')" class="px-4 py-3.5 bg-night-900 hover:bg-night-800 border border-pink-500/40 text-pink-300 font-bold text-xs rounded-2xl btn-bouncy flex items-center justify-center gap-2">
+          <i class="fa-solid fa-puzzle-piece"></i> Cài câu đố
+        </button>
+      </div>
+    </div>
+
+    <div class="glass-panel p-6 rounded-3xl space-y-6 flex flex-col justify-between">
+      <div class="space-y-4">
+        <div class="border-b border-slate-800 pb-3">
+          <h4 class="text-xs font-bold text-rose-400 uppercase tracking-wider flex items-center gap-2">
+            <i class="fa-solid fa-lock"></i> Cấu hình tự khóa &amp; bám đuổi
+          </h4>
+          <p class="text-[11px] text-slate-400 mt-0.5">Tự phủ màn chắn và gửi thông báo khi thoát app</p>
+        </div>
+
+        <div class="p-3 bg-night-950 rounded-2xl border border-slate-800 flex items-center justify-between gap-3">
+          <div>
+            <span class="text-xs font-bold text-slate-200 block">Khóa khi hết hạn mức</span>
+            <span class="text-[10px] text-slate-400">Tự khóa sau 15/30/45/60 phút</span>
+          </div>
+          <input type="checkbox" id="auto-lock-on-limit" onchange="setOption('autoLockLimit', this.checked)" class="w-5 h-5 accent-rose-500 cursor-pointer shrink-0">
+        </div>
+
+        <div class="p-3 bg-night-950 rounded-2xl border border-emerald-500/30 flex items-center justify-between gap-3">
+          <div>
+            <span class="text-xs font-bold text-emerald-300 block">Báo động khi thoát màn hình</span>
+            <span class="text-[10px] text-slate-400">Lướt app khác vẫn nhận nhắc nhở</span>
+          </div>
+          <input type="checkbox" id="bg-persistent-notif-toggle" onchange="setOption('bgGuard', this.checked)" class="w-5 h-5 accent-emerald-500 cursor-pointer shrink-0">
+        </div>
+
+        <div class="p-3 bg-night-950 rounded-2xl border border-slate-800 space-y-2">
+          <div class="flex items-center justify-between gap-3">
+            <div>
+              <span class="text-xs font-bold text-slate-200 block">Khóa theo giờ giới nghiêm</span>
+              <span class="text-[10px] text-slate-400">Qua mốc này là chặn</span>
+            </div>
+            <input type="checkbox" id="auto-lock-on-curfew" onchange="setOption('autoLockCurfew', this.checked)" class="w-5 h-5 accent-rose-500 cursor-pointer shrink-0">
+          </div>
+          <div class="flex items-center justify-between pt-1 border-t border-slate-800/80">
+            <span class="text-[11px] text-pink-300 font-bold">Mốc giới nghiêm:</span>
+            <input type="time" id="curfew-auto-lock-time" onchange="setCurfew(this.value)" class="bg-night-900 border border-slate-700 text-pink-300 font-mono font-bold text-xs rounded-lg px-2 py-1 outline-none">
+          </div>
+        </div>
+
+        <div class="p-3 bg-night-950 rounded-2xl border border-slate-800 space-y-2">
+          <div class="flex justify-between items-center text-xs">
+            <span class="text-slate-400 font-bold">Lọc vàng giảm ánh sáng xanh:</span>
+            <span id="night-shift-label" class="font-mono text-pink-300 font-bold">0%</span>
+          </div>
+          <input type="range" id="night-shift-slider" min="0" max="65" value="0" oninput="setNightShiftFilter(this.value)" class="w-full accent-pink-500 cursor-pointer">
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <button onclick="triggerHardcoreLockout('Kích hoạt khóa thử nghiệm')" class="w-full py-2.5 bg-rose-600/90 hover:bg-rose-600 text-white text-xs font-bold rounded-xl transition btn-bouncy flex items-center justify-center gap-1.5">
+          <i class="fa-solid fa-lock"></i> Thử khóa &amp; giải đố ngay
+        </button>
+        <p class="text-[10px] text-slate-500 text-center leading-relaxed">Dữ liệu được lưu trên máy bạn. Không gửi lên máy chủ nào.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MỤC 2: CÂU ĐỐ & THÔNG BÁO ============ -->
+<section id="section-mobile-notif" class="tab-content hidden space-y-6">
+  <div class="glass-panel p-6 sm:p-8 rounded-3xl space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <div>
+        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 text-[11px] rounded-full font-bold uppercase tracking-wider font-mono">Persistent Push &amp; Custom Riddle</span>
+        <h2 class="text-xl sm:text-2xl font-black text-white mt-1 flex items-center gap-2"><span>🧩</span> Tự Đặt Câu Đố &amp; Thông Báo</h2>
+        <p class="text-xs text-slate-400">Đặt câu đố cá nhân để tắt báo động và duy trì nhắc nhở khi thoát app.</p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button onclick="requestNotificationAccess()" id="btn-request-notif" class="px-4 py-2.5 bg-gradient-to-r from-amber-500 to-rose-600 text-white font-bold text-xs rounded-2xl shadow-lg btn-bouncy flex items-center gap-1.5">
+          <i class="fa-solid fa-bell"></i> <span id="notif-btn-label">Bật thông báo</span>
+        </button>
+        <button onclick="testNotificationNow()" class="px-3.5 py-2.5 bg-night-950 border border-cyan-500/40 text-cyan-300 font-bold text-xs rounded-2xl btn-bouncy" title="Gửi thử">
+          <i class="fa-solid fa-paper-plane"></i> Test
+        </button>
+        <button onclick="installApp()" id="btn-install-app" class="px-3.5 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold text-xs rounded-2xl shadow-lg btn-bouncy flex items-center gap-1.5" title="Cài lên màn hình chính">
+          <i class="fa-solid fa-mobile-screen-button"></i> <span id="install-btn-label">Cài app</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div class="p-5 bg-night-950 rounded-3xl border border-pink-500/30 space-y-4">
+        <div class="border-b border-slate-800 pb-3">
+          <h3 class="text-sm font-extrabold text-pink-300 flex items-center gap-2"><i class="fa-solid fa-brain"></i> 1. Câu đố dừng báo động</h3>
+          <p class="text-[11px] text-slate-400">Muốn tắt còi hoặc dừng nhắc nhở, bạn phải vượt qua thử thách này.</p>
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-slate-300 block">Chế độ thử thách:</label>
+          <div class="grid grid-cols-3 gap-2">
+            <button onclick="setChallengeMode('custom')" id="mode-btn-custom" class="p-2.5 rounded-xl border-2 border-pink-500 bg-pink-950/30 text-pink-300 text-xs font-bold btn-bouncy">✍️ Tự đặt</button>
+            <button onclick="setChallengeMode('math')" id="mode-btn-math" class="p-2.5 rounded-xl border border-slate-800 bg-night-900 text-slate-300 text-xs font-bold btn-bouncy">🔢 Toán</button>
+            <button onclick="setChallengeMode('pledge')" id="mode-btn-pledge" class="p-2.5 rounded-xl border border-slate-800 bg-night-900 text-slate-300 text-xs font-bold btn-bouncy">📜 Cam kết</button>
+          </div>
+        </div>
+
+        <div id="custom-riddle-form" class="space-y-3 pt-1">
+          <div>
+            <label class="text-[11px] font-bold text-slate-300 block mb-1">Câu hỏi / câu đố của bạn:</label>
+            <input type="text" id="custom-riddle-question" placeholder="VD: Mục tiêu điểm tổng kết học kỳ này là bao nhiêu?" class="w-full bg-night-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white focus:border-pink-500 outline-none">
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="text-[11px] font-bold text-slate-300 block mb-1">Đáp án chính xác:</label>
+              <input type="text" id="custom-riddle-answer" placeholder="VD: 9.0" class="w-full bg-night-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-emerald-300 font-mono font-bold focus:border-emerald-500 outline-none">
+            </div>
+            <div>
+              <label class="text-[11px] font-bold text-slate-300 block mb-1">Gợi ý (tùy chọn):</label>
+              <input type="text" id="custom-riddle-hint" placeholder="VD: Con số đã hứa với bản thân" class="w-full bg-night-900 border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-slate-300 focus:border-amber-500 outline-none">
+            </div>
+          </div>
+          <div class="flex gap-2 pt-1">
+            <button onclick="saveCustomRiddleConfig()" class="flex-1 py-2.5 bg-gradient-to-r from-pink-500 to-indigo-600 text-white font-bold text-xs rounded-xl shadow-md btn-bouncy">
+              <i class="fa-solid fa-floppy-disk mr-1"></i> Lưu câu đố
+            </button>
+            <button onclick="openChallenge({})" class="px-4 py-2.5 bg-night-900 border border-slate-700 text-amber-300 font-bold text-xs rounded-xl btn-bouncy">Thử giải</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="p-5 bg-night-950 rounded-3xl border border-cyan-500/30 space-y-4 flex flex-col justify-between">
+        <div class="space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3 gap-2">
+            <div>
+              <h3 class="text-sm font-extrabold text-cyan-300 flex items-center gap-2"><i class="fa-solid fa-satellite-dish"></i> 2. Nhắc nhở khi thoát màn hình</h3>
+              <p class="text-[11px] text-slate-400">Bộ đếm vẫn chạy ngầm và tự đẩy thông báo nếu bạn lướt app khác.</p>
+            </div>
+            <span id="bg-worker-badge" class="px-2.5 py-1 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 shrink-0">Worker ON</span>
+          </div>
+
+          <div class="space-y-3 text-xs">
+            <div class="p-3 bg-night-900 rounded-2xl border border-slate-800 flex items-center justify-between gap-3">
+              <div>
+                <strong class="text-slate-200 block">Nhắc ngay khi vừa thoát ra</strong>
+                <span class="text-[11px] text-slate-400">Gửi sau khoảng 3 giây rời khỏi SLEEPMATE</span>
+              </div>
+              <input type="checkbox" id="notif-on-leave-toggle" onchange="setOption('notifOnLeave', this.checked)" class="w-5 h-5 accent-cyan-400 cursor-pointer shrink-0">
+            </div>
+
+            <div class="p-3 bg-night-900 rounded-2xl border border-slate-800 flex items-center justify-between gap-3">
+              <div>
+                <strong class="text-slate-200 block">Tần suất lặp lại</strong>
+                <span class="text-[11px] text-slate-400">Nhắc liên tục tới khi quay lại</span>
+              </div>
+              <select id="bg-repeat-interval-select" onchange="setOption('repeatSec', parseInt(this.value,10))" class="bg-night-950 border border-slate-700 text-cyan-300 font-mono font-bold text-xs rounded-xl px-2.5 py-1.5 outline-none shrink-0">
+                <option value="15">15 giây</option>
+                <option value="30">30 giây</option>
+                <option value="60">60 giây</option>
+              </select>
+            </div>
+
+            <div class="p-3 bg-night-900 rounded-2xl border border-slate-800 flex items-center justify-between gap-3">
+              <div>
+                <strong class="text-slate-200 block">Bắt giải đố khi quay lại</strong>
+                <span class="text-[11px] text-slate-400">Rời app hơn 30 giây thì phải giải đố</span>
+              </div>
+              <input type="checkbox" id="solve-on-return-toggle" onchange="setOption('solveOnReturn', this.checked)" class="w-5 h-5 accent-pink-400 cursor-pointer shrink-0">
+            </div>
+
+            <div class="p-3 bg-night-900 rounded-2xl border border-slate-800 flex items-center justify-between gap-3">
+              <div>
+                <strong class="text-slate-200 block">Số lần đã thoát đêm nay</strong>
+                <span class="text-[11px] text-slate-400">Mỗi lần rời app trừ 2 điểm kỷ luật</span>
+              </div>
+              <span id="leave-app-counter-badge" class="px-3 py-1 rounded-xl bg-rose-500/20 text-rose-300 font-mono font-bold shrink-0">0 lần</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3 bg-indigo-950/30 border border-indigo-500/30 rounded-2xl text-[11px] text-indigo-200 flex items-center justify-between gap-2">
+          <span><i class="fa-solid fa-bolt text-amber-300 mr-1"></i> <strong>Chống ngủ đông:</strong> giữ màn hình thức và luồng âm thanh ngầm.</span>
+          <button onclick="enableAudioKeepAlive()" id="btn-keep-alive" class="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shrink-0 btn-bouncy">Bật</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="device-support-card" class="p-3.5 bg-gradient-to-r from-night-900 to-night-950 border border-cyan-500/25 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-9 h-9 rounded-xl bg-cyan-500/15 text-cyan-300 flex items-center justify-center shrink-0">
+          <i class="fa-solid fa-mobile-screen-button"></i>
+        </div>
+        <div class="min-w-0">
+          <p class="text-[11px] font-bold text-white flex flex-wrap items-center gap-1.5">
+            <span id="device-platform-label">Thiết bị</span>
+            <span class="w-1 h-1 rounded-full bg-slate-600"></span>
+            <span id="device-install-state" class="text-cyan-300">Chưa cài app</span>
+            <span class="w-1 h-1 rounded-full bg-slate-600"></span>
+            <span id="device-notif-mode" class="text-slate-400">Chưa bật</span>
+          </p>
+          <p class="text-[10px] text-slate-500 mt-0.5">Hỗ trợ cả iPhone và Android — mỗi máy có cách cài và mức thông báo riêng.</p>
+        </div>
+      </div>
+      <button id="device-guide-btn" onclick="openDeviceGuide()" class="px-3 py-2 bg-night-950 border border-cyan-500/40 text-cyan-300 font-bold text-[11px] rounded-xl btn-bouncy shrink-0">
+        <i class="fa-solid fa-circle-question mr-1"></i> Hướng dẫn cài
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="p-4 bg-night-950 rounded-2xl border border-slate-800 space-y-2">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-[10px] text-slate-400 uppercase font-bold">Trạng thái Push</span>
+          <span id="notif-status-badge" class="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">Chờ cấp quyền</span>
+        </div>
+        <div class="text-base font-bold font-mono text-white" id="notif-status-text">Chưa kích hoạt</div>
+        <p class="text-[11px] text-slate-500">Thông báo hệ thống + toast trong app.</p>
+      </div>
+
+      <div class="p-4 bg-night-950 rounded-2xl border border-slate-800 space-y-2">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-[10px] text-slate-400 uppercase font-bold">Góc nghiêng máy</span>
+          <span id="posture-state-text" class="text-[10px] text-emerald-400 font-bold">Dựng tốt</span>
+        </div>
+        <div class="text-2xl font-black font-mono text-cyan-300" id="sensor-beta-display">0°</div>
+        <p class="text-[11px] text-slate-500">Góc dưới ±22° vào ban đêm sẽ cảnh báo nằm bấm.</p>
+      </div>
+
+      <div class="p-4 bg-night-950 rounded-2xl border border-slate-800 space-y-2">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-[10px] text-slate-400 uppercase font-bold">Lướt màn hình</span>
+          <span id="doomscroll-alert-text" class="text-[10px] text-emerald-400 font-bold">Bình thường</span>
+        </div>
+        <div class="text-2xl font-black font-mono text-pink-300" id="sensor-touch-counter">0 lượt</div>
+        <p class="text-[11px] text-slate-500">Đếm số lần vuốt ngón tay liên tục.</p>
+      </div>
+
+      <div class="p-4 bg-night-950 rounded-2xl border border-slate-800 space-y-2">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-[10px] text-slate-400 uppercase font-bold">Câu đố đang áp dụng</span>
+          <span class="w-2.5 h-2.5 rounded-full bg-pink-400 pulse-dot"></span>
+        </div>
+        <div class="text-sm font-bold font-mono text-pink-300 truncate" id="active-riddle-preview">Đang tải…</div>
+        <p class="text-[11px] text-slate-500">Phải nhập đúng đáp án mới dừng nhắc nhở.</p>
+      </div>
+    </div>
+
+    <div class="p-5 bg-night-950 rounded-2xl border border-slate-800 space-y-4">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-3">
+        <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-mobile-screen-button"></i> Quyền cảm biến góc nghiêng</h4>
+        <button onclick="requestMotionPermission()" class="px-4 py-2 bg-gradient-to-r from-cyan-600 to-indigo-600 text-white font-bold text-xs rounded-xl btn-bouncy">
+          <i class="fa-solid fa-compass mr-1"></i> Bật Gyroscope
+        </button>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-slate-300">
+        <div class="p-3 bg-night-900 rounded-xl border border-slate-800 space-y-1">
+          <strong class="text-white block">📱 Khi thoát ra màn hình chính</strong>
+          <p class="text-slate-400">Bấm Home hoặc chuyển app, SLEEPMATE gửi nhắc nhở kèm rung + âm báo cho tới khi bạn quay lại. <strong class="text-emerald-300">Bản APK</strong> dùng báo thức hệ thống nên vẫn nhắc dù app đã bị đóng.</p>
+        </div>
+        <div class="p-3 bg-night-900 rounded-xl border border-slate-800 space-y-1">
+          <strong class="text-white block">🍎 iPhone &amp; 🤖 Android</strong>
+          <p class="text-slate-400"><strong>Android APK:</strong> bật thông báo + cho phép báo thức chính xác. <strong>Android PWA:</strong> cài bằng Chrome → Bật thông báo → hiện trên màn hình khóa. <strong>iPhone:</strong> cài bằng Safari → Thêm vào MH chính → Bật thông báo (cần iOS 16.4+).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MỤC 3: LỊCH 4 ĐỐI TƯỢNG ============ -->
+<section id="section-sleep-calc" class="tab-content hidden space-y-6">
+  <div class="glass-panel p-6 sm:p-8 rounded-3xl space-y-6">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <div>
+        <h2 class="text-xl font-black text-white flex items-center gap-2"><span>⏱️</span> Quản Lý Thời Gian &amp; Giấc Ngủ 4 Nhóm</h2>
+        <p class="text-xs text-slate-400 mt-0.5">Khung giờ sinh học chuẩn hóa cho từng độ tuổi và khối lượng bài vở</p>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 bg-night-950 p-1.5 rounded-2xl border border-slate-800">
+        <button onclick="selectProfile('cap1')" id="prof-btn-cap1" class="px-3 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-white btn-bouncy">Cấp 1</button>
+        <button onclick="selectProfile('cap2')" id="prof-btn-cap2" class="px-3 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-white btn-bouncy">Cấp 2</button>
+        <button onclick="selectProfile('cap3')" id="prof-btn-cap3" class="px-3 py-2 rounded-xl text-xs font-bold transition bg-gradient-to-r from-pink-500 to-indigo-600 text-white shadow-md btn-bouncy">Cấp 3</button>
+        <button onclick="selectProfile('adult')" id="prof-btn-adult" class="px-3 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-white btn-bouncy">Đi Làm</button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4" id="profile-stat-cards"></div>
+
+    <div class="p-6 bg-night-950 rounded-3xl border border-slate-800 space-y-4">
+      <div class="flex items-center justify-between gap-2">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-300 flex items-center gap-2"><i class="fa-solid fa-timeline"></i> Lộ trình tối ưu năng lượng &amp; giới nghiêm</h3>
+        <span class="text-[11px] font-mono text-pink-400 font-bold" id="profile-curfew-tag">Giới nghiêm: 23:00</span>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-xs" id="profile-timeline-grid"></div>
+    </div>
+
+    <div class="p-5 bg-night-950 rounded-3xl border border-slate-800 space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <label class="text-xs font-bold text-slate-200 block">⏰ Giờ cần dậy sáng mai:</label>
+          <span class="text-[11px] text-slate-500">Tính lùi chu kỳ 90 phút + 15 phút dỗ giấc</span>
+        </div>
+        <div class="flex items-center gap-3">
+          <input type="time" id="calc-wake-target" value="06:00" onchange="calcProfileCycles()" class="bg-night-900 border border-slate-700 text-pink-300 font-mono font-bold text-lg rounded-2xl px-4 py-2 outline-none focus:border-pink-500">
+          <button onclick="calcProfileCycles()" class="px-5 py-2.5 bg-gradient-to-r from-pink-500 to-indigo-600 text-white font-bold text-xs rounded-xl shadow-lg btn-bouncy">Phân tích</button>
+        </div>
+      </div>
+      <div id="profile-cycles-grid" class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2"></div>
+      <p id="sleep-now-hint" class="text-[11px] text-slate-500 font-mono"></p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MỤC 4: PHƯƠNG HƯỚNG ============ -->
+<section id="section-directions" class="tab-content hidden space-y-6">
+  <div class="glass-panel p-6 sm:p-8 rounded-3xl space-y-6">
+    <div class="border-b border-slate-800 pb-4">
+      <span class="px-3 py-1 bg-amber-500/20 text-amber-300 text-[11px] rounded-full font-bold uppercase tracking-wider font-mono">Strategic Action Plan</span>
+      <h2 class="text-xl sm:text-2xl font-black text-white mt-1 flex items-center gap-2"><span>🧭</span> Phương Hướng &amp; Kế Hoạch Ngày Mới</h2>
+      <p class="text-xs text-slate-400">Định hình tư duy, chọn 3 mũi nhọn ưu tiên để thức dậy tràn đầy động lực.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+      <div class="p-4 bg-night-950 rounded-2xl border border-slate-800 space-y-2">
+        <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-sm font-bold font-mono">01</div>
+        <strong class="text-slate-200 block text-sm">Eat That Frog</strong>
+        <p class="text-slate-400 leading-relaxed">Giải quyết việc khó nhất ngay trong 2 tiếng đầu sau khi thức dậy. Không mở mạng xã hội khi vừa tỉnh.</p>
+      </div>
+      <div class="p-4 bg-night-950 rounded-2xl border border-slate-800 space-y-2">
+        <div class="w-8 h-8 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-sm font-bold font-mono">02</div>
+        <strong class="text-slate-200 block text-sm">Giới hạn năng lượng nhận thức</strong>
+        <p class="text-slate-400 leading-relaxed">Mỗi ngày não chỉ có 4–5 tiếng tập trung sâu. Đừng dồn bài vào ban đêm vì hiệu suất lúc đó rất thấp.</p>
+      </div>
+      <div class="p-4 bg-night-950 rounded-2xl border border-slate-800 space-y-2">
+        <div class="w-8 h-8 rounded-xl bg-pink-500/20 text-pink-400 flex items-center justify-center text-sm font-bold font-mono">03</div>
+        <strong class="text-slate-200 block text-sm">Chặn trì hoãn lúc 21:30</strong>
+        <p class="text-slate-400 leading-relaxed">Sau 21:30 không nhận việc mới. Việc chưa xong ghi vào danh sách xử lý sáng mai.</p>
+      </div>
+    </div>
+
+    <div class="p-6 bg-night-950 rounded-3xl border border-slate-800 space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3 gap-2">
+        <h3 class="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-bullseye"></i> 3 mục tiêu đột phá ngày mai</h3>
+        <span class="text-[10px] text-slate-500 font-mono">Ưu tiên theo Eisenhower</span>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div class="flex items-center gap-3">
+          <span class="px-2.5 py-1.5 rounded-xl bg-rose-500/20 text-rose-300 font-mono font-bold text-[11px] shrink-0">ƯU TIÊN 1</span>
+          <input type="text" id="direction-goal-1" placeholder="Việc quan trọng nhất phải xong trước 10:00…" class="flex-1 bg-night-900 border border-slate-800 rounded-xl px-4 py-2.5 text-white outline-none focus:border-amber-400">
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="px-2.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 font-mono font-bold text-[11px] shrink-0">ƯU TIÊN 2</span>
+          <input type="text" id="direction-goal-2" placeholder="Bài tập / nhiệm vụ hoàn thành buổi chiều…" class="flex-1 bg-night-900 border border-slate-800 rounded-xl px-4 py-2.5 text-white outline-none focus:border-amber-400">
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="px-2.5 py-1.5 rounded-xl bg-cyan-500/20 text-cyan-300 font-mono font-bold text-[11px] shrink-0">ƯU TIÊN 3</span>
+          <input type="text" id="direction-goal-3" placeholder="Thói quen tích cực: đọc 15p, uống đủ nước…" class="flex-1 bg-night-900 border border-slate-800 rounded-xl px-4 py-2.5 text-white outline-none focus:border-amber-400">
+        </div>
+      </div>
+
+      <button onclick="saveDirectionsPlan()" class="w-full py-3 bg-gradient-to-r from-amber-600 via-pink-600 to-indigo-600 text-white font-bold text-xs rounded-xl shadow-lg btn-bouncy flex items-center justify-center gap-2">
+        <i class="fa-solid fa-flag-checkered"></i> Chốt phương hướng (+3 điểm)
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MỤC 5: NHẬT KÝ ============ -->
+<section id="section-journal" class="tab-content hidden space-y-6">
+  <div class="glass-panel p-6 sm:p-8 rounded-3xl space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <div>
+        <span class="px-3 py-1 bg-pink-500/20 text-pink-300 text-[11px] rounded-full font-bold uppercase tracking-wider font-mono">Cognitive Brain Dump</span>
+        <h2 class="text-xl sm:text-2xl font-black text-white mt-1 flex items-center gap-2"><span>📖</span> Nhật Ký Xả Lo Âu</h2>
+        <p class="text-xs text-slate-400">Viết ra mọi áp lực để vỏ não không phải xử lý lặp lại trong giấc ngủ.</p>
+      </div>
+      <span id="journal-date" class="text-xs text-pink-400 font-mono bg-night-950 px-3 py-1.5 rounded-xl border border-slate-800">--/--/----</span>
+    </div>
+
+    <div class="p-6 bg-night-950 rounded-3xl border border-slate-800 space-y-4">
+      <span class="text-xs font-bold text-pink-300 uppercase block">1. Viết cho đêm nay:</span>
+      <div class="space-y-3">
+        <input type="text" id="journal-mood-input" placeholder="Tâm trạng hôm nay (mệt vì bài nhiều, vui vì giải được đề khó…)" class="w-full bg-night-900 border border-slate-800 rounded-xl p-3 text-xs text-white focus:border-pink-500 outline-none">
+        <textarea id="journal-content-input" rows="4" placeholder="Viết tất cả điều bạn còn trăn trở, bận tâm hoặc biết ơn hôm nay…" class="w-full bg-night-900 border border-slate-800 rounded-xl p-3 text-xs text-white focus:border-pink-500 outline-none leading-relaxed"></textarea>
+      </div>
+      <div class="flex gap-2">
+        <button onclick="saveNightJournal()" class="flex-1 py-3 bg-gradient-to-r from-pink-500 to-indigo-600 text-white font-bold text-xs rounded-xl shadow-lg btn-bouncy flex items-center justify-center gap-2">
+          <i class="fa-solid fa-floppy-disk"></i> Lưu nhật ký (+3 điểm)
+        </button>
+        <button onclick="clearJournalHistory()" class="px-4 py-3 bg-night-850 hover:bg-rose-950/40 text-slate-400 hover:text-rose-300 border border-slate-800 text-xs rounded-xl transition btn-bouncy" title="Xóa lịch sử">
+          <i class="fa-solid fa-trash-can"></i>
+        </button>
+      </div>
+    </div>
+
+    <div class="space-y-3">
+      <div class="flex items-center justify-between gap-2">
+        <span class="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left text-cyan-400"></i> Lịch sử gần đây</span>
+        <span id="journal-count-badge" class="text-[11px] text-slate-500 font-mono">0 bài</span>
+      </div>
+      <div id="journal-history-list" class="space-y-3 max-h-64 overflow-y-auto no-scrollbar"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MỤC 6: THỞ 4-7-8 ============ -->
+<section id="section-breath-lab" class="tab-content hidden space-y-6">
+  <div class="glass-panel p-8 rounded-3xl border border-teal-500/30 max-w-lg mx-auto text-center space-y-6 shadow-2xl">
+    <div class="space-y-1">
+      <h2 class="text-2xl font-black text-white flex items-center justify-center gap-2"><span>🫧</span> Vòng Tròn Thở 4-7-8</h2>
+      <p class="text-xs text-slate-400">Kích hoạt hệ thần kinh phó giao cảm, giảm nhịp tim và đưa não vào giấc ngủ</p>
+    </div>
+
+    <div class="py-6 flex justify-center">
+      <div id="breath-circle" class="w-40 h-40 mx-auto rounded-full bg-gradient-to-tr from-pink-500 via-purple-500 to-teal-400 flex flex-col items-center justify-center text-white shadow-2xl shadow-teal-500/20 transition-all duration-1000 transform">
+        <span id="breath-status-text" class="text-xs uppercase font-extrabold tracking-wider">Sẵn sàng</span>
+        <span id="breath-countdown-num" class="text-4xl font-mono font-black mt-1">4</span>
+      </div>
+    </div>
+
+    <div class="space-y-2">
+      <button onclick="toggleBreathingExercise()" id="btn-start-breath" class="px-8 py-3 bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-bold text-xs rounded-2xl shadow-lg btn-bouncy">Bắt đầu thở</button>
+      <p class="text-[11px] text-slate-500">4s hít vào bằng mũi • 7s giữ hơi • 8s thở chậm bằng miệng</p>
+      <p id="breath-cycles-text" class="text-[11px] text-teal-300 font-mono">Chu kỳ hoàn thành: 0</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MỤC 7: SÓNG NÃO ============ -->
+<section id="section-binaural" class="tab-content hidden space-y-6">
+  <div class="glass-panel p-6 sm:p-8 rounded-3xl space-y-6 max-w-4xl mx-auto">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <div>
+        <span class="px-3 py-1 bg-purple-500/20 text-purple-300 text-[11px] rounded-full font-bold uppercase tracking-wider font-mono">Neurological Soundscape</span>
+        <h2 class="text-xl sm:text-2xl font-black text-white mt-1">Phòng Thu Sóng Não Trị Liệu</h2>
+        <p class="text-xs text-slate-400">Tổng hợp âm thanh hai tai trực tiếp bằng Web Audio API.</p>
+      </div>
+      <button onclick="toggleBinauralBeat()" id="btn-toggle-binaural" class="px-6 py-2.5 bg-gradient-to-r from-purple-500 to-pink-500 text-white font-bold text-xs rounded-2xl shadow-lg btn-bouncy shrink-0">
+        <i class="fa-solid fa-play mr-1"></i> Bật âm thanh
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div onclick="selectBinauralPreset('delta')" id="preset-delta" class="p-5 rounded-2xl border-2 border-pink-500 bg-pink-950/20 cursor-pointer transition space-y-1">
+        <div class="flex justify-between items-center gap-2">
+          <strong class="text-sm text-pink-300">Sóng Delta (2.5 Hz)</strong>
+          <span class="text-[9px] bg-pink-500/20 text-pink-300 px-2 py-0.5 rounded font-mono shrink-0">Ngủ sâu</span>
+        </div>
+        <p class="text-[11px] text-slate-400">Kích hoạt tái tạo mô và xả độc tố amyloid-beta qua dịch não tủy.</p>
+      </div>
+      <div onclick="selectBinauralPreset('theta')" id="preset-theta" class="p-5 rounded-2xl border border-slate-800 bg-night-950 cursor-pointer hover:border-purple-500/60 transition space-y-1">
+        <div class="flex justify-between items-center gap-2">
+          <strong class="text-sm text-purple-300">Sóng Theta (5.0 Hz)</strong>
+          <span class="text-[9px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded font-mono shrink-0">Mơ màng</span>
+        </div>
+        <p class="text-[11px] text-slate-400">Chuyển từ trạng thái căng thẳng học tập sang thư giãn sâu.</p>
+      </div>
+      <div onclick="selectBinauralPreset('pink')" id="preset-pink" class="p-5 rounded-2xl border border-slate-800 bg-night-950 cursor-pointer hover:border-teal-500/60 transition space-y-1">
+        <div class="flex justify-between items-center gap-2">
+          <strong class="text-sm text-teal-300">Tiếng ồn hồng</strong>
+          <span class="text-[9px] bg-teal-500/20 text-teal-300 px-2 py-0.5 rounded font-mono shrink-0">Lọc ồn</span>
+        </div>
+        <p class="text-[11px] text-slate-400">Cân bằng dải âm lượng nền, triệt tiêu tiếng xe cộ và tiếng quạt.</p>
+      </div>
+    </div>
+
+    <div class="p-4 bg-night-950 rounded-2xl border border-slate-800 space-y-3">
+      <div class="flex items-center justify-between text-xs gap-3">
+        <span class="text-slate-400">Âm lượng</span>
+        <input type="range" id="binaural-volume" min="0" max="100" value="18" oninput="setBinauralVolume(this.value)" class="flex-1 accent-pink-500 cursor-pointer">
+        <span id="binaural-volume-label" class="text-pink-300 font-mono font-bold w-10 text-right">18%</span>
+      </div>
+      <div class="flex items-center justify-between text-xs gap-3">
+        <span class="text-slate-400"><i class="fa-solid fa-headphones text-cyan-400 mr-2"></i>Đeo tai nghe để hiệu ứng lệch tần phát huy tác dụng.</span>
+        <span id="binaural-status-tag" class="text-slate-500 font-mono font-bold shrink-0">Đang tắt</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MỤC 8: THỐNG KÊ SỬ DỤNG ============ -->
+<section id="section-stats" class="tab-content hidden space-y-6">
+  <div class="glass-panel p-6 sm:p-8 rounded-3xl space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <div>
+        <span class="px-3 py-1 bg-cyan-500/20 text-cyan-300 text-[11px] rounded-full font-bold uppercase tracking-wider font-mono">Real Usage Analytics</span>
+        <h2 class="text-xl sm:text-2xl font-black text-white mt-1 flex items-center gap-2"><span>📊</span> Thống Kê Sử Dụng Thực Tế</h2>
+        <p class="text-xs text-slate-400">Dữ liệu đo trực tiếp trên máy bạn — bắt đầu từ 04:00 và kết thúc 03:59 hôm sau.</p>
+      </div>
+      <button onclick="resetTodayUsage()" class="px-3.5 py-2 bg-night-950 border border-slate-700 text-slate-300 text-xs rounded-xl btn-bouncy shrink-0">
+        <i class="fa-solid fa-rotate-left mr-1"></i> Đặt lại đêm nay
+      </button>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 text-center">
+      <div class="p-3.5 bg-night-950 rounded-2xl border border-slate-800">
+        <span class="text-[9px] text-slate-500 uppercase font-bold block">Thời gian dùng</span>
+        <span id="stat-total" class="text-base font-mono font-bold text-cyan-300">0p</span>
+      </div>
+      <div class="p-3.5 bg-night-950 rounded-2xl border border-slate-800">
+        <span class="text-[9px] text-slate-500 uppercase font-bold block">Chạy nền</span>
+        <span id="stat-bg" class="text-base font-mono font-bold text-slate-300">0p</span>
+      </div>
+      <div class="p-3.5 bg-night-950 rounded-2xl border border-slate-800">
+        <span class="text-[9px] text-slate-500 uppercase font-bold block">Số lần mở</span>
+        <span id="stat-opens" class="text-base font-mono font-bold text-indigo-300">0</span>
+      </div>
+      <div class="p-3.5 bg-night-950 rounded-2xl border border-slate-800">
+        <span class="text-[9px] text-slate-500 uppercase font-bold block">Số lần rời</span>
+        <span id="stat-leaves" class="text-base font-mono font-bold text-amber-300">0</span>
+      </div>
+      <div class="p-3.5 bg-night-950 rounded-2xl border border-slate-800">
+        <span class="text-[9px] text-slate-500 uppercase font-bold block">Phiên dài nhất</span>
+        <span id="stat-longest" class="text-base font-mono font-bold text-emerald-300">0p</span>
+      </div>
+      <div class="p-3.5 bg-night-950 rounded-2xl border border-slate-800">
+        <span class="text-[9px] text-slate-500 uppercase font-bold block">Chuỗi ngày</span>
+        <span id="stat-streak" class="text-base font-mono font-bold text-pink-300">0</span>
+      </div>
+    </div>
+
+    <div class="p-5 bg-night-950 rounded-3xl border border-slate-800 space-y-3">
+      <div class="flex items-center justify-between gap-2">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-cyan-300 flex items-center gap-2"><i class="fa-solid fa-chart-simple"></i> Bạn dùng máy vào khung giờ nào?</h3>
+        <span id="peak-hour-label" class="text-[10px] font-mono text-pink-300">—</span>
+      </div>
+      <div id="usage-hourly-chart" class="flex items-end gap-1.5 h-32 pt-2"></div>
+      <p class="text-[10px] text-slate-500">Cột càng cao = thời gian nhìn màn hình trong giờ đó càng nhiều (18:00 → 05:59).</p>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+      <div class="p-5 bg-night-950 rounded-3xl border border-slate-800 space-y-3">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-amber-300 flex items-center gap-2"><i class="fa-solid fa-list-check"></i> Phiên dùng gần đây</h3>
+        <div id="usage-session-list" class="space-y-2 max-h-64 overflow-y-auto no-scrollbar text-xs"></div>
+      </div>
+
+      <div class="p-5 bg-night-950 rounded-3xl border border-slate-800 space-y-3">
+        <h3 class="text-xs font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-2"><i class="fa-solid fa-calendar-week"></i> 7 đêm gần nhất</h3>
+        <div id="usage-history-list" class="space-y-2 max-h-64 overflow-y-auto no-scrollbar text-xs"></div>
+      </div>
+    </div>
+
+    <div class="p-4 bg-indigo-950/30 border border-indigo-500/30 rounded-2xl text-[11px] text-indigo-200 leading-relaxed">
+      <i class="fa-solid fa-circle-info text-cyan-300 mr-1"></i>
+      <strong>Cách đo:</strong> app chỉ tính thời gian bạn thực sự mở SLEEPMATE (tab đang hiển thị). Khi bạn chuyển sang app khác, thời gian được ghi vào mục <em>chạy nền</em> và hệ thống bắt đầu nhắc nhở. Trình duyệt có thể tạm dừng bộ đếm khi máy ngủ sâu — đây là giới hạn của web, không phải lỗi.
+    </div>
+  </div>
+</section>
+
+<!-- ============ MỤC 9: TRỢ LÝ AI ============ -->
+<section id="section-ai" class="tab-content hidden space-y-6">
+  <div class="glass-panel p-5 sm:p-7 rounded-3xl space-y-4 max-w-3xl mx-auto">
+    <div class="flex items-center justify-between gap-3 border-b border-slate-800 pb-4">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-cyan-500 via-indigo-500 to-pink-500 p-[1.5px] shrink-0">
+          <div class="w-full h-full bg-night-950 rounded-[14px] flex items-center justify-center text-lg">🤖</div>
+        </div>
+        <div class="min-w-0">
+          <h2 class="text-lg font-black text-white flex items-center gap-2">
+            Trợ Lý Giấc Ngủ
+            <span id="ai-mode-badge" class="text-[9px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono">OFFLINE</span>
+          </h2>
+          <p class="text-[11px] text-slate-400 truncate">Hỏi về giấc ngủ, kỷ luật và cách dùng app</p>
+        </div>
+      </div>
+      <button onclick="clearAIChat()" class="px-3 py-2 bg-night-950 border border-slate-700 text-slate-300 text-[11px] font-bold rounded-xl btn-bouncy shrink-0" title="Xoá hội thoại">
+        <i class="fa-solid fa-broom"></i>
+      </button>
+    </div>
+
+    <details class="group bg-night-950 border border-slate-800 rounded-2xl overflow-hidden">
+      <summary class="list-none cursor-pointer px-4 py-3 flex items-center justify-between gap-2 text-xs font-bold text-slate-300 hover:bg-night-900/60">
+        <span class="flex items-center gap-2"><i class="fa-solid fa-key text-amber-400"></i> Kết nối AI online (tuỳ chọn)</span>
+        <span class="flex items-center gap-2">
+          <span id="ai-conn-label" class="text-[10px] font-mono text-slate-500">Offline</span>
+          <i class="fa-solid fa-chevron-down text-[10px] text-slate-500 group-open:rotate-180 transition"></i>
+        </span>
+      </summary>
+      <div class="px-4 pb-4 pt-3 space-y-3 border-t border-slate-800">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Nhà cung cấp</label>
+            <select id="ai-provider" onchange="onAIProviderChange()" class="w-full bg-night-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-cyan-500">
+              <option value="local">Offline — không cần key</option>
+              <option value="openai">OpenAI</option>
+              <option value="gemini">Google Gemini</option>
+              <option value="groq">Groq</option>
+              <option value="deepseek">DeepSeek</option>
+              <option value="openrouter">OpenRouter</option>
+              <option value="ollama">Ollama (máy local)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">Model</label>
+            <input id="ai-model" type="text" placeholder="gpt-4o-mini" class="w-full bg-night-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono outline-none focus:border-cyan-500">
+          </div>
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">API Base URL</label>
+          <input id="ai-base" type="text" placeholder="https://api.openai.com/v1" class="w-full bg-night-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white font-mono outline-none focus:border-cyan-500">
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1">API Key</label>
+          <input id="ai-key" type="password" placeholder="sk-..." autocomplete="off" class="w-full bg-night-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-emerald-300 font-mono outline-none focus:border-emerald-500">
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <button onclick="saveAIConfig()" class="px-4 py-2 bg-gradient-to-r from-cyan-500 to-indigo-600 text-white text-[11px] font-bold rounded-xl btn-bouncy">
+            <i class="fa-solid fa-floppy-disk mr-1"></i> Lưu
+          </button>
+          <button onclick="testAIConnection()" class="px-4 py-2 bg-night-900 border border-cyan-500/40 text-cyan-300 text-[11px] font-bold rounded-xl btn-bouncy">
+            <i class="fa-solid fa-plug-circle-check mr-1"></i> Kiểm tra
+          </button>
+          <button onclick="clearAIConfig()" class="px-4 py-2 bg-night-900 border border-slate-700 text-slate-400 text-[11px] font-bold rounded-xl btn-bouncy">
+            Xoá key
+          </button>
+        </div>
+        <p class="text-[10px] text-slate-500 leading-relaxed">
+          🔐 Key chỉ lưu trong <strong>localStorage trên máy bạn</strong> và chỉ gửi tới đúng Base URL bạn nhập. Không có máy chủ trung gian.
+          Nếu dùng Ollama, có thể để trống key và cần bật CORS (<code class="text-cyan-300">OLLAMA_ORIGINS=*</code>).
+        </p>
+        <p class="text-[10px] text-amber-300/80 leading-relaxed">
+          ⚠️ Một số nhà cung cấp chặn gọi trực tiếp từ trình duyệt (lỗi CORS). Nếu "Kiểm tra" thất bại, hãy thử
+          <strong>Gemini</strong>, <strong>Groq</strong> hoặc <strong>OpenRouter</strong>, hoặc chạy qua một proxy nhỏ.
+        </p>
+      </div>
+    </details>
+
+    <div id="ai-chat-log" class="space-y-3 h-[380px] overflow-y-auto no-scrollbar pr-1"></div>
+
+    <div id="ai-suggestions" class="flex flex-wrap gap-2"></div>
+
+    <div class="flex items-end gap-2">
+      <textarea id="ai-input" rows="1" placeholder="Hỏi Miu bất cứ điều gì về giấc ngủ…"
+                oninput="autoGrowAI(this)" onkeydown="onAIInputKey(event)"
+                class="flex-1 bg-night-900 border border-slate-800 rounded-2xl px-4 py-3 text-xs text-white outline-none focus:border-cyan-500 resize-none max-h-28"></textarea>
+      <button id="ai-send-btn" onclick="onAISendClick()" class="px-4 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 text-white text-xs font-bold btn-bouncy shrink-0">
+        <i class="fa-solid fa-paper-plane"></i> Gửi
+      </button>
+    </div>
+    <p class="text-[10px] text-slate-500 text-center leading-relaxed">AI có thể trả lời sai. Không dùng thay cho lời khuyên y khoa.</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="glass-panel border-t border-slate-800/80 py-4 text-center text-xs text-slate-500 safe-bottom">
+  SLEEPMATE Pro v3 © 2026 — Dữ liệu lưu cục bộ trên thiết bị của bạn
+</footer>
+
+<!-- MODAL HƯỚNG DẪN CÀI APP (iPhone + Android) -->
+<div id="install-guide-modal" class="fixed inset-0 z-[90] bg-black/85 backdrop-blur-md flex items-end sm:items-center justify-center p-3 sm:p-4 hidden" role="dialog" aria-modal="true" aria-labelledby="install-guide-title">
+  <div class="guide-sheet glass-panel border border-emerald-500/30 rounded-3xl w-full max-w-md overflow-y-auto no-scrollbar shadow-2xl">
+    <div class="p-5 sm:p-6 space-y-4">
+      <div class="flex items-start justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-500 to-cyan-600 flex items-center justify-center text-white text-xl shrink-0">
+            <i class="fa-solid fa-mobile-screen-button"></i>
+          </div>
+          <div>
+            <h3 id="install-guide-title" class="text-base font-black text-white leading-tight">Cài SLEEPMATE lên điện thoại</h3>
+            <p id="install-guide-subtitle" class="text-[11px] text-slate-400">Hướng dẫn riêng cho máy của bạn</p>
+          </div>
+        </div>
+        <button onclick="closeInstallGuide()" aria-label="Đóng" class="w-8 h-8 rounded-full bg-night-900 border border-slate-700 text-slate-400 hover:text-white btn-bouncy shrink-0">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2 text-[10px] font-mono">
+        <span id="install-device-badge" class="px-2 py-1 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30">Đang kiểm tra…</span>
+        <span id="install-mode-badge" class="px-2 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">PWA</span>
+      </div>
+
+      <div id="install-guide-body" class="space-y-3 text-xs text-slate-300"></div>
+
+      <div id="install-guide-actions" class="flex flex-col sm:flex-row gap-2 pt-1"></div>
+      <p id="install-guide-copy-hint" class="text-[11px] text-emerald-300 hidden"><i class="fa-solid fa-check mr-1"></i> Link đã nằm trong bộ nhớ tạm — dán vào Safari/Chrome trên điện thoại.</p>
+
+      <p class="text-[10px] text-slate-500 leading-relaxed border-t border-slate-800 pt-3">
+        Sau khi cài, hãy mở app từ <strong class="text-slate-300">icon ngoài màn hình chính</strong> để thông báo hoạt động tốt nhất.
+        Không cần tài khoản — dữ liệu nằm trên chính máy bạn.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+'use strict';
+/* =========================================================================
+   SLEEPMATE PRO v3 — Viết lại toàn bộ phần logic
+   - Đo thời gian sử dụng thật (foreground / idle / background)
+   - Lưu bền theo "đêm" (mốc 04:00), có lịch sử 14 đêm
+   - Thông báo kiểu app + fallback toast trong app
+   - Sửa các lỗi: khóa lặp, mất dữ liệu khi reload, XSS, timer rò rỉ
+   ========================================================================= */
+
+/* ---------------------- 0. TIỆN ÍCH ---------------------- */
+const $ = (id) => document.getElementById(id);
+const pad2 = (n) => String(n).padStart(2, '0');
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({
+  '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+}[c]));
+
+const stripVN = (s) => String(s ?? '')
+  .toLowerCase()
+  .normalize('NFD')
+  .replace(/[\u0300-\u036f]/g, '')
+  .replace(/đ/g, 'd');
+
+const norm = (s) => stripVN(s).replace(/\s+/g, ' ').trim();
+
+const fmtHMS = (sec) => {
+  const s = Math.max(0, Math.floor(sec));
+  return `${pad2(Math.floor(s / 3600))}:${pad2(Math.floor((s % 3600) / 60))}:${pad2(s % 60)}`;
+};
+const fmtHM = (sec) => {
+  const s = Math.max(0, Math.floor(sec));
+  return `${pad2(Math.floor(s / 60))}:${pad2(s % 60)}`;
+};
+const fmtDur = (sec) => {
+  const s = Math.max(0, Math.floor(sec));
+  if (s < 60) return `${s}s`;
+  if (s < 3600) return `${Math.floor(s / 60)}p ${pad2(s % 60)}s`;
+  return `${Math.floor(s / 3600)}h ${pad2(Math.floor((s % 3600) / 60))}p`;
+};
+const fmtClock = (ts) => new Date(ts).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+
+const APP_ICON = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">' +
+  '<rect width="128" height="128" rx="28" fill="#060914"/>' +
+  '<circle cx="84" cy="44" r="27" fill="#FF2A85"/>' +
+  '<circle cx="71" cy="37" r="27" fill="#060914"/>' +
+  '<text x="64" y="108" font-family="monospace" font-size="22" fill="#00F0FF" text-anchor="middle">ZZZ</text>' +
+  '</svg>'
+);
+
+/* ---------------------- CẦU NỐI ANDROID APK ----------------------
+   Bản APK nhúng trang này vào WebView và gắn đối tượng AndroidNative.
+   Nhờ đó app nhắc được cả khi đã đóng hẳn, dùng AlarmManager + Notification.
+   Trên trình duyệt/PWA, AndroidNative không tồn tại nên mọi thứ chạy như cũ. */
+const NativeApp = {
+  bridge() {
+    try {
+      return (typeof window !== 'undefined' && window.AndroidNative) ? window.AndroidNative : null;
+    } catch (e) { return null; }
+  },
+  isAvailable() {
+    try {
+      const b = this.bridge();
+      return !!(b && typeof b.isNativeApp === 'function' && b.isNativeApp());
+    } catch (e) { return false; }
+  },
+  hasNotifPermission() {
+    try {
+      const b = this.bridge();
+      return !!(b && typeof b.hasNotificationPermission === 'function' && b.hasNotificationPermission());
+    } catch (e) { return false; }
+  },
+  requestNotifPermission() {
+    try {
+      const b = this.bridge();
+      if (b && typeof b.requestNotificationPermission === 'function') b.requestNotificationPermission();
+    } catch (e) { /* bỏ qua */ }
+  },
+  notify(title, body) {
+    try {
+      const b = this.bridge();
+      if (b && typeof b.notifyNow === 'function') b.notifyNow(String(title), String(body));
+    } catch (e) { /* bỏ qua */ }
+  },
+  setGuardConfig(enabled, repeatSec) {
+    try {
+      const b = this.bridge();
+      if (b && typeof b.setGuardConfig === 'function') {
+        b.setGuardConfig(!!enabled, Math.max(10, parseInt(repeatSec, 10) || 30));
+      }
+    } catch (e) { /* bỏ qua */ }
+  },
+  scheduleGuard(repeatSec) {
+    try {
+      const b = this.bridge();
+      if (b && typeof b.scheduleGuard === 'function') {
+        b.scheduleGuard(Math.max(10, parseInt(repeatSec, 10) || 30));
+      }
+    } catch (e) { /* bỏ qua */ }
+  },
+  cancelGuard() {
+    try {
+      const b = this.bridge();
+      if (b && typeof b.cancelGuard === 'function') b.cancelGuard();
+    } catch (e) { /* bỏ qua */ }
+  },
+  syncCurfew() {
+    if (!this.isAvailable()) return;
+    try {
+      const b = this.bridge();
+      if (S.autoLockCurfew) {
+        const parts = String(S.curfew || '23:00').split(':').map((n) => parseInt(n, 10));
+        const h = Number.isFinite(parts[0]) ? parts[0] : 23;
+        const m = Number.isFinite(parts[1]) ? parts[1] : 0;
+        if (b && typeof b.scheduleDaily === 'function') b.scheduleDaily(h, m);
+      } else if (b && typeof b.cancelDaily === 'function') {
+        b.cancelDaily();
+      }
+    } catch (e) { /* bỏ qua */ }
+  },
+  keepScreen(on) {
+    try {
+      const b = this.bridge();
+      if (b && typeof b.setKeepScreenOn === 'function') b.setKeepScreenOn(!!on);
+    } catch (e) { /* bỏ qua */ }
+  },
+  vibrate(ms) {
+    try {
+      const b = this.bridge();
+      if (b && typeof b.vibrate === 'function') b.vibrate(ms);
+    } catch (e) { /* bỏ qua */ }
+  },
+  openNotificationSettings() {
+    try {
+      const b = this.bridge();
+      if (b && typeof b.openNotificationSettings === 'function') b.openNotificationSettings();
+    } catch (e) { /* bỏ qua */ }
+  }
+};
+
+const IS_NATIVE_APP = NativeApp.isAvailable();
+
+function isNativeApp() {
+  return IS_NATIVE_APP;
+}
+
+/* ---------------------- 1. TRẠNG THÁI & LƯU TRỮ ---------------------- */
+const STORE_KEY = 'sleepmate.pro.v3';
+const CUTOFF_HOUR = 4;          // ngày "đêm" bắt đầu lúc 04:00
+const IDLE_MS = 90 * 1000;      // không tương tác 90s => tính là treo máy
+
+function sleepDayKey(d = new Date()) {
+  const x = new Date(d);
+  if (x.getHours() < CUTOFF_HOUR) x.setDate(x.getDate() - 1);
+  return `${x.getFullYear()}-${pad2(x.getMonth() + 1)}-${pad2(x.getDate())}`;
+}
+
+function freshUsage() {
+  return {
+    activeSec: 0, idleSec: 0, bgSec: 0,
+    opens: 0, leaves: 0, lockouts: 0,
+    longestSec: 0, hourly: {}, sessions: [],
+    firstOpenAt: 0, lastActiveAt: 0
+  };
+}
+
+function freshState() {
+  return {
+    v: 3,
+    sleepDay: sleepDayKey(),
+    discipline: 100,
+    screenLimitMin: 30,
+    curfew: '23:00',
+    autoLockLimit: true,
+    autoLockCurfew: true,
+    bgGuard: true,
+    notifOnLeave: true,
+    solveOnReturn: true,
+    repeatSec: 30,
+    challengeMode: 'custom',
+    riddle: {
+      q: 'Mục tiêu thức dậy lúc mấy giờ sáng mai?',
+      a: '06:00',
+      h: 'Nhập đúng định dạng giờ, ví dụ 06:00'
+    },
+    nightShift: 0,
+    postureGuard: true,
+    sleepMode: false,
+    locked: false,
+    lockReason: '',
+    snoozeUntil: 0,
+    usage: freshUsage(),
+    history: [],
+    streak: 0
+  };
+}
+
+let S = freshState();
+
+function migrateLegacy() {
+  const get = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  try {
+    const q = get('sm_riddle_q');
+    const a = get('sm_riddle_a');
+    const h = get('sm_riddle_h');
+    const mode = get('sm_challenge_mode');
+    if (q) S.riddle.q = q;
+    if (a) S.riddle.a = a;
+    if (h) S.riddle.h = h;
+    if (mode) S.challengeMode = mode;
+
+    const journal = get('sm_journal_list');
+    if (journal) {
+      const list = JSON.parse(journal);
+      if (Array.isArray(list) && list.length) {
+        S.legacyJournal = list.slice(0, 30);
+      }
+    }
+    const plan = get('sm_directions_plan');
+    if (plan) {
+      const p = JSON.parse(plan);
+      S.legacyPlan = p;
+    }
+  } catch (e) { /* bỏ qua */ }
+}
+
+function loadState() {
+  const base = freshState();
+  let raw = null;
+  try { raw = localStorage.getItem(STORE_KEY); } catch (e) { raw = null; }
+
+  if (!raw) {
+    S = base;
+    migrateLegacy();
+    return S;
+  }
+
+  try {
+    const p = JSON.parse(raw);
+    S = Object.assign(base, p);
+    S.riddle = Object.assign(freshState().riddle, p.riddle || {});
+    const u = Object.assign(freshUsage(), p.usage || {});
+    u.hourly = (p.usage && p.usage.hourly) || {};
+    u.sessions = (p.usage && Array.isArray(p.usage.sessions)) ? p.usage.sessions : [];
+    S.usage = u;
+    S.history = Array.isArray(p.history) ? p.history : [];
+  } catch (e) {
+    S = base;
+  }
+  return S;
+}
+
+let _saveTimer = null;
+function save(now = false) {
+  const doSave = () => {
+    try { localStorage.setItem(STORE_KEY, JSON.stringify(S)); } catch (e) { /* đầy bộ nhớ */ }
+  };
+  if (now) { clearTimeout(_saveTimer); _saveTimer = null; doSave(); return; }
+  if (_saveTimer) return;
+  _saveTimer = setTimeout(() => { _saveTimer = null; doSave(); }, 1200);
+}
+
+function rolloverIfNeeded() {
+  const key = sleepDayKey();
+  if (S.sleepDay === key) return false;
+
+  const u = S.usage;
+  const limitSec = S.screenLimitMin * 60;
+  const goalMet = u.activeSec <= limitSec && u.lockouts === 0;
+
+  S.streak = goalMet ? (S.streak || 0) + 1 : 0;
+  S.history.unshift({
+    day: S.sleepDay,
+    activeSec: Math.round(u.activeSec),
+    bgSec: Math.round(u.bgSec),
+    opens: u.opens,
+    leaves: u.leaves,
+    lockouts: u.lockouts,
+    limitMin: S.screenLimitMin,
+    goalMet
+  });
+  S.history = S.history.slice(0, 14);
+
+  S.usage = freshUsage();
+  S.sleepDay = key;
+  S.sleepMode = false;
+  S.locked = false;
+  S.lockReason = '';
+  S.snoozeUntil = 0;
+  save(true);
+  return true;
+}
+
+/* ---------------------- 2. BIẾN CHẠY (KHÔNG LƯU) ---------------------- */
+const runtime = {
+  appStart: Date.now(),
+  sessionStart: Date.now(),
+  lastTick: Date.now(),
+  lastInteraction: Date.now(),
+  hiddenAt: 0,
+  lastChaseAway: -999,
+  lastSaveAt: 0,
+  lastPostureAlertAt: 0,
+  challengeFrom: null
+};
+
+/* ---------------------- 3. ĐỒNG HỒ & ĐO SỬ DỤNG ---------------------- */
+let clockWorker = null;
+let clockFallback = null;
+let statsVisible = false;
+
+function startClock() {
+  const code = "let t=null;self.onmessage=function(e){if(e.data==='start'){if(t)clearInterval(t);t=setInterval(function(){self.postMessage('tick');},1000);}else{clearInterval(t);t=null;}};";
+  try {
+    clockWorker = new Worker(URL.createObjectURL(new Blob([code], { type: 'text/javascript' })));
+    clockWorker.onmessage = tick;
+    clockWorker.postMessage('start');
+    const badge = $('bg-worker-badge');
+    if (badge) { badge.textContent = 'Worker ON'; }
+  } catch (e) {
+    clockFallback = setInterval(tick, 1000);
+    const badge = $('bg-worker-badge');
+    if (badge) { badge.textContent = 'Timer ON'; }
+  }
+}
+
+function bumpHourly(dt, idle) {
+  if (idle) return;
+  const h = new Date().getHours();
+  S.usage.hourly[h] = (S.usage.hourly[h] || 0) + dt;
+}
+
+function tick() {
+  const now = Date.now();
+  const dt = Math.min(30, Math.max(0, (now - runtime.lastTick) / 1000));
+  runtime.lastTick = now;
+
+  if (rolloverIfNeeded()) refreshAll();
+
+  if (!document.hidden && !S.sleepMode) {
+    const idle = (now - runtime.lastInteraction) > IDLE_MS;
+    if (idle) {
+      S.usage.idleSec += dt;
+    } else {
+      S.usage.activeSec += dt;
+      S.usage.lastActiveAt = now;
+      bumpHourly(dt, false);
+    }
+    const sessionDur = (now - runtime.sessionStart) / 1000;
+    if (sessionDur > S.usage.longestSec) S.usage.longestSec = sessionDur;
+  }
+
+  updateLiveUI();
+  evaluateRules();
+
+  if (now - runtime.lastSaveAt > 8000) {
+    runtime.lastSaveAt = now;
+    save();
+  }
+
+  if (document.hidden) chaseTick(now);
+  if (statsVisible && now - (runtime.lastStatsRender || 0) > 4000) {
+    runtime.lastStatsRender = now;
+    renderStats();
+  }
+}
+
+function evaluateRules() {
+  if (S.sleepMode || S.locked) return;
+  const now = Date.now();
+  if (now < S.snoozeUntil) return;
+
+  const limitSec = S.screenLimitMin * 60;
+  if (S.autoLockLimit && S.usage.activeSec >= limitSec) {
+    startCountdown(`Bạn đã dùng ${fmtDur(S.usage.activeSec)} — vượt hạn mức ${S.screenLimitMin} phút đêm nay.`);
+    return;
+  }
+
+  if (S.autoLockCurfew && isPastCurfew() && (now - runtime.appStart > 45000)) {
+    startCountdown(`Đã qua mốc giới nghiêm ${S.curfew}.`);
+  }
+}
+
+function curfewMinutes() {
+  const parts = String(S.curfew || '23:00').split(':').map(Number);
+  const h = Number.isFinite(parts[0]) ? parts[0] : 23;
+  const m = Number.isFinite(parts[1]) ? parts[1] : 0;
+  return h * 60 + m;
+}
+
+function isPastCurfew() {
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  return nowMin >= curfewMinutes() || nowMin < CUTOFF_HOUR * 60;
+}
+
+function minutesToCurfew() {
+  const now = new Date();
+  const nowMin = now.getHours() * 60 + now.getMinutes();
+  let d = curfewMinutes() - nowMin;
+  if (d < 0) d += 1440;
+  return d;
+}
+
+/* ---------------------- 4. VÒNG ĐỜI TRANG & SỰ KIỆN ---------------------- */
+function finalizeSession() {
+  const dur = (Date.now() - runtime.sessionStart) / 1000;
+  if (dur >= 5) {
+    S.usage.sessions.unshift({
+      start: runtime.sessionStart,
+      end: Date.now(),
+      sec: Math.round(dur)
+    });
+    S.usage.sessions = S.usage.sessions.slice(0, 20);
+  }
+  runtime.sessionStart = Date.now();
+  save(true);
+}
+
+function setActiveTag(mode) {
+  const tag = $('active-state-tag');
+  if (!tag) return;
+  const map = {
+    active: ['bg-emerald-500/20 text-emerald-300 border-emerald-500/30', 'bg-emerald-400', 'Đang mở app'],
+    idle: ['bg-amber-500/20 text-amber-300 border-amber-500/30', 'bg-amber-400', 'Đang treo máy'],
+    hidden: ['bg-rose-500/20 text-rose-300 border-rose-500/30', 'bg-rose-400', 'Đã thoát ra ngoài'],
+    locked: ['bg-rose-500/20 text-rose-300 border-rose-500/30', 'bg-rose-400', 'Đang bị khóa'],
+    sleep: ['bg-indigo-500/20 text-indigo-300 border-indigo-500/30', 'bg-indigo-400', 'Chế độ ngủ']
+  };
+  const cfg = map[mode] || map.active;
+  tag.className = `px-3 py-1 rounded-full text-[11px] font-bold border flex items-center gap-1.5 shrink-0 ${cfg[0]}`;
+  tag.innerHTML = `<span class="w-2 h-2 rounded-full ${cfg[1]} pulse-dot"></span> ${cfg[2]}`;
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    runtime.hiddenAt = Date.now();
+    runtime.lastChaseAway = -999;
+    if (!S.sleepMode) {
+      S.usage.leaves++;
+      S.discipline = clamp(S.discipline - 2, 0, 100);
+    }
+    setActiveTag(S.sleepMode ? 'sleep' : 'hidden');
+    refreshScore();
+    save();
+    if (S.bgGuard && S.notifOnLeave && !S.sleepMode) {
+      // APK: đặt chuỗi báo thức hệ thống, chạy được cả khi app đã bị đóng
+      if (isNativeApp()) {
+        NativeApp.setGuardConfig(true, S.repeatSec);
+        NativeApp.scheduleGuard(S.repeatSec);
+      }
+      setTimeout(() => {
+        if (document.hidden) {
+          runtime.lastChaseAway = -999;
+          chaseTick(Date.now());
+        }
+      }, 3000);
+    } else if (isNativeApp()) {
+      NativeApp.cancelGuard();
+    }
+  } else {
+    if (isNativeApp()) {
+      NativeApp.cancelGuard();
+      NativeApp.setGuardConfig(S.bgGuard && S.notifOnLeave && !S.sleepMode, S.repeatSec);
+    }
+    const away = runtime.hiddenAt ? (Date.now() - runtime.hiddenAt) / 1000 : 0;
+    if (runtime.hiddenAt) S.usage.bgSec += away;
+    runtime.hiddenAt = 0;
+    runtime.lastTick = Date.now();
+    runtime.sessionStart = Date.now();
+    runtime.lastInteraction = Date.now();
+    S.usage.opens++;
+    save();
+    if (S.locked) {
+      setActiveTag('locked');
+      openChallenge({ fromLockout: true });
+    } else if (S.sleepMode) {
+      setActiveTag('sleep');
+    } else {
+      setActiveTag('active');
+      if (S.solveOnReturn && away >= 30) {
+        openChallenge({ fromChase: true, away });
+      }
+    }
+    updateLiveUI();
+    renderStats();
+  }
+});
+
+window.addEventListener('pagehide', finalizeSession);
+window.addEventListener('beforeunload', () => { finalizeSession(); save(true); });
+
+window.addEventListener('focus', () => {
+  runtime.lastTick = Date.now();
+  if (S.locked && !S.sleepMode) {
+    $('hardcore-lock-overlay').classList.remove('hidden');
+    openChallenge({ fromLockout: true });
+  }
+});
+
+['pointerdown', 'keydown', 'touchstart', 'wheel'].forEach((evt) => {
+  window.addEventListener(evt, () => {
+    runtime.lastInteraction = Date.now();
+    if (document.hidden) return;
+    if (!S.sleepMode && !S.locked) setActiveTag('active');
+  }, { passive: true });
+});
+
+let touchScrollCount = 0;
+window.addEventListener('touchmove', () => {
+  touchScrollCount++;
+  const counterEl = $('sensor-touch-counter');
+  const alertEl = $('doomscroll-alert-text');
+  if (counterEl) counterEl.textContent = `${touchScrollCount} lượt`;
+  if (alertEl && touchScrollCount >= 60) {
+    alertEl.textContent = '🚨 Nghiện lướt máy!';
+    alertEl.className = 'text-[10px] text-rose-400 font-bold animate-pulse';
+  }
+}, { passive: true });
+
+/* ---------------------- 5. ĐẾM NGƯỢC & KHÓA ---------------------- */
+const countdown = { active: false, sec: 30, timer: null, reason: '' };
+
+function startCountdown(reason) {
+  if (countdown.active || S.sleepMode || S.locked) return;
+  if (Date.now() < S.snoozeUntil) return;
+
+  countdown.active = true;
+  countdown.sec = 30;
+  countdown.reason = reason || 'Đã chạm giới hạn cho phép.';
+  $('auto-lock-countdown-bar').classList.remove('hidden');
+  $('auto-lock-timer-sec').textContent = countdown.sec;
+  softBeep();
+
+  countdown.timer = setInterval(() => {
+    countdown.sec--;
+    $('auto-lock-timer-sec').textContent = countdown.sec;
+    if (countdown.sec > 0 && countdown.sec % 5 === 0) softBeep();
+    if (countdown.sec <= 0) {
+      const reasonText = countdown.reason;
+      stopCountdown();
+      triggerHardcoreLockout(reasonText);
+    }
+  }, 1000);
+}
+
+function stopCountdown() {
+  countdown.active = false;
+  if (countdown.timer) { clearInterval(countdown.timer); countdown.timer = null; }
+  const bar = $('auto-lock-countdown-bar');
+  if (bar) bar.classList.add('hidden');
+}
+
+function snoozeLockout() {
+  stopCountdown();
+  S.snoozeUntil = Date.now() + 5 * 60 * 1000;
+  S.discipline = clamp(S.discipline - 3, 0, 100);
+  save(true);
+  refreshScore();
+  showToast('Đã hoãn 5 phút', 'Bạn còn 5 phút trước khi hệ thống khóa lại. Dùng để gập máy đi ngủ.', 'warn');
+}
+
+function triggerHardcoreLockout(reason) {
+  if (S.sleepMode) return;
+  stopCountdown();
+  S.locked = true;
+  S.lockReason = reason || 'Đã chạm giới hạn cho phép.';
+  S.usage.lockouts++;
+  S.discipline = clamp(S.discipline - 5, 0, 100);
+  save(true);
+  refreshScore();
+  $('lockout-reason-text').textContent = S.lockReason;
+  $('hardcore-lock-overlay').classList.remove('hidden');
+  setActiveTag('locked');
+  startSiren();
+  openChallenge({ fromLockout: true });
+}
+
+function goToSleep() {
+  stopCountdown();
+  stopSiren();
+  closeChallenge();
+  finalizeSession();
+  S.sleepMode = true;
+  S.locked = false;
+  S.lockReason = '';
+  S.discipline = clamp(S.discipline + 2, 0, 100);
+  save(true);
+  $('hardcore-lock-overlay').classList.add('hidden');
+  $('auto-lock-countdown-bar').classList.add('hidden');
+  $('goodnight-total').textContent = fmtDur(S.usage.activeSec);
+  $('goodnight-leaves').textContent = S.usage.leaves;
+  $('goodnight-streak').textContent = S.streak;
+  $('goodnight-overlay').classList.remove('hidden');
+  setActiveTag('sleep');
+  refreshScore();
+  showToast('Chúc ngủ ngon 🌙', 'Mọi báo động đã tắt. Hẹn gặp bạn vào sáng mai.', 'ok');
+}
+
+function wakeUpFromSleep() {
+  openChallenge({ fromSleep: true });
+}
+
+function emergencyUnlockPrompt() {
+  const reason = prompt('Nhập lý do thực sự khẩn cấp (tối thiểu 8 ký tự):');
+  if (reason && reason.trim().length >= 8) {
+    S.locked = false;
+    S.lockReason = '';
+    S.snoozeUntil = Date.now() + 5 * 60 * 1000;
+    S.discipline = clamp(S.discipline - 5, 0, 100);
+    save(true);
+    $('hardcore-lock-overlay').classList.add('hidden');
+    stopSiren();
+    closeChallenge();
+    stopCountdown();
+    refreshScore();
+    showToast('Đã mở khóa ngoại lệ', 'Bạn có 5 phút. Hãy hoàn tất việc thật sự cần thiết.', 'warn');
+  } else {
+    showToast('Lý do không hợp lệ', 'Cần ít nhất 8 ký tự. Hãy giải câu đố hoặc đi ngủ.', 'warn');
+  }
+}
+
+/* ---------------------- 6. ÂM THANH & THÔNG BÁO ---------------------- */
+let audioCtx = null;
+function getCtx() {
+  if (!audioCtx) {
+    const Ctor = window.AudioContext || window.webkitAudioContext;
+    if (!Ctor) return null;
+    audioCtx = new Ctor();
+  }
+  if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+  return audioCtx;
+}
+
+// iOS chỉ cho phát âm thanh sau một lần chạm của người dùng.
+// Mở khóa sớm để còi báo động hoạt động khi cần.
+function unlockAudio() {
+  try {
+    const ctx = getCtx();
+    if (!ctx) return;
+    if (ctx.state === 'suspended') ctx.resume().catch(() => {});
+    const buf = ctx.createBuffer(1, 1, 22050);
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    src.connect(ctx.destination);
+    src.start(0);
+  } catch (e) { /* bỏ qua */ }
+}
+
+['pointerdown', 'touchstart', 'keydown'].forEach((ev) => {
+  try { window.addEventListener(ev, unlockAudio, { once: true, passive: true }); } catch (e) { /* bỏ qua */ }
+});
+
+function playChime() {
+  const ctx = getCtx();
+  if (!ctx) return;
+  const t = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.setValueAtTime(659.25, t);
+  osc.frequency.exponentialRampToValueAtTime(493.88, t + 0.35);
+  gain.gain.setValueAtTime(0.0001, t);
+  gain.gain.linearRampToValueAtTime(0.16, t + 0.05);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + 1.1);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(t);
+  osc.stop(t + 1.15);
+}
+
+function softBeep() {
+  const ctx = getCtx();
+  if (!ctx) return;
+  const t = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.value = 880;
+  gain.gain.setValueAtTime(0.0001, t);
+  gain.gain.linearRampToValueAtTime(0.09, t + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(t);
+  osc.stop(t + 0.2);
+}
+
+function vibrate(pattern) {
+  if (isNativeApp()) {
+    try {
+      const ms = Array.isArray(pattern)
+        ? pattern.reduce((a, b) => a + (Number(b) || 0), 0)
+        : (Number(pattern) || 800);
+      NativeApp.vibrate(Math.max(80, Math.min(3000, ms)));
+      return;
+    } catch (e) { /* bỏ qua */ }
+  }
+  if ('vibrate' in navigator) {
+    try { navigator.vibrate(pattern || [220, 110, 320, 110, 380]); } catch (e) { /* bỏ qua */ }
+  }
+}
+
+const siren = { on: false, osc: null, gain: null, lfo: null, autoStop: null, vibTimer: null };
+
+function startSiren() {
+  if (siren.on) return;
+  const ctx = getCtx();
+  if (!ctx) return;
+  siren.on = true;
+  const t = ctx.currentTime;
+
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  const lfo = ctx.createOscillator();
+  const lfoGain = ctx.createGain();
+
+  osc.type = 'square';
+  osc.frequency.value = 640;
+  lfo.type = 'sine';
+  lfo.frequency.value = 2;
+  lfoGain.gain.value = 180;
+
+  lfo.connect(lfoGain);
+  lfoGain.connect(osc.frequency);
+
+  gain.gain.setValueAtTime(0.0001, t);
+  gain.gain.linearRampToValueAtTime(0.15, t + 0.6);
+
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(t);
+  lfo.start(t);
+
+  siren.osc = osc;
+  siren.gain = gain;
+  siren.lfo = lfo;
+
+  $('screen-strobe-overlay').classList.remove('hidden');
+  vibrate();
+  siren.vibTimer = setInterval(() => vibrate(), 3000);
+
+  // Tự tắt sau 5 phút để không phá giấc ngủ
+  siren.autoStop = setTimeout(() => stopSiren(), 5 * 60 * 1000);
+}
+
+function stopSiren() {
+  if (!siren.on) {
+    const ov = $('screen-strobe-overlay');
+    if (ov) ov.classList.add('hidden');
+    return;
+  }
+  siren.on = false;
+  try {
+    const ctx = audioCtx;
+    if (ctx && siren.gain) {
+      const t = ctx.currentTime;
+      siren.gain.gain.cancelScheduledValues(t);
+      siren.gain.gain.setValueAtTime(siren.gain.gain.value, t);
+      siren.gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.15);
+    }
+    setTimeout(() => {
+      try {
+        if (siren.osc) { siren.osc.stop(); siren.osc.disconnect(); }
+        if (siren.lfo) { siren.lfo.stop(); siren.lfo.disconnect(); }
+      } catch (e) { /* bỏ qua */ }
+      siren.osc = null;
+      siren.lfo = null;
+      siren.gain = null;
+    }, 220);
+  } catch (e) { /* bỏ qua */ }
+
+  if (siren.vibTimer) { clearInterval(siren.vibTimer); siren.vibTimer = null; }
+  if (siren.autoStop) { clearTimeout(siren.autoStop); siren.autoStop = null; }
+  if ('vibrate' in navigator) { try { navigator.vibrate(0); } catch (e) {} }
+  const ov = $('screen-strobe-overlay');
+  if (ov) ov.classList.add('hidden');
+}
+
+/* ---- Toast trong app ---- */
+function showToast(title, body, kind = 'info') {
+  const stack = $('toast-stack');
+  if (!stack) return;
+  const el = document.createElement('div');
+  el.className = `toast ${kind === 'warn' ? 'warn' : kind === 'ok' ? 'ok' : ''}`;
+  el.innerHTML = `<div class="flex items-start gap-2.5">
+      <div class="text-base leading-none mt-0.5">${kind === 'warn' ? '⚠️' : kind === 'ok' ? '✅' : '🌙'}</div>
+      <div class="min-w-0">
+        <p class="text-[12px] font-bold text-white leading-snug">${esc(title)}</p>
+        <p class="text-[11px] text-slate-400 leading-snug mt-0.5">${esc(body)}</p>
+      </div>
+    </div>`;
+  el.addEventListener('click', () => el.remove());
+  stack.appendChild(el);
+  requestAnimationFrame(() => el.classList.add('show'));
+  setTimeout(() => {
+    el.classList.remove('show');
+    setTimeout(() => el.remove(), 320);
+  }, 6000);
+}
+
+/* ---- Quản lý thông báo ---- */
+const Notifier = {
+  sw: null,
+  lastSent: 0,
+  async init() {
+    // Bản APK dùng cầu nối native, không cần Service Worker
+    if (isNativeApp()) return;
+    if (!('serviceWorker' in navigator)) return;
+
+    // Trên hosting HTTPS: đăng ký service worker thật (bắt buộc để cài PWA + push)
+    if (/^https?:$/.test(location.protocol)) {
+      try {
+        this.sw = await navigator.serviceWorker.register('./sw.js', { scope: './' });
+        navigator.serviceWorker.ready
+          .then((reg) => { this.sw = reg; })
+          .catch(() => {});
+        return;
+      } catch (e) { /* rơi xuống fallback bên dưới */ }
+    }
+
+    try {
+      const code = "self.addEventListener('install',function(e){self.skipWaiting();});" +
+        "self.addEventListener('activate',function(e){e.waitUntil(self.clients.claim());});" +
+        "self.addEventListener('notificationclick',function(e){e.notification.close();" +
+        "e.waitUntil(self.clients.matchAll({type:'window',includeUncontrolled:true}).then(function(list){" +
+        "for(var i=0;i<list.length;i++){if('focus' in list[i]){list[i].focus();return;}}" +
+        "if(self.clients.openWindow)return self.clients.openWindow('./');}));});";
+      const url = URL.createObjectURL(new Blob([code], { type: 'text/javascript' }));
+      this.sw = await navigator.serviceWorker.register(url, { scope: './' });
+    } catch (e) {
+      this.sw = null; // blob SW bị chặn trên nhiều trình duyệt -> dùng Notification trực tiếp
+    }
+  },
+  permission() {
+    if (isNativeApp()) {
+      return NativeApp.hasNotifPermission() ? 'granted' : 'default';
+    }
+    return ('Notification' in window) ? Notification.permission : 'unsupported';
+  },
+  notifIcon() {
+    return /^https?:$/.test(location.protocol) ? './icon-192.png' : APP_ICON;
+  },
+  async send(title, body, opts = {}) {
+    const now = Date.now();
+    const minGap = Math.max(2500, (S.repeatSec || 30) * 500);
+    if (!opts.force && now - this.lastSent < minGap) return false;
+    this.lastSent = now;
+
+    vibrate();
+    playChime();
+    showToast(title, body, opts.kind || 'info');
+
+    // APK: giao thông báo cho hệ điều hành Android
+    if (isNativeApp()) {
+      NativeApp.notify(title, body);
+      return NativeApp.hasNotifPermission();
+    }
+
+    if (this.permission() !== 'granted') return false;
+
+    const ios = isIOSDevice();
+    const options = {
+      body,
+      icon: this.notifIcon(),
+      tag: 'sleepmate-guard',
+      data: { url: appLink() }
+    };
+
+    // Android/desktop hỗ trợ thêm badge, rung và giữ thông báo trên màn hình
+    if (!ios) {
+      options.badge = this.notifIcon();
+      options.renotify = true;
+      options.requireInteraction = true;
+      options.vibrate = [220, 110, 320, 110, 380];
+    }
+
+    try {
+      // iPhone bắt buộc dùng Service Worker (không hỗ trợ new Notification)
+      if (this.sw && this.sw.showNotification) {
+        await this.sw.showNotification(title, options);
+      } else if (!ios && typeof Notification === 'function') {
+        const n = new Notification(title, options);
+        n.onclick = () => {
+          window.focus();
+          n.close();
+          if (!S.sleepMode) openChallenge({ fromChase: true });
+        };
+      } else {
+        return false;
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+};
+
+function updateNotificationStatusUI() {
+  const badge = $('notif-status-badge');
+  const label = $('notif-status-text');
+  const btnLabel = $('notif-btn-label');
+  const deviceMode = $('device-notif-mode');
+  if (!badge || !label) return;
+
+  if (isNativeApp()) {
+    const granted = NativeApp.hasNotifPermission();
+    if (granted) {
+      badge.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+      badge.textContent = 'Đã cho phép';
+      label.textContent = 'Thông báo APK đang bật';
+      if (btnLabel) btnLabel.textContent = 'Thông báo đang bật';
+      if (deviceMode) deviceMode.textContent = 'Thông báo hệ thống (APK)';
+    } else {
+      badge.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30';
+      badge.textContent = 'Chờ cấp quyền';
+      label.textContent = 'Bật thông báo APK';
+      if (btnLabel) btnLabel.textContent = 'Bật thông báo';
+      if (deviceMode) deviceMode.textContent = 'Chưa bật';
+    }
+    return;
+  }
+
+  const perm = Notifier.permission();
+  const iosNotInstalled = isIOSDevice() && !isStandaloneApp();
+
+  if (perm === 'unsupported') {
+    badge.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-slate-800 text-slate-400';
+    badge.textContent = 'Không hỗ trợ';
+    if (iosNotInstalled) {
+      label.textContent = 'Cài app trước (iPhone)';
+      if (btnLabel) btnLabel.textContent = 'Hướng dẫn iPhone';
+      if (deviceMode) deviceMode.textContent = 'Nhắc trong app';
+    } else {
+      label.textContent = isIOSDevice() ? 'Nhắc trong app' : 'Dùng toast trong app';
+      if (btnLabel) btnLabel.textContent = isIOSDevice() ? 'Nhắc trong app' : 'Thông báo trong app';
+      if (deviceMode) deviceMode.textContent = 'Nhắc trong app';
+    }
+    return;
+  }
+  if (perm === 'granted') {
+    badge.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30';
+    badge.textContent = 'Đã cho phép';
+    label.textContent = isIOSDevice() ? 'Thông báo iOS đang bật' : 'Push đang hoạt động';
+    if (btnLabel) btnLabel.textContent = 'Thông báo đang bật';
+    if (deviceMode) deviceMode.textContent = 'Thông báo hệ thống';
+  } else if (perm === 'denied') {
+    badge.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30';
+    badge.textContent = 'Bị chặn';
+    label.textContent = 'Chỉ dùng toast trong app';
+    if (btnLabel) btnLabel.textContent = 'Quyền đang bị chặn';
+    if (deviceMode) deviceMode.textContent = 'Chỉ toast trong app';
+  } else {
+    badge.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30';
+    badge.textContent = 'Chờ cấp quyền';
+    label.textContent = iosNotInstalled ? 'Cài app rồi bật' : 'Chưa cấp quyền';
+    if (btnLabel) btnLabel.textContent = iosNotInstalled ? 'Hướng dẫn iPhone' : 'Bật thông báo';
+    if (deviceMode) deviceMode.textContent = iosNotInstalled ? 'Cài app để bật' : 'Chưa bật';
+  }
+}
+
+async function requestNotificationAccess() {
+  unlockAudio();
+
+  // Bản APK: xin quyền hệ thống Android
+  if (isNativeApp()) {
+    if (NativeApp.hasNotifPermission()) {
+      showToast('Thông báo đã bật', 'Bạn có thể bấm Test để thử ngay.', 'ok');
+      NativeApp.openNotificationSettings();
+      return;
+    }
+    NativeApp.requestNotifPermission();
+    showToast('Cấp quyền thông báo', 'Chọn “Cho phép” để SLEEPMATE nhắc bạn kể cả khi đã đóng app.', 'info');
+    setTimeout(updateNotificationStatusUI, 900);
+    return;
+  }
+
+  // iPhone: bắt buộc cài PWA trước mới xin được quyền
+  if (isIOSDevice() && !isStandaloneApp()) {
+    showToast('Cần cài app trước', 'Trên iPhone: Safari → Chia sẻ → “Thêm vào MH chính”, rồi mở app từ icon và bật thông báo.', 'warn');
+    openInstallGuide({ manual: true });
+    return;
+  }
+
+  if (!('Notification' in window)) {
+    if (isIOSDevice()) {
+      showToast('iPhone chưa hỗ trợ', 'Cần iOS 16.4+ và đã Thêm vào MH chính. App vẫn nhắc bằng âm thanh + rung khi đang mở.', 'warn');
+    } else {
+      showToast('Không hỗ trợ push', 'Trình duyệt này không có Notification API. App sẽ dùng toast trong app.', 'warn');
+    }
+    updateNotificationStatusUI();
+    return;
+  }
+  try {
+    const perm = await Notification.requestPermission();
+    updateNotificationStatusUI();
+    if (perm === 'granted') {
+      playChime();
+      Notifier.send('🛡️ SLEEPMATE đã bật nhắc nhở',
+        isIOSDevice()
+          ? 'iPhone sẽ nhắc khi app đang mở. Nhớ mở app từ icon ngoài màn hình chính.'
+          : 'Khi bạn thoát app, hệ thống sẽ nhắc cho tới khi bạn quay lại giải câu đố.',
+        { force: true, kind: 'ok' });
+    } else if (perm === 'denied') {
+      showToast('Thông báo bị chặn', 'Hãy mở cài đặt trang web và cho phép thông báo. App vẫn dùng toast trong app.', 'warn');
+    }
+  } catch (e) {
+    showToast('Không thể xin quyền', 'Trình duyệt chặn yêu cầu. App sẽ dùng toast trong app.', 'warn');
+  }
+}
+
+function testNotificationNow() {
+  if (isNativeApp()) {
+    if (NativeApp.hasNotifPermission()) {
+      Notifier.send('🌙 Test thông báo APK', 'Thông báo hệ thống đang hoạt động. Hãy thoát app để nhận nhắc nhở tự động.', { force: true, kind: 'ok' });
+    } else {
+      requestNotificationAccess();
+    }
+    return;
+  }
+  if (isIOSDevice() && !isStandaloneApp()) {
+    openInstallGuide({ manual: true });
+    return;
+  }
+  if (Notifier.permission() === 'granted') {
+    Notifier.send('🌙 Test thông báo', 'Thử thoát ra màn hình chính: sau 3 giây bạn sẽ nhận nhắc nhở.', { force: true, kind: 'ok' });
+  } else {
+    requestNotificationAccess();
+  }
+}
+
+/* ---- Cài PWA lên màn hình chính (iPhone + Android) ---- */
+let deferredInstallPrompt = null;
+
+function detectPlatform(ua, platform, maxTouchPoints) {
+  const u = ua || navigator.userAgent || '';
+  const p = platform || navigator.platform || '';
+  const touch = (typeof maxTouchPoints === 'number') ? maxTouchPoints : (navigator.maxTouchPoints || 0);
+  if (/iPad|iPhone|iPod/.test(u) || (p === 'MacIntel' && touch > 1)) return 'ios';
+  if (/Android/i.test(u)) return 'android';
+  return 'desktop';
+}
+
+const PLATFORM = detectPlatform();
+
+function platformLabel() {
+  if (isNativeApp()) return 'Android (APK)';
+  if (isIOSDevice()) return 'iPhone / iPad';
+  if (isAndroidDevice()) return 'Android';
+  return 'Máy tính';
+}
+
+function isIOSDevice() { return !isNativeApp() && PLATFORM === 'ios'; }
+function isAndroidDevice() { return isNativeApp() || PLATFORM === 'android'; }
+function isMobileDevice() { return isNativeApp() || PLATFORM === 'ios' || PLATFORM === 'android'; }
+
+function isStandaloneApp() {
+  if (isNativeApp()) return true;
+  try {
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  } catch (e) { return false; }
+}
+
+function appLink() {
+  return location.href.split('#')[0];
+}
+
+function updateInstallUI() {
+  const btn = $('btn-install-app');
+  if (btn) {
+    if (isStandaloneApp()) {
+      btn.classList.add('hidden');
+    } else {
+      btn.classList.remove('hidden');
+      const label = $('install-btn-label');
+      if (label) {
+        label.textContent = deferredInstallPrompt ? 'Cài app' : (isIOSDevice() ? 'Cài trên iPhone' : 'Cài app');
+      }
+    }
+  }
+
+  const guideBtn = $('device-guide-btn');
+  if (guideBtn) {
+    guideBtn.innerHTML = isNativeApp()
+      ? '<i class="fa-solid fa-bell mr-1"></i> Cài đặt thông báo'
+      : '<i class="fa-solid fa-circle-question mr-1"></i> Hướng dẫn cài';
+  }
+
+  const platformEl = $('device-platform-label');
+  if (platformEl) platformEl.textContent = platformLabel();
+  const installEl = $('device-install-state');
+  if (installEl) {
+    if (isNativeApp()) {
+      installEl.textContent = 'Đã cài APK';
+      installEl.className = 'text-emerald-300';
+    } else {
+      installEl.textContent = isStandaloneApp() ? 'Đã cài app' : 'Chưa cài app';
+      installEl.className = isStandaloneApp() ? 'text-emerald-300' : 'text-cyan-300';
+    }
+  }
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  updateInstallUI();
+});
+
+window.addEventListener('appinstalled', () => {
+  deferredInstallPrompt = null;
+  markInstallGuideSeen();
+  updateInstallUI();
+  showToast('Đã cài app 🎉', 'Mở SLEEPMATE từ icon ngoài màn hình chính để thông báo hoạt động tốt nhất.', 'ok');
+});
+
+try {
+  window.matchMedia('(display-mode: standalone)').addEventListener('change', updateInstallUI);
+} catch (e) { /* Safari cũ không hỗ trợ */ }
+
+function markInstallGuideSeen() {
+  try { localStorage.setItem('sleepmate.installGuideSeen', '1'); } catch (e) { /* bỏ qua */ }
+}
+
+function guideStep(n, title, desc) {
+  return `<div class="flex gap-3 p-3 rounded-2xl bg-night-900 border border-slate-800">
+    <div class="w-7 h-7 rounded-xl bg-gradient-to-br from-pink-500 to-indigo-600 text-white text-[11px] font-black flex items-center justify-center shrink-0">${n}</div>
+    <div class="min-w-0">
+      <p class="font-bold text-slate-100 text-[12px]">${title}</p>
+      <p class="text-[11px] text-slate-400 mt-0.5 leading-relaxed">${desc}</p>
+    </div>
+  </div>`;
+}
+
+function guideNote(text, tone) {
+  const cls = tone === 'warn'
+    ? 'bg-amber-500/10 border-amber-500/30 text-amber-200'
+    : tone === 'ok'
+      ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-200'
+      : 'bg-indigo-500/10 border-indigo-500/30 text-indigo-200';
+  return `<div class="p-3 rounded-2xl border text-[11px] leading-relaxed ${cls}">${text}</div>`;
+}
+
+function openInstallGuide(opts = {}) {
+  const modal = $('install-guide-modal');
+  if (!modal) return;
+
+  if (isNativeApp()) {
+    showToast('Bản APK đã cài sẵn', 'Bạn đang dùng bản Android đầy đủ. Thông báo hoạt động cả khi đã đóng app.', 'ok');
+    return;
+  }
+
+  const standalone = isStandaloneApp();
+  const secure = /^https?:$/.test(location.protocol);
+  const badge = $('install-device-badge');
+  const mode = $('install-mode-badge');
+  const body = $('install-guide-body');
+  const actions = $('install-guide-actions');
+  const subtitle = $('install-guide-subtitle');
+  if (!body || !actions) return;
+
+  if (badge) badge.textContent = platformLabel();
+  if (mode) mode.textContent = standalone ? 'Đã cài · standalone' : (secure ? 'PWA · HTTPS' : 'Chưa có HTTPS');
+
+  let html = '';
+
+  if (!secure) {
+    if (subtitle) subtitle.textContent = 'Cần đưa app lên link HTTPS trước';
+    html += guideNote('<strong class="block mb-1">Chưa thể cài từ file này</strong>Điện thoại chỉ cho cài app khi mở bằng link <strong>https://</strong>. Hãy đưa thư mục <code>sleepmate-pwa</code> lên Netlify Drop (miễn phí), rồi mở link đó trên điện thoại.', 'warn');
+    html += guideStep(1, 'Đưa lên hosting', 'Mở <strong>app.netlify.com/drop</strong> trên máy tính và kéo thả file <code>sleepmate-pwa.zip</code>.');
+    html += guideStep(2, 'Mở link trên điện thoại', 'Netlify cho bạn link dạng <code>https://ten-app.netlify.app</code>. Mở link đó bằng Safari (iPhone) hoặc Chrome (Android).');
+    html += guideStep(3, 'Quay lại đây', 'Bấm lại nút <strong>Cài app</strong> — hướng dẫn sẽ đổi theo đúng máy của bạn.');
+  } else if (standalone) {
+    if (subtitle) subtitle.textContent = 'App đã được cài trên máy này';
+    html += guideNote('<strong class="block mb-1">✅ SLEEPMATE đang chạy như app thật</strong>Bạn đang ở chế độ toàn màn hình. Chỉ cần bật thông báo để app nhắc bạn đúng lúc.', 'ok');
+    html += guideStep(1, 'Bật thông báo', 'Vào tab <strong>Câu Đố &amp; Thông Báo</strong> → bấm <strong>Bật thông báo</strong> → chọn <strong>Cho phép</strong>.');
+    html += guideStep(2, 'Bật báo động khi rời app', 'Bật <strong>Báo động khi thoát màn hình</strong> và chọn tần suất 15 / 30 / 60 giây.');
+    html += guideStep(3, 'Kiểm tra máy', 'Android: Cài đặt → Ứng dụng → SLEEPMATE → Thông báo → bật hiển thị trên màn hình khóa + âm thanh/rung.');
+  } else if (isIOSDevice()) {
+    if (subtitle) subtitle.textContent = 'iPhone / iPad — cài bằng Safari';
+    html += guideNote('<strong class="block mb-1">🍎 Bắt buộc dùng Safari</strong>Trên iPhone, Chrome và các trình duyệt khác không cài được PWA. Hãy copy link rồi mở bằng Safari.', 'warn');
+    html += guideStep(1, 'Mở bằng Safari', 'Nếu đang dùng Chrome/Facebook, bấm <strong>Sao chép link</strong> bên dưới rồi dán vào Safari.');
+    html += guideStep(2, 'Bấm nút Chia sẻ', 'Trên thanh công cụ dưới cùng, bấm biểu tượng <strong>Chia sẻ □↑</strong>.');
+    html += guideStep(3, 'Thêm vào MH chính', 'Chọn <strong>“Thêm vào MH chính”</strong> → bấm <strong>Thêm</strong>.');
+    html += guideStep(4, 'Mở từ icon &amp; bật thông báo', 'Mở SLEEPMATE ngoài màn hình chính → <strong>Bật thông báo</strong> → Cho phép. Cần <strong>iOS 16.4+</strong>.');
+    html += guideNote('iPhone chỉ nhận thông báo hệ thống khi app đã cài và đang mở (hoặc có máy chủ Web Push). Khi đóng hẳn app, app vẫn nhắc bằng âm thanh + rung trong lúc còn chạy.', 'info');
+  } else if (isAndroidDevice()) {
+    if (subtitle) subtitle.textContent = 'Android — cài bằng Chrome / Edge';
+    html += guideNote('<strong class="block mb-1">🤖 Cài trực tiếp từ trình duyệt</strong>Chrome sẽ thêm SLEEPMATE vào màn hình chính và chạy toàn màn hình như app thật.', 'ok');
+    html += guideStep(1, 'Bấm “Cài app”', 'Nếu nút cài tự động hiện ra, chỉ cần bấm <strong>Cài ngay</strong> bên dưới. Nếu không, dùng menu <strong>⋮</strong> → <strong>“Cài đặt ứng dụng”</strong> hoặc <strong>“Thêm vào MH chính”</strong>.');
+    html += guideStep(2, 'Mở từ icon', 'Đóng tab trình duyệt và mở SLEEPMATE từ icon ngoài màn hình chính.');
+    html += guideStep(3, 'Bật thông báo', 'Vào tab <strong>Câu Đố &amp; Thông Báo</strong> → <strong>Bật thông báo</strong> → Cho phép → bấm <strong>Test</strong>.');
+    html += guideStep(4, 'Cho phép hiện trên màn hình khóa', 'Cài đặt máy → Ứng dụng → SLEEPMATE → Thông báo → bật âm thanh, rung và hiển thị trên màn hình khóa.');
+    html += guideNote('Android có thể tạm dừng web app sau vài phút khi bạn thoát hẳn. Muốn còi cả khi đã đóng app cần bản APK (Capacitor).', 'info');
+  } else {
+    if (subtitle) subtitle.textContent = 'Máy tính — gửi link sang điện thoại';
+    html += guideNote('<strong class="block mb-1">💻 Bạn đang mở trên máy tính</strong>Hãy copy link bên dưới, gửi qua Zalo/Telegram/Email rồi mở trên điện thoại để cài.', 'info');
+    html += guideStep(1, 'Sao chép link', 'Bấm <strong>Sao chép link</strong> bên dưới.');
+    html += guideStep(2, 'Gửi sang điện thoại', 'Dán link vào Zalo, Messenger, Telegram hoặc email của bạn.');
+    html += guideStep(3, 'Cài trên điện thoại', 'Mở link bằng Safari (iPhone) hoặc Chrome (Android) rồi làm theo hướng dẫn hiện ra.');
+  }
+
+  body.innerHTML = html;
+
+  const buttons = [];
+  if (secure && isAndroidDevice() && !standalone && deferredInstallPrompt) {
+    buttons.push('<button onclick="installApp()" class="flex-1 px-4 py-2.5 bg-gradient-to-r from-emerald-500 to-teal-600 text-white font-bold text-xs rounded-2xl btn-bouncy"><i class="fa-solid fa-download mr-1.5"></i> Cài ngay</button>');
+  }
+  buttons.push('<button id="guide-copy-btn" onclick="copyAppLink()" class="flex-1 px-4 py-2.5 bg-night-900 border border-cyan-500/40 text-cyan-300 font-bold text-xs rounded-2xl btn-bouncy"><i class="fa-regular fa-copy mr-1.5"></i> Sao chép link</button>');
+  buttons.push('<button onclick="closeInstallGuide()" class="flex-1 px-4 py-2.5 bg-night-900 border border-slate-700 text-slate-300 font-bold text-xs rounded-2xl btn-bouncy">Để sau</button>');
+  actions.innerHTML = buttons.join('');
+
+  const hint = $('install-guide-copy-hint');
+  if (hint) hint.classList.add('hidden');
+
+  modal.classList.remove('hidden');
+  document.body.classList.add('guide-open');
+  markInstallGuideSeen();
+}
+
+function closeInstallGuide() {
+  const modal = $('install-guide-modal');
+  if (modal) modal.classList.add('hidden');
+  document.body.classList.remove('guide-open');
+  markInstallGuideSeen();
+}
+
+async function copyAppLink() {
+  const url = appLink();
+  let ok = false;
+
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(url);
+      ok = true;
+    }
+  } catch (e) { ok = false; }
+
+  if (!ok) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = url;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.top = '0';
+      ta.style.opacity = '0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      ta.setSelectionRange(0, url.length);
+      ok = document.execCommand('copy');
+      ta.remove();
+    } catch (e) { ok = false; }
+  }
+
+  if (ok) {
+    const guideOpen = !$('install-guide-modal')?.classList.contains('hidden');
+    if (guideOpen) {
+      const btn = $('guide-copy-btn');
+      if (btn) {
+        btn.innerHTML = '<i class="fa-solid fa-check mr-1.5"></i> Đã sao chép';
+        btn.classList.remove('text-cyan-300', 'border-cyan-500/40');
+        btn.classList.add('text-emerald-300', 'border-emerald-500/50');
+      }
+      const hint = $('install-guide-copy-hint');
+      if (hint) hint.classList.remove('hidden');
+    } else {
+      showToast('Đã sao chép link', url, 'ok');
+    }
+  } else {
+    showToast('Không sao chép được', `Hãy giữ địa chỉ trên thanh trình duyệt để copy: ${url}`, 'warn');
+  }
+}
+
+function maybeShowInstallGuide() {
+  if (!isMobileDevice() || isStandaloneApp() || !/^https?:$/.test(location.protocol)) return;
+  try {
+    if (localStorage.getItem('sleepmate.installGuideSeen') === '1') return;
+  } catch (e) { /* bỏ qua */ }
+  setTimeout(() => {
+    if (!isStandaloneApp()) openInstallGuide({ auto: true });
+  }, 1800);
+}
+
+function openDeviceGuide() {
+  if (isNativeApp()) {
+    NativeApp.openNotificationSettings();
+    return;
+  }
+  openInstallGuide({ manual: true });
+}
+
+function installApp() {
+  if (isStandaloneApp()) {
+    showToast('App đã được cài', 'Bạn đang dùng SLEEPMATE như một ứng dụng.', 'ok');
+    return;
+  }
+
+  unlockAudio();
+
+  if (deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+    deferredInstallPrompt.userChoice.then((choice) => {
+      if (choice && choice.outcome === 'accepted') {
+        showToast('Đang cài app…', 'Icon SLEEPMATE sẽ xuất hiện trên màn hình chính.', 'ok');
+      }
+      deferredInstallPrompt = null;
+      updateInstallUI();
+    }).catch(() => {});
+    return;
+  }
+
+  openInstallGuide({ manual: true });
+}
+
+function chaseTick(now) {
+  if (!S.bgGuard || !S.notifOnLeave || S.sleepMode) return;
+  if (!runtime.hiddenAt) return;
+
+  const away = (now - runtime.hiddenAt) / 1000;
+  if (away < 4) return;
+
+  const gap = Math.max(15, S.repeatSec || 30);
+  if (away - runtime.lastChaseAway < gap) return;
+  runtime.lastChaseAway = away;
+
+  const mins = Math.floor(away / 60);
+  const secs = Math.floor(away % 60);
+  const level = Math.min(3, Math.floor(away / (gap * 3)));
+  const q = S.challengeMode === 'custom' ? (S.riddle.q || 'câu đố của bạn') : 'thử thách kỷ luật';
+  const messages = [
+    `Bạn vừa rời SLEEPMATE. Quay lại trả lời "${q}" để tắt nhắc nhở.`,
+    `Đã ${mins}p${pad2(secs)}s ngoài màn hình. Đừng lướt nữa — quay lại và giải câu đố.`,
+    `Vẫn đang lướt app khác? Mở SLEEPMATE ngay, não bạn cần được nghỉ.`,
+    `Cảnh báo cuối: quay lại và gập máy đi ngủ. Đêm nay bạn đã dùng ${fmtDur(S.usage.activeSec)}.`
+  ];
+  Notifier.send(`⏰ Nhắc nhở ${mins}p${pad2(secs)}s`, messages[level]);
+}
+
+function enableAudioKeepAlive() {
+  try {
+    if (isNativeApp()) {
+      NativeApp.keepScreen(true);
+      const btnNative = $('btn-keep-alive');
+      if (btnNative) {
+        btnNative.textContent = 'Đã bật ✓';
+        btnNative.className = 'px-3 py-1.5 bg-emerald-600 text-white font-bold rounded-xl shrink-0';
+      }
+      showToast('Đã giữ màn hình sáng', 'Android sẽ giữ màn hình thức khi app còn mở.', 'ok');
+      return;
+    }
+    const ctx = getCtx();
+    if (!ctx) return;
+    if (!window.__keepAlive) {
+      const gain = ctx.createGain();
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+      const osc = ctx.createOscillator();
+      osc.frequency.setValueAtTime(1, ctx.currentTime);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start();
+      window.__keepAlive = { osc, gain };
+    }
+    if ('wakeLock' in navigator) {
+      navigator.wakeLock.request('screen').catch(() => {});
+    }
+    const btn = $('btn-keep-alive');
+    if (btn) {
+      btn.textContent = 'Đã bật ✓';
+      btn.className = 'px-3 py-1.5 bg-emerald-600 text-white font-bold rounded-xl shrink-0';
+    }
+    showToast('Đã bật giữ ngầm', 'Màn hình sẽ được giữ thức khi app còn mở.', 'ok');
+  } catch (e) { /* bỏ qua */ }
+}
+
+/* ---------------------- 7. THỬ THÁCH GIẢI ĐỐ ---------------------- */
+const challenge = { open: false, expected: '', mode: 'custom', from: 'manual' };
+
+function openChallenge(opts = {}) {
+  if (S.sleepMode && !opts.fromSleep) return;
+  if (S.locked && !opts.fromLockout && !opts.fromSleep && !opts.fromChase) {
+    opts.fromLockout = true;
+  }
+
+  challenge.open = true;
+  challenge.from = opts.fromLockout ? 'lockout' : opts.fromSleep ? 'sleep' : opts.fromChase ? 'chase' : 'manual';
+  challenge.mode = S.challengeMode;
+
+  const badge = $('challenge-mode-badge');
+  const qEl = $('challenge-question-display');
+  const hEl = $('challenge-hint-display');
+  const input = $('challenge-answer-input');
+  const err = $('challenge-error');
+  const instr = $('challenge-instruction-text');
+
+  input.value = '';
+  err.classList.add('hidden');
+
+  if (opts.fromLockout) instr.textContent = 'Máy đang bị khóa. Giải đúng để mở khóa và tắt còi.';
+  else if (opts.fromSleep) instr.textContent = 'Máy đang ở chế độ ngủ. Giải đúng nếu bạn thật sự cần dùng.';
+  else if (opts.fromChase) instr.textContent = 'Bạn vừa rời app. Giải đúng để tắt chuỗi nhắc nhở.';
+  else instr.textContent = 'Trả lời đúng để tắt còi và dừng nhắc nhở.';
+
+  if (challenge.mode === 'custom') {
+    const q = S.riddle.q || 'Mục tiêu thức dậy lúc mấy giờ sáng mai?';
+    const a = S.riddle.a || '06:00';
+    const h = S.riddle.h || '';
+    challenge.expected = a;
+    badge.textContent = '✍️ Câu đố tự đặt';
+    qEl.textContent = q;
+    if (h) { hEl.textContent = `💡 Gợi ý: ${h}`; hEl.classList.remove('hidden'); }
+    else hEl.classList.add('hidden');
+  } else if (challenge.mode === 'math') {
+    const a = Math.floor(Math.random() * 18) + 12;
+    const b = Math.floor(Math.random() * 15) + 7;
+    const c = Math.floor(Math.random() * 9) + 3;
+    challenge.expected = String(a + b - c);
+    badge.textContent = '🔢 Thử thách toán';
+    qEl.textContent = `${a} + ${b} - ${c} = ?`;
+    hEl.classList.add('hidden');
+  } else {
+    challenge.expected = 'toi cam ket di ngu ngay';
+    badge.textContent = '📜 Gõ cam kết';
+    qEl.textContent = 'Gõ: "TOI CAM KET DI NGU NGAY"';
+    hEl.textContent = '💡 Không phân biệt hoa/thường, không cần dấu';
+    hEl.classList.remove('hidden');
+  }
+
+  $('mission-alarm-modal').classList.remove('hidden');
+  if (!S.sleepMode) startSiren();
+  setTimeout(() => { try { input.focus(); } catch (e) {} }, 130);
+}
+
+function closeChallenge() {
+  challenge.open = false;
+  const modal = $('mission-alarm-modal');
+  if (modal) modal.classList.add('hidden');
+}
+
+// APK gọi hàm này khi người dùng bấm vào thông báo hệ thống
+window.onNativeNotificationTap = function () {
+  try {
+    if (S.sleepMode) return;
+    if (S.locked) openChallenge({ fromLockout: true });
+    else openChallenge({ fromChase: true });
+  } catch (e) { /* bỏ qua */ }
+};
+
+function verifyChallengeAnswer() {
+  const input = $('challenge-answer-input');
+  const err = $('challenge-error');
+  const raw = input.value;
+
+  if (!raw.trim()) {
+    err.textContent = 'Hãy nhập đáp án trước đã.';
+    err.classList.remove('hidden');
+    return;
+  }
+
+  let ok = false;
+  if (challenge.mode === 'math') {
+    ok = Number(raw.trim()) === Number(challenge.expected);
+  } else {
+    ok = norm(raw) === norm(challenge.expected);
+  }
+
+  if (!ok) {
+    vibrate([120, 80, 120]);
+    err.textContent = 'Sai rồi! Còi và nhắc nhở vẫn tiếp tục.';
+    err.classList.remove('hidden');
+    input.value = '';
+    input.focus();
+    S.discipline = clamp(S.discipline - 1, 0, 100);
+    refreshScore();
+    return;
+  }
+
+  const from = challenge.from;
+  stopSiren();
+  closeChallenge();
+
+  if (from === 'lockout') {
+    S.locked = false;
+    S.lockReason = '';
+    $('hardcore-lock-overlay').classList.add('hidden');
+    setActiveTag('active');
+  }
+  if (from === 'sleep') {
+    S.sleepMode = false;
+    $('goodnight-overlay').classList.add('hidden');
+    setActiveTag('active');
+  }
+
+  // Nếu vẫn còn vượt hạn mức / quá giờ, cho 5 phút ân hạn để tránh khóa lặp tức thì
+  if (S.usage.activeSec >= S.screenLimitMin * 60 || isPastCurfew()) {
+    S.snoozeUntil = Date.now() + 5 * 60 * 1000;
+  }
+
+  S.discipline = clamp(S.discipline + 1, 0, 100);
+  save(true);
+  refreshScore();
+  showToast('Chính xác 🎉', 'Đã tắt còi và dừng nhắc nhở. Hãy gập máy đi ngủ nhé.', 'ok');
+}
+
+function snoozeAlarm() {
+  stopSiren();
+  closeChallenge();
+  if (S.locked) {
+    S.locked = false;
+    S.lockReason = '';
+    $('hardcore-lock-overlay').classList.add('hidden');
+    setActiveTag('active');
+  }
+  S.discipline = clamp(S.discipline - 3, 0, 100);
+  S.snoozeUntil = Date.now() + 5 * 60 * 1000;
+  save(true);
+  refreshScore();
+  showToast('Đã hoãn còi 5 phút', 'Trừ 3 điểm kỷ luật. Hãy dùng 5 phút này để gập máy.', 'warn');
+}
+
+/* ---------------------- 8. CẬP NHẬT GIAO DIỆN ---------------------- */
+const fmtHMins = (sec) => {
+  const s = Math.max(0, Math.floor(sec));
+  return `${pad2(Math.floor(s / 3600))}:${pad2(Math.floor((s % 3600) / 60))}`;
+};
+const setText = (id, txt) => { const el = $(id); if (el) el.textContent = txt; };
+
+function refreshScore() {
+  setText('hud-score-display', `${Math.round(S.discipline)}%`);
+  const hud = $('hud-bg-guard-status');
+  if (hud) {
+    hud.textContent = S.bgGuard ? 'ON' : 'OFF';
+    hud.className = S.bgGuard ? 'font-mono font-bold text-emerald-400' : 'font-mono font-bold text-slate-500';
+  }
+}
+
+function updateLiveUI() {
+  const u = S.usage;
+  const limitSec = S.screenLimitMin * 60;
+  const pct = clamp(Math.round((u.activeSec / limitSec) * 100), 0, 100);
+  const remain = Math.max(0, limitSec - u.activeSec);
+
+  setText('hud-session-timer', fmtHMins(u.activeSec));
+  setText('sentinel-opened-at', u.firstOpenAt ? fmtClock(u.firstOpenAt) : '--:--');
+  setText('sentinel-live-counter', fmtDur(u.activeSec));
+  setText('sentinel-remaining-counter', remain > 0 ? fmtHM(remain) : '00:00');
+
+  setText('sentinel-opens', String(u.opens));
+  setText('sentinel-leaves', String(u.leaves));
+  setText('sentinel-longest', fmtDur(u.longestSec));
+  setText('sentinel-bg', fmtDur(u.bgSec));
+  setText('leave-app-counter-badge', `${u.leaves} lần`);
+
+  setText('screen-limit-percent-text', `${pct}%`);
+  const bar = $('screen-limit-progress-bar');
+  if (bar) {
+    bar.style.width = `${pct}%`;
+    bar.className = `h-full w-0 transition-all duration-700 ${pct >= 100 ? 'bg-rose-500' : pct >= 75 ? 'bg-gradient-to-r from-amber-500 to-rose-500' : 'bg-gradient-to-r from-emerald-500 via-amber-500 to-rose-500'}`;
+  }
+  const remainEl = $('sentinel-remaining-counter');
+  if (remainEl) remainEl.className = remain > 0
+    ? 'text-lg sm:text-xl font-mono font-bold text-pink-400'
+    : 'text-lg sm:text-xl font-mono font-bold text-rose-500 animate-pulse';
+
+  // Gợi ý giới nghiêm
+  const curfewEl = $('curfew-countdown-text');
+  if (curfewEl) {
+    if (isPastCurfew()) {
+      curfewEl.textContent = `⛔ Đã qua giới nghiêm ${S.curfew} — hãy gập máy.`;
+      curfewEl.className = 'text-[11px] text-rose-400 font-mono';
+    } else {
+      const mins = minutesToCurfew();
+      curfewEl.textContent = `Giới nghiêm ${S.curfew} — còn ${Math.floor(mins / 60)}h${pad2(mins % 60)}p`;
+      curfewEl.className = mins <= 60
+        ? 'text-[11px] text-amber-400 font-mono font-bold'
+        : 'text-[11px] text-slate-500 font-mono';
+    }
+  }
+
+  // Thẻ thống kê
+  setText('stat-total', fmtDur(u.activeSec));
+  setText('stat-bg', fmtDur(u.bgSec));
+  setText('stat-opens', String(u.opens));
+  setText('stat-leaves', String(u.leaves));
+  setText('stat-longest', fmtDur(u.longestSec));
+  setText('stat-streak', String(S.streak || 0));
+
+  // Dòng insight
+  const insight = $('usage-insight-text');
+  if (insight) {
+    if (u.activeSec < 30) {
+      insight.textContent = 'Chưa ghi nhận thời gian dùng máy đêm nay. Bộ đếm bắt đầu từ lúc bạn mở app.';
+    } else {
+      const last = u.lastActiveAt ? fmtClock(u.lastActiveAt) : '—';
+      insight.textContent = `Đêm nay: ${fmtDur(u.activeSec)} · ${u.opens} lần mở · ${u.leaves} lần rời app · hoạt động cuối ${last}`;
+    }
+  }
+}
+
+function renderLimitButtons() {
+  [15, 30, 45, 60].forEach((m) => {
+    const btn = $(`limit-btn-${m}`);
+    if (!btn) return;
+    const active = m === S.screenLimitMin;
+    btn.className = active
+      ? 'p-2.5 rounded-xl border border-pink-500/60 bg-pink-950/30 text-pink-300 text-xs font-bold btn-bouncy'
+      : 'p-2.5 rounded-xl border border-slate-800 bg-night-950 text-slate-300 text-xs font-bold hover:border-slate-700 btn-bouncy';
+  });
+}
+
+function setScreenLimit(mins) {
+  S.screenLimitMin = mins;
+  save();
+  renderLimitButtons();
+  updateLiveUI();
+  showToast('Đã đặt hạn mức', `Tối đa ${mins} phút dùng máy đêm nay.`, 'ok');
+}
+
+function setOption(key, val) {
+  if (key === 'repeatSec') {
+    const n = parseInt(val, 10);
+    val = [15, 30, 60].includes(n) ? n : 30;
+  }
+  S[key] = val;
+  save();
+  refreshScore();
+  if (key === 'bgGuard') {
+    if (isNativeApp()) {
+      NativeApp.setGuardConfig(val && S.notifOnLeave && !S.sleepMode, S.repeatSec);
+      if (!val) NativeApp.cancelGuard();
+    }
+    showToast(
+      val ? 'Đã bật bám đuổi nền' : 'Đã tắt bám đuổi nền',
+      val ? 'App sẽ nhắc khi bạn thoát ra ngoài.' : 'App sẽ im lặng khi bạn thoát ra ngoài.',
+      val ? 'ok' : 'warn'
+    );
+  }
+  if (key === 'notifOnLeave' && isNativeApp()) {
+    NativeApp.setGuardConfig(val && S.bgGuard && !S.sleepMode, S.repeatSec);
+  }
+  if (key === 'autoLockCurfew' && isNativeApp()) {
+    NativeApp.syncCurfew();
+  }
+  if (key === 'repeatSec' && isNativeApp()) {
+    NativeApp.setGuardConfig(S.bgGuard && S.notifOnLeave && !S.sleepMode, val);
+  }
+}
+
+function setCurfew(v, silent = false) {
+  if (!v) return;
+  S.curfew = v;
+  const input = $('curfew-auto-lock-time');
+  if (input) input.value = v;
+  save();
+  updateLiveUI();
+  if (isNativeApp()) NativeApp.syncCurfew();
+  if (!silent) showToast('Đã đổi giới nghiêm', `Mốc khóa mới: ${v}.`, 'ok');
+}
+
+function setNightShiftFilter(v) {
+  const val = clamp(parseInt(v, 10) || 0, 0, 65);
+  S.nightShift = val;
+  setText('night-shift-label', `${val}%`);
+  const overlay = $('night-shift-overlay');
+  if (overlay) {
+    overlay.style.backgroundColor = val === 0 ? 'transparent' : `rgba(255, 140, 50, ${(val / 100) * 0.42})`;
+  }
+  save();
+}
+
+function petTheCat(event) {
+  const container = $('heart-container');
+  if (!container) return;
+  const heart = document.createElement('div');
+  heart.className = 'flying-heart text-2xl select-none';
+  heart.textContent = ['💖', '✨', '🐾', '🌸', '⭐'][Math.floor(Math.random() * 5)];
+  const rect = container.getBoundingClientRect();
+  heart.style.left = `${(event.clientX || rect.left) - rect.left}px`;
+  heart.style.top = `${(event.clientY || rect.top) - rect.top - 20}px`;
+  container.appendChild(heart);
+  S.discipline = clamp(S.discipline + 1, 0, 100);
+  refreshScore();
+  setTimeout(() => heart.remove(), 1200);
+}
+
+/* ---- Biểu đồ & danh sách ---- */
+function renderHourly() {
+  const chart = $('usage-hourly-chart');
+  if (!chart) return;
+  const hours = [18, 19, 20, 21, 22, 23, 0, 1, 2, 3, 4, 5];
+  const vals = hours.map((h) => S.usage.hourly[h] || 0);
+  const max = Math.max(60, ...vals);
+  const nowH = new Date().getHours();
+
+  chart.innerHTML = hours.map((h, i) => {
+    const v = vals[i];
+    const pct = clamp(Math.round((v / max) * 100), v > 0 ? 8 : 3, 100);
+    const isNow = h === nowH;
+    return `<div class="flex-1 h-full flex flex-col items-center justify-end gap-1 min-w-0" title="${pad2(h)}:00 — ${fmtDur(v)}">
+        <div class="w-full usage-bar rounded-t ${v > 0 ? 'bg-gradient-to-t from-pink-600/80 to-cyan-400' : 'bg-slate-800/70'}" style="height:${pct}%"></div>
+        <span class="text-[9px] font-mono ${isNow ? 'text-pink-300 font-bold' : 'text-slate-500'}">${h}</span>
+      </div>`;
+  }).join('');
+
+  const peak = Math.max(...vals);
+  const peakEl = $('peak-hour-label');
+  if (peakEl) {
+    peakEl.textContent = peak > 0 ? `Cao nhất: ${pad2(hours[vals.indexOf(peak)])}:00` : 'Chưa có dữ liệu';
+  }
+}
+
+function renderSessions() {
+  const el = $('usage-session-list');
+  if (!el) return;
+
+  const rows = [];
+  if (!document.hidden && !S.sleepMode) {
+    rows.push({ live: true, start: runtime.sessionStart, end: Date.now(), sec: (Date.now() - runtime.sessionStart) / 1000 });
+  }
+  (S.usage.sessions || []).slice(0, 12).forEach((s) => rows.push(s));
+
+  if (!rows.length) {
+    el.innerHTML = '<p class="text-slate-500 text-center py-4">Chưa có phiên nào được ghi.</p>';
+    return;
+  }
+
+  el.innerHTML = rows.map((s) => `
+    <div class="flex items-center justify-between gap-2 p-2.5 bg-night-900 rounded-xl border border-slate-800">
+      <div class="min-w-0">
+        <p class="text-slate-200 font-mono font-bold text-[11px]">${fmtClock(s.start)} → ${s.live ? 'đang mở' : fmtClock(s.end)}</p>
+        <p class="text-[10px] text-slate-500">${s.live ? 'Phiên hiện tại' : 'Đã kết thúc'}</p>
+      </div>
+      <span class="text-cyan-300 font-mono font-bold shrink-0">${fmtDur(s.sec)}</span>
+    </div>`).join('');
+}
+
+function renderHistory() {
+  const el = $('usage-history-list');
+  if (!el) return;
+  const list = (S.history || []).slice(0, 7);
+  if (!list.length) {
+    el.innerHTML = '<p class="text-slate-500 text-center py-4">Chưa có lịch sử. Dữ liệu sẽ xuất hiện sau đêm đầu tiên.</p>';
+    return;
+  }
+  const max = Math.max(...list.map((h) => h.activeSec || 0), 60);
+  el.innerHTML = list.map((h) => {
+    const pct = clamp(Math.round(((h.activeSec || 0) / max) * 100), 4, 100);
+    return `<div class="space-y-1">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-slate-300 font-mono text-[11px]">${esc(h.day)}</span>
+          <span class="text-[11px] ${h.goalMet ? 'text-emerald-300' : 'text-rose-300'} font-mono font-bold">${fmtDur(h.activeSec || 0)} ${h.goalMet ? '✓' : '✗'}</span>
+        </div>
+        <div class="w-full h-2 bg-night-900 rounded-full overflow-hidden border border-slate-800">
+          <div class="h-full ${h.goalMet ? 'bg-emerald-500' : 'bg-rose-500'}" style="width:${pct}%"></div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderStats() {
+  renderHourly();
+  renderSessions();
+  renderHistory();
+}
+
+function resetTodayUsage() {
+  if (!confirm('Đặt lại toàn bộ số liệu sử dụng đêm nay? Lịch sử các đêm trước vẫn được giữ.')) return;
+  S.usage = freshUsage();
+  S.usage.firstOpenAt = Date.now();
+  S.usage.opens = 1;
+  runtime.sessionStart = Date.now();
+  save(true);
+  refreshAll();
+  showToast('Đã đặt lại', 'Số liệu đêm nay bắt đầu lại từ 0.', 'ok');
+}
+
+function refreshAll() {
+  refreshScore();
+  updateLiveUI();
+  renderLimitButtons();
+  renderStats();
+  renderJournalHistory();
+  renderNotifSettings();
+  updateNotificationStatusUI();
+  updateActiveRiddlePreview();
+
+  const shift = $('night-shift-slider');
+  if (shift) shift.value = S.nightShift;
+  setNightShiftFilter(S.nightShift);
+
+  const curfewInput = $('curfew-auto-lock-time');
+  if (curfewInput) curfewInput.value = S.curfew;
+
+  ['auto-lock-on-limit', 'auto-lock-on-curfew', 'bg-persistent-notif-toggle',
+    'notif-on-leave-toggle', 'solve-on-return-toggle'].forEach((id) => {
+    const el = $(id);
+    if (!el) return;
+    const map = {
+      'auto-lock-on-limit': S.autoLockLimit,
+      'auto-lock-on-curfew': S.autoLockCurfew,
+      'bg-persistent-notif-toggle': S.bgGuard,
+      'notif-on-leave-toggle': S.notifOnLeave,
+      'solve-on-return-toggle': S.solveOnReturn
+    };
+    el.checked = !!map[id];
+  });
+
+  const repeat = $('bg-repeat-interval-select');
+  if (repeat) repeat.value = String(S.repeatSec);
+}
+
+function renderNotifSettings() {
+  const q = $('custom-riddle-question');
+  const a = $('custom-riddle-answer');
+  const h = $('custom-riddle-hint');
+  if (q && !q.value) q.value = S.riddle.q;
+  if (a && !a.value) a.value = S.riddle.a;
+  if (h && !h.value) h.value = S.riddle.h;
+  applyChallengeModeUI();
+}
+
+/* ---------------------- 9. CẤU HÌNH CÂU ĐỐ ---------------------- */
+function applyChallengeModeUI() {
+  ['custom', 'math', 'pledge'].forEach((m) => {
+    const btn = $(`mode-btn-${m}`);
+    if (!btn) return;
+    btn.className = (m === S.challengeMode)
+      ? 'p-2.5 rounded-xl border-2 border-pink-500 bg-pink-950/30 text-pink-300 text-xs font-bold btn-bouncy'
+      : 'p-2.5 rounded-xl border border-slate-800 bg-night-900 text-slate-300 text-xs font-bold btn-bouncy';
+  });
+  const form = $('custom-riddle-form');
+  if (form) form.style.opacity = S.challengeMode === 'custom' ? '1' : '0.55';
+  updateActiveRiddlePreview();
+}
+
+function setChallengeMode(mode) {
+  S.challengeMode = mode;
+  save();
+  applyChallengeModeUI();
+  const names = { custom: 'Câu đố tự đặt', math: 'Toán ngẫu nhiên', pledge: 'Gõ cam kết' };
+  showToast('Đã đổi chế độ thử thách', names[mode] || mode, 'ok');
+}
+
+function saveCustomRiddleConfig() {
+  const q = ($('custom-riddle-question')?.value || '').trim();
+  const a = ($('custom-riddle-answer')?.value || '').trim();
+  const h = ($('custom-riddle-hint')?.value || '').trim();
+
+  if (!q || !a) {
+    showToast('Thiếu thông tin', 'Cần nhập cả câu hỏi và đáp án để làm khóa bảo vệ.', 'warn');
+    return;
+  }
+
+  S.riddle = { q, a, h };
+  S.challengeMode = 'custom';
+  S.discipline = clamp(S.discipline + 2, 0, 100);
+  save(true);
+  applyChallengeModeUI();
+  refreshScore();
+  showToast('Đã lưu câu đố 🧩', 'Từ giờ báo động chỉ tắt khi bạn giải đúng câu này.', 'ok');
+}
+
+function updateActiveRiddlePreview() {
+  const el = $('active-riddle-preview');
+  if (!el) return;
+  if (S.challengeMode === 'custom') el.textContent = `Tự đặt: "${S.riddle.q}"`;
+  else if (S.challengeMode === 'math') el.textContent = 'Toán: phép tính ngẫu nhiên';
+  else el.textContent = 'Cam kết: "TOI CAM KET DI NGU NGAY"';
+}
+
+/* ---------------------- 10. LỊCH 4 ĐỐI TƯỢNG ---------------------- */
+const PROFILES_DATA = {
+  cap1: {
+    name: 'Bé Cấp 1 (6–11 tuổi)', curfew: '20:30', wakeDefault: '06:30',
+    cards: [
+      { icon: '🧸', title: 'Nhu cầu ngủ', val: '9.5–11 tiếng', desc: 'Hormone GH tiết đỉnh cao để phát triển chiều cao' },
+      { icon: '🚫', title: 'Tắt màn hình', val: 'Trước 20:00', desc: 'Cách ly TV và iPad khỏi phòng ngủ' },
+      { icon: '🛏️', title: 'Giờ lên giường', val: '20:30–20:45', desc: 'Không thức làm bài khuya' },
+      { icon: '🌟', title: 'Chu kỳ tối ưu', val: '6.5 chu kỳ', desc: 'Sáng mai dậy tỉnh táo đến trường' }
+    ],
+    timeline: [
+      { time: '19:45', title: 'Đóng sách vở', desc: 'Soạn cặp sẵn sàng cho buổi học ngày mai' },
+      { time: '20:00', title: 'Cắt thiết bị', desc: 'Tắt mọi màn hình TV/điện thoại' },
+      { time: '20:15', title: 'Vệ sinh cá nhân', desc: 'Rửa mặt, đánh răng, thay đồ ngủ rộng rãi' },
+      { time: '20:30', title: 'Lên giường ấm', desc: 'Nghe đọc truyện và chìm vào giấc ngủ' }
+    ]
+  },
+  cap2: {
+    name: 'Học sinh Cấp 2 (11–15 tuổi)', curfew: '21:45', wakeDefault: '06:00',
+    cards: [
+      { icon: '📚', title: 'Nhu cầu ngủ', val: '8.5–9.5 tiếng', desc: 'Tái tạo nơ-ron và cảm xúc tuổi dậy thì' },
+      { icon: '🚫', title: 'Tắt mạng xã hội', val: 'Trước 21:15', desc: 'Cắt đứt dopamine lướt video ngắn' },
+      { icon: '🛏️', title: 'Giờ lên giường', val: '21:30–22:00', desc: 'Tránh thức làm bài dồn' },
+      { icon: '🌟', title: 'Chu kỳ tối ưu', val: '5.5–6 chu kỳ', desc: 'Duy trì khả năng tập trung tiết 1–2' }
+    ],
+    timeline: [
+      { time: '21:00', title: 'Dừng học căng thẳng', desc: 'Không cố giải đề khó sát giờ ngủ' },
+      { time: '21:15', title: 'Sạc máy xa giường', desc: 'Cắm sạc trên bàn học cách giường 2m' },
+      { time: '21:30', title: 'Hạ nhiệt não', desc: 'Viết 2 việc sáng mai cần làm ra giấy' },
+      { time: '21:45', title: 'Chốt giấc ngủ', desc: 'Bật bài thở 4-7-8 dỗ giấc ngủ sâu' }
+    ]
+  },
+  cap3: {
+    name: 'Học sinh Cấp 3 (15–18 tuổi)', curfew: '23:00', wakeDefault: '06:00',
+    cards: [
+      { icon: '🎓', title: 'Nhu cầu ngủ', val: '7.5–8.5 tiếng', desc: 'Bảo vệ trí nhớ dài hạn phục vụ thi cử' },
+      { icon: '🚫', title: 'Giới nghiêm thiết bị', val: '22:30', desc: 'Chốt chặn ánh sáng xanh triệt để' },
+      { icon: '🛏️', title: 'Chốt đi ngủ', val: '22:45–23:00', desc: 'Bảo vệ hệ thống Glymphatic rửa não' },
+      { icon: '🌟', title: 'Chu kỳ tối ưu', val: '5 chu kỳ chuẩn', desc: 'Tương đương 7.5 giờ phục hồi trí lực' }
+    ],
+    timeline: [
+      { time: '22:15', title: 'Đóng bài học tư duy', desc: 'Thu gọn bàn học để giải phóng thị giác' },
+      { time: '22:30', title: 'Giãn cơ cổ vai gáy', desc: 'Uống ngụm nước ấm, tắt đèn trần bật đèn vàng' },
+      { time: '22:45', title: 'Xả lo âu bài thi', desc: 'Ghi nhật ký đêm, buông điện thoại hoàn toàn' },
+      { time: '23:00', title: 'Giới nghiêm chốt', desc: 'Bật sóng não Delta và ngủ sâu' }
+    ]
+  },
+  adult: {
+    name: 'Người đi làm', curfew: '23:30', wakeDefault: '06:30',
+    cards: [
+      { icon: '💼', title: 'Nhu cầu ngủ', val: '7.0–8.0 tiếng', desc: 'Phục hồi căng thẳng và ổn định huyết áp' },
+      { icon: '🚫', title: 'Tắt tin nhắn task', val: 'Sau 21:30', desc: 'Chặn thông báo Zalo / Slack công ty' },
+      { icon: '🛏️', title: 'Giờ lên giường', val: '23:00–23:30', desc: 'Chống mất ngủ kinh niên và kiệt sức' },
+      { icon: '🌟', title: 'Chu kỳ tối ưu', val: '5 chu kỳ chuẩn', desc: 'Tương đương 7.5 giờ sạc đầy năng lượng' }
+    ],
+    timeline: [
+      { time: '21:30', title: 'Ngắt kết nối công việc', desc: 'Không mở laptop xử lý task đột xuất' },
+      { time: '22:15', title: 'Tắm nước ấm thư giãn', desc: 'Hạ thân nhiệt trung tâm kích thích buồn ngủ' },
+      { time: '22:45', title: 'Cắt màn hình điện thoại', desc: 'Đọc sách giấy hoặc nghe âm thanh sóng não' },
+      { time: '23:30', title: 'Giới nghiêm tuyệt đối', desc: 'Gập máy đi ngủ để nạp lại năng lượng ngày mới' }
+    ]
+  }
+};
+
+function selectProfile(key, silent = false) {
+  const data = PROFILES_DATA[key];
+  if (!data) return;
+  S.profileKey = key;
+  save();
+
+  ['cap1', 'cap2', 'cap3', 'adult'].forEach((k) => {
+    const btn = $(`prof-btn-${k}`);
+    if (!btn) return;
+    btn.className = (k === key)
+      ? 'px-3 py-2 rounded-xl text-xs font-bold transition bg-gradient-to-r from-pink-500 to-indigo-600 text-white shadow-md btn-bouncy'
+      : 'px-3 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-white btn-bouncy';
+  });
+
+  setText('profile-curfew-tag', `Giới nghiêm: ${silent ? S.curfew : data.curfew}`);
+  const wake = $('calc-wake-target');
+  if (wake) wake.value = data.wakeDefault;
+  if (!silent) setCurfew(data.curfew);
+
+  const cardsEl = $('profile-stat-cards');
+  if (cardsEl) {
+    cardsEl.innerHTML = data.cards.map((c) => `
+      <div class="p-4 bg-night-950 rounded-2xl border border-slate-800 space-y-1 text-center sm:text-left">
+        <div class="text-2xl">${c.icon}</div>
+        <span class="text-[10px] text-slate-400 uppercase font-bold block">${esc(c.title)}</span>
+        <div class="text-base font-bold text-pink-300 font-mono">${esc(c.val)}</div>
+        <span class="text-[10px] text-slate-500 block leading-tight">${esc(c.desc)}</span>
+      </div>`).join('');
+  }
+
+  const timelineEl = $('profile-timeline-grid');
+  if (timelineEl) {
+    timelineEl.innerHTML = data.timeline.map((t, idx) => `
+      <div class="p-3 bg-night-900 rounded-2xl border border-slate-800 space-y-1">
+        <div class="flex justify-between items-center text-xs">
+          <span class="text-pink-400 font-mono font-bold">${esc(t.time)}</span>
+          <span class="text-[9px] px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-bold font-mono">BƯỚC ${idx + 1}</span>
+        </div>
+        <strong class="text-slate-200 block text-xs">${esc(t.title)}</strong>
+        <p class="text-[11px] text-slate-400 leading-snug">${esc(t.desc)}</p>
+      </div>`).join('');
+  }
+
+  calcProfileCycles();
+  if (!silent) showToast('Đã chọn nhóm', `${data.name} — giới nghiêm ${data.curfew}.`, 'ok');
+}
+
+function calcProfileCycles() {
+  const wakeVal = $('calc-wake-target')?.value;
+  const grid = $('profile-cycles-grid');
+  if (!wakeVal || !grid) return;
+
+  const [wH, wM] = wakeVal.split(':').map(Number);
+  const wakeDate = new Date();
+  wakeDate.setHours(wH, wM, 0, 0);
+  if (wakeDate.getTime() <= Date.now()) wakeDate.setDate(wakeDate.getDate() + 1);
+
+  const list = [
+    { count: 6, h: 9.0, tag: 'Nạp đầy 100% năng lượng', rec: false },
+    { count: 5, h: 7.5, tag: 'Khuyến nghị chuẩn sinh học', rec: true },
+    { count: 4, h: 6.0, tag: 'Mức tối thiểu khi bận rộn', rec: false }
+  ];
+
+  grid.innerHTML = list.map((item) => {
+    const totalMins = (item.count * 90) + 15;
+    const sleepDate = new Date(wakeDate.getTime() - totalMins * 60000);
+    const h = pad2(sleepDate.getHours());
+    const m = pad2(sleepDate.getMinutes());
+    return `<div class="p-4 rounded-2xl ${item.rec ? 'border-2 border-pink-500 bg-pink-950/20' : 'border border-slate-800 bg-night-900'} text-center space-y-1">
+        <span class="text-[11px] font-mono font-bold text-slate-400">${item.count} chu kỳ (${item.h}h)</span>
+        <div class="text-3xl font-black font-mono text-pink-300">${h}:${m}</div>
+        <span class="text-[10px] text-slate-400 block">${item.tag}</span>
+      </div>`;
+  }).join('');
+
+  const rec = new Date(wakeDate.getTime() - (5 * 90 + 15) * 60000);
+  const hint = $('sleep-now-hint');
+  if (hint) {
+    const diffMin = Math.round((rec.getTime() - Date.now()) / 60000);
+    hint.textContent = diffMin > 0
+      ? `Để ngủ đủ 5 chu kỳ, bạn nên lên giường lúc ${pad2(rec.getHours())}:${pad2(rec.getMinutes())} (còn ${Math.floor(diffMin / 60)}h${pad2(diffMin % 60)}p).`
+      : `Giờ ngủ gợi ý ${pad2(rec.getHours())}:${pad2(rec.getMinutes())} đã qua — hãy đi ngủ ngay để không mất chu kỳ.`;
+  }
+}
+
+/* ---------------------- 11. PHƯƠNG HƯỚNG & NHẬT KÝ ---------------------- */
+const DIRECTIONS_KEY = 'sleepmate.directions';
+const JOURNAL_KEY = 'sleepmate.journal';
+
+function saveDirectionsPlan() {
+  const g1 = ($('direction-goal-1')?.value || '').trim();
+  const g2 = ($('direction-goal-2')?.value || '').trim();
+  const g3 = ($('direction-goal-3')?.value || '').trim();
+
+  if (!g1 && !g2 && !g3) {
+    showToast('Chưa có mục tiêu', 'Hãy điền ít nhất 1 mục tiêu ưu tiên cho sáng mai.', 'warn');
+    return;
+  }
+
+  try {
+    localStorage.setItem(DIRECTIONS_KEY, JSON.stringify({
+      goal1: g1, goal2: g2, goal3: g3,
+      date: new Date().toLocaleDateString('vi-VN')
+    }));
+  } catch (e) { /* bỏ qua */ }
+
+  S.discipline = clamp(S.discipline + 3, 0, 100);
+  save();
+  refreshScore();
+  showToast('Đã chốt phương hướng 🎯', 'Tâm trí đã có kim chỉ nam rõ ràng cho ngày mai.', 'ok');
+}
+
+function loadDirectionsPlan() {
+  try {
+    const raw = localStorage.getItem(DIRECTIONS_KEY);
+    const data = raw ? JSON.parse(raw) : (S.legacyPlan || null);
+    if (!data) return;
+    const set = (id, v) => { const el = $(id); if (el) el.value = v || ''; };
+    set('direction-goal-1', data.goal1);
+    set('direction-goal-2', data.goal2);
+    set('direction-goal-3', data.goal3);
+  } catch (e) { /* bỏ qua */ }
+}
+
+function getJournal() {
+  try {
+    const raw = localStorage.getItem(JOURNAL_KEY);
+    const list = raw ? JSON.parse(raw) : [];
+    return Array.isArray(list) ? list : [];
+  } catch (e) { return []; }
+}
+
+function saveNightJournal() {
+  const mood = ($('journal-mood-input')?.value || '').trim();
+  const content = ($('journal-content-input')?.value || '').trim();
+
+  if (!content) {
+    showToast('Chưa có nội dung', 'Hãy viết vài dòng tâm sự trước khi lưu.', 'warn');
+    return;
+  }
+
+  const entry = {
+    id: Date.now(),
+    date: new Date().toLocaleDateString('vi-VN'),
+    time: new Date().toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+    mood: mood || 'Bình thường',
+    content
+  };
+
+  const list = getJournal();
+  list.unshift(entry);
+  try { localStorage.setItem(JOURNAL_KEY, JSON.stringify(list.slice(0, 30))); } catch (e) { /* bỏ qua */ }
+
+  S.discipline = clamp(S.discipline + 3, 0, 100);
+  save();
+  refreshScore();
+
+  const moodEl = $('journal-mood-input');
+  const contentEl = $('journal-content-input');
+  if (moodEl) moodEl.value = '';
+  if (contentEl) contentEl.value = '';
+
+  renderJournalHistory();
+  showToast('Đã lưu nhật ký 💌', 'Hãy buông máy đi ngủ thôi.', 'ok');
+}
+
+function renderJournalHistory() {
+  const container = $('journal-history-list');
+  if (!container) return;
+  const list = getJournal();
+  setText('journal-count-badge', `${list.length} bài`);
+
+  if (!list.length) {
+    container.innerHTML = '<div class="p-4 bg-night-950 rounded-2xl border border-slate-800 text-center text-slate-500 text-xs">Chưa có bài nhật ký nào được lưu.</div>';
+    return;
+  }
+
+  container.innerHTML = list.map((item) => `
+    <div class="p-3.5 bg-night-950 rounded-2xl border border-slate-800 space-y-1.5 text-xs">
+      <div class="flex justify-between items-center gap-2">
+        <span class="text-pink-400 font-bold font-mono">${esc(item.date)} (${esc(item.time)})</span>
+        <span class="text-[10px] px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 font-semibold shrink-0">${esc(item.mood)}</span>
+      </div>
+      <p class="text-slate-300 leading-relaxed whitespace-pre-wrap break-words">${esc(item.content)}</p>
+    </div>`).join('');
+}
+
+function clearJournalHistory() {
+  if (!confirm('Bạn có chắc muốn xóa toàn bộ lịch sử nhật ký đã lưu không?')) return;
+  try { localStorage.removeItem(JOURNAL_KEY); } catch (e) { /* bỏ qua */ }
+  renderJournalHistory();
+  showToast('Đã xóa nhật ký', 'Toàn bộ bài ghi trên máy đã được xóa.', 'warn');
+}
+
+/* ---------------------- 12. THỞ 4-7-8 ---------------------- */
+const breath = { on: false, timer: null, cycles: 0 };
+
+function toggleBreathingExercise() {
+  if (breath.on) stopBreath();
+  else startBreath();
+}
+
+function startBreath() {
+  breath.on = true;
+  breath.cycles = 0;
+  const btn = $('btn-start-breath');
+  if (btn) btn.textContent = 'Dừng thở';
+  setText('breath-cycles-text', 'Chu kỳ hoàn thành: 0');
+
+  const phases = [
+    { n: 'Hít vào', s: 4, sc: 1.35 },
+    { n: 'Nín thở', s: 7, sc: 1.35 },
+    { n: 'Thở chậm', s: 8, sc: 1.0 }
+  ];
+  let idx = 0;
+
+  const step = () => {
+    if (!breath.on) return;
+    if (idx > 0 && idx % 3 === 0) {
+      breath.cycles++;
+      setText('breath-cycles-text', `Chu kỳ hoàn thành: ${breath.cycles}`);
+    }
+    const p = phases[idx % 3];
+    const circle = $('breath-circle');
+    if (circle) circle.style.transform = `scale(${p.sc})`;
+    setText('breath-status-text', p.n);
+    let left = p.s;
+    setText('breath-countdown-num', String(left));
+
+    breath.timer = setInterval(() => {
+      left--;
+      if (left <= 0) {
+        clearInterval(breath.timer);
+        breath.timer = null;
+        idx++;
+        step();
+      } else {
+        setText('breath-countdown-num', String(left));
+      }
+    }, 1000);
+  };
+
+  step();
+}
+
+function stopBreath() {
+  breath.on = false;
+  if (breath.timer) { clearInterval(breath.timer); breath.timer = null; }
+  const btn = $('btn-start-breath');
+  if (btn) btn.textContent = 'Bắt đầu thở';
+  const circle = $('breath-circle');
+  if (circle) circle.style.transform = 'scale(1)';
+  setText('breath-status-text', 'Sẵn sàng');
+  setText('breath-countdown-num', '4');
+}
+
+/* ---------------------- 13. SÓNG NÃO (WEB AUDIO) ---------------------- */
+const binaural = { playing: false, preset: 'delta', vol: 0.18, nodes: [], master: null };
+
+function makePinkNoise(ctx, seconds) {
+  const len = Math.floor(ctx.sampleRate * seconds);
+  const buffer = ctx.createBuffer(1, len, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+  for (let i = 0; i < len; i++) {
+    const white = Math.random() * 2 - 1;
+    b0 = 0.99886 * b0 + white * 0.0555179;
+    b1 = 0.99332 * b1 + white * 0.0750759;
+    b2 = 0.96900 * b2 + white * 0.1538520;
+    b3 = 0.86650 * b3 + white * 0.3104856;
+    b4 = 0.55000 * b4 + white * 0.5329522;
+    b5 = -0.7616 * b5 - white * 0.0168980;
+    data[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.11;
+    b6 = white * 0.115926;
+  }
+  return buffer;
+}
+
+function stopBinaural() {
+  binaural.nodes.forEach((n) => {
+    try { if (typeof n.stop === 'function') n.stop(); } catch (e) { /* bỏ qua */ }
+    try { n.disconnect(); } catch (e) { /* bỏ qua */ }
+  });
+  binaural.nodes = [];
+  binaural.master = null;
+  binaural.playing = false;
+}
+
+function startBinaural(preset) {
+  const ctx = getCtx();
+  if (!ctx) return;
+  stopBinaural();
+
+  const master = ctx.createGain();
+  master.gain.value = binaural.vol;
+  master.connect(ctx.destination);
+  binaural.master = master;
+  binaural.nodes.push(master);
+
+  if (preset === 'pink') {
+    const src = ctx.createBufferSource();
+    src.buffer = makePinkNoise(ctx, 4);
+    src.loop = true;
+    src.connect(master);
+    src.start();
+    binaural.nodes.push(src);
+  } else {
+    const beat = preset === 'theta' ? 5 : 2.5;
+    const base = 200;
+    const merger = ctx.createChannelMerger(2);
+    const left = ctx.createOscillator();
+    const right = ctx.createOscillator();
+    left.type = 'sine';
+    right.type = 'sine';
+    left.frequency.value = base;
+    right.frequency.value = base + beat;
+
+    const gl = ctx.createGain();
+    const gr = ctx.createGain();
+    gl.gain.value = 0.42;
+    gr.gain.value = 0.42;
+
+    left.connect(gl);
+    gl.connect(merger, 0, 0);
+    right.connect(gr);
+    gr.connect(merger, 0, 1);
+    merger.connect(master);
+
+    left.start();
+    right.start();
+    binaural.nodes.push(left, right, gl, gr, merger);
+  }
+
+  binaural.playing = true;
+  binaural.preset = preset;
+}
+
+function updateBinauralUI() {
+  const btn = $('btn-toggle-binaural');
+  const tag = $('binaural-status-tag');
+  if (binaural.playing) {
+    if (btn) btn.innerHTML = '<i class="fa-solid fa-stop mr-1"></i> Dừng nhạc';
+    if (tag) {
+      tag.textContent = binaural.preset === 'pink' ? 'Đang phát Pink Noise' : `Đang phát ${binaural.preset === 'theta' ? 'Theta (5Hz)' : 'Delta (2.5Hz)'}`;
+      tag.className = 'text-emerald-300 font-mono font-bold shrink-0';
+    }
+  } else {
+    if (btn) btn.innerHTML = '<i class="fa-solid fa-play mr-1"></i> Bật âm thanh';
+    if (tag) { tag.textContent = 'Đang tắt'; tag.className = 'text-slate-500 font-mono font-bold shrink-0'; }
+  }
+}
+
+function toggleBinauralBeat() {
+  if (binaural.playing) {
+    stopBinaural();
+    updateBinauralUI();
+    showToast('Đã tắt sóng não', 'Âm thanh đã dừng.', 'info');
+  } else {
+    startBinaural(binaural.preset);
+    updateBinauralUI();
+    showToast('Đang phát sóng não', 'Nhớ đeo tai nghe để hiệu ứng lệch tần phát huy tác dụng.', 'ok');
+  }
+}
+
+function selectBinauralPreset(preset) {
+  binaural.preset = preset;
+  ['delta', 'theta', 'pink'].forEach((k) => {
+    const el = $(`preset-${k}`);
+    if (!el) return;
+    el.className = (k === preset)
+      ? 'p-5 rounded-2xl border-2 border-pink-500 bg-pink-950/20 cursor-pointer transition space-y-1'
+      : 'p-5 rounded-2xl border border-slate-800 bg-night-950 cursor-pointer hover:border-slate-700 transition space-y-1';
+  });
+  if (binaural.playing) {
+    startBinaural(preset);
+    updateBinauralUI();
+  }
+}
+
+function setBinauralVolume(v) {
+  const val = clamp(parseInt(v, 10) || 0, 0, 100);
+  binaural.vol = val / 100;
+  setText('binaural-volume-label', `${val}%`);
+  if (binaural.master) binaural.master.gain.value = binaural.vol;
+}
+
+/* ---------------------- 14. CẢM BIẾN GÓC NGHIÊNG ---------------------- */
+let gyroStarted = false;
+
+function requestMotionPermission() {
+  if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+    DeviceOrientationEvent.requestPermission().then((state) => {
+      if (state === 'granted') startGyro();
+      else showToast('Chưa cấp quyền', 'Cảm biến góc nghiêng bị từ chối.', 'warn');
+    }).catch(() => showToast('Lỗi cảm biến', 'Không thể xin quyền cảm biến.', 'warn'));
+  } else {
+    startGyro();
+  }
+}
+
+function startGyro() {
+  if (gyroStarted) {
+    showToast('Cảm biến đang bật', 'Hệ thống đã theo dõi góc nghiêng của máy.', 'ok');
+    return;
+  }
+  gyroStarted = true;
+  window.addEventListener('deviceorientation', onOrientation);
+  showToast('Đã bật Gyroscope', 'Hệ thống sẽ cảnh báo khi bạn nằm bấm máy vào ban đêm.', 'ok');
+}
+
+function onOrientation(e) {
+  const beta = Math.round(e.beta || 0);
+  setText('sensor-beta-display', `${beta}°`);
+
+  const h = new Date().getHours();
+  const isNight = (h >= 22 || h < 5);
+  const lying = Math.abs(beta) <= 22;
+
+  const postureEl = $('posture-state-text');
+  if (postureEl) {
+    postureEl.textContent = lying ? 'Tư thế: nằm bấm' : 'Tư thế: dựng tốt';
+    postureEl.className = lying
+      ? 'text-[10px] text-rose-400 font-bold animate-pulse'
+      : 'text-[10px] text-emerald-400 font-bold';
+  }
+
+  if (!isNight || !lying || !S.postureGuard || S.locked || S.sleepMode) return;
+
+  const now = Date.now();
+  if (now - runtime.lastPostureAlertAt < 5 * 60 * 1000) return;
+  runtime.lastPostureAlertAt = now;
+
+  setText('phone-angle-display', `${beta}°`);
+  $('phone-posture-modal').classList.remove('hidden');
+  startSiren();
+  Notifier.send('🛏️ Cảnh báo nằm bấm máy', 'Góc máy cho thấy bạn đang nằm rọi ánh sáng xanh vào mắt!', { force: true, kind: 'warn' });
+}
+
+function dismissPostureAlert() {
+  stopSiren();
+  $('phone-posture-modal').classList.add('hidden');
+  S.discipline = clamp(S.discipline + 2, 0, 100);
+  save();
+  refreshScore();
+  showToast('Tốt lắm! +2 kỷ luật', 'Hãy giữ máy thẳng đứng hoặc đặt lên bàn.', 'ok');
+}
+
+/* ---------------------- 15. TAB & KHỞI CHẠY ---------------------- */
+function switchTab(id) {
+  document.querySelectorAll('.tab-content').forEach((el) => el.classList.add('hidden'));
+  const section = $(`section-${id}`);
+  if (section) section.classList.remove('hidden');
+
+  document.querySelectorAll('.tab-btn').forEach((btn) => {
+    btn.className = 'tab-btn shrink-0 px-4 py-2 rounded-2xl text-xs font-bold transition flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-night-850 btn-bouncy';
+  });
+  const active = $(`tab-btn-${id}`);
+  if (active) {
+    active.className = 'tab-btn shrink-0 px-4 py-2 rounded-2xl text-xs font-bold transition flex items-center gap-2 text-white bg-gradient-to-r from-pink-500 to-indigo-600 shadow-neon-pink btn-bouncy';
+  }
+
+  statsVisible = (id === 'stats');
+  if (statsVisible) renderStats();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function buildManifest() {
+  try {
+    const link = $('manifest-placeholder');
+    const apple = $('apple-touch-icon');
+    const isHttp = /^https?:$/.test(location.protocol);
+
+    // Khi chạy trên hosting (HTTPS/localhost) dùng manifest + icon thật để cài được app
+    if (isHttp) {
+      if (link) link.href = './manifest.webmanifest';
+      if (apple) apple.href = './apple-touch-icon.png';
+      return;
+    }
+
+    // Chạy trực tiếp file:// — dùng manifest blob để không lỗi, nhưng không cài được
+    const data = {
+      name: 'SLEEPMATE Pro',
+      short_name: 'SLEEPMATE',
+      start_url: location.href,
+      scope: './',
+      display: 'standalone',
+      orientation: 'portrait',
+      background_color: '#060914',
+      theme_color: '#FF2A85',
+      icons: [{ src: APP_ICON, sizes: '512x512', type: 'image/svg+xml', purpose: 'any' }]
+    };
+    const blob = new Blob([JSON.stringify(data)], { type: 'application/manifest+json' });
+    if (link) link.href = URL.createObjectURL(blob);
+    if (apple) apple.href = APP_ICON;
+  } catch (e) { /* bỏ qua */ }
+}
+
+function boot() {
+  loadState();
+  rolloverIfNeeded();
+
+  runtime.sessionStart = Date.now();
+  runtime.lastTick = Date.now();
+  runtime.lastInteraction = Date.now();
+
+  S.usage.opens++;
+  if (!S.usage.firstOpenAt) S.usage.firstOpenAt = Date.now();
+  S.usage.lastActiveAt = Date.now();
+
+  try {
+    if (!localStorage.getItem(JOURNAL_KEY) && Array.isArray(S.legacyJournal) && S.legacyJournal.length) {
+      localStorage.setItem(JOURNAL_KEY, JSON.stringify(S.legacyJournal.slice(0, 30)));
+    }
+  } catch (e) { /* bỏ qua */ }
+
+  buildManifest();
+  Notifier.init();
+  updateInstallUI();
+  updateNotificationStatusUI();
+  maybeShowInstallGuide();
+
+  if (isNativeApp()) {
+    NativeApp.setGuardConfig(S.bgGuard && S.notifOnLeave && !S.sleepMode, S.repeatSec);
+    NativeApp.syncCurfew();
+  }
+
+  refreshAll();
+  loadDirectionsPlan();
+  renderJournalHistory();
+  selectProfile(S.profileKey || 'cap3', true);
+
+  setText('journal-date', new Date().toLocaleDateString('vi-VN'));
+  setText('binaural-volume-label', `${Math.round(binaural.vol * 100)}%`);
+  updateBinauralUI();
+
+  startClock();
+  updateLiveUI();
+  renderStats();
+
+  if (S.sleepMode) {
+    $('goodnight-total').textContent = fmtDur(S.usage.activeSec);
+    $('goodnight-leaves').textContent = S.usage.leaves;
+    $('goodnight-streak').textContent = S.streak;
+    $('goodnight-overlay').classList.remove('hidden');
+    setActiveTag('sleep');
+  } else if (S.locked) {
+    $('lockout-reason-text').textContent = S.lockReason || 'Máy vẫn đang bị khóa từ phiên trước.';
+    $('hardcore-lock-overlay').classList.remove('hidden');
+    setActiveTag('locked');
+    openChallenge({ fromLockout: true });
+  } else {
+    setActiveTag('active');
+  }
+
+  if (!S.sleepMode && S.usage.leaves > 0) {
+    setTimeout(() => {
+      showToast('Chào mừng trở lại', `Đêm nay bạn đã dùng ${fmtDur(S.usage.activeSec)} trên ${S.screenLimitMin} phút hạn mức.`, 'info');
+    }, 1200);
+  }
+
+  save(true);
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && challenge.open && document.activeElement === $('challenge-answer-input')) {
+    verifyChallengeAnswer();
+  }
+});
+
+/* ---------------------- 16. TRỢ LÝ AI ---------------------- */
+const AI_CFG_KEY = 'sleepmate.ai.cfg';
+const AI_CHAT_KEY = 'sleepmate.ai.chat';
+
+const AI_PRESETS = {
+  openai: { base: 'https://api.openai.com/v1', model: 'gpt-4o-mini' },
+  gemini: { base: 'https://generativelanguage.googleapis.com/v1beta/openai', model: 'gemini-2.0-flash' },
+  groq: { base: 'https://api.groq.com/openai/v1', model: 'llama-3.3-70b-versatile' },
+  deepseek: { base: 'https://api.deepseek.com/v1', model: 'deepseek-chat' },
+  openrouter: { base: 'https://openrouter.ai/api/v1', model: 'openai/gpt-4o-mini' },
+  ollama: { base: 'http://localhost:11434/v1', model: 'llama3.1' }
+};
+
+const AI_SUGGESTIONS = [
+  'Đêm nay tôi dùng máy bao lâu?',
+  'Làm sao để ngủ nhanh?',
+  'Giới nghiêm mấy giờ?',
+  'Hướng dẫn thở 4-7-8'
+];
+
+const aiState = { messages: [], busy: false, abort: null, streamEl: null };
+
+function loadAIConfig() {
+  let cfg = { provider: 'local', base: '', model: '', key: '' };
+  try {
+    const raw = localStorage.getItem(AI_CFG_KEY);
+    if (raw) cfg = Object.assign(cfg, JSON.parse(raw));
+  } catch (e) { /* bỏ qua */ }
+  return cfg;
+}
+
+function readAIConfig() {
+  const stored = loadAIConfig();
+  return {
+    provider: $('ai-provider') ? $('ai-provider').value : stored.provider,
+    base: ($('ai-base') ? $('ai-base').value.trim() : stored.base || '').replace(/\/+$/, ''),
+    model: $('ai-model') ? $('ai-model').value.trim() : stored.model,
+    key: $('ai-key') ? $('ai-key').value.trim() : stored.key
+  };
+}
+
+function isAIOnline(cfg) {
+  return !!(cfg && cfg.provider !== 'local' && cfg.base && cfg.model && (cfg.key || cfg.provider === 'ollama'));
+}
+
+function aiHeaders(cfg) {
+  const h = { 'Content-Type': 'application/json' };
+  if (cfg.key) h.Authorization = `Bearer ${cfg.key}`;
+  return h;
+}
+
+function updateAIModeBadge() {
+  const cfg = readAIConfig();
+  const online = isAIOnline(cfg);
+  const badge = $('ai-mode-badge');
+  if (badge) {
+    badge.textContent = online ? 'ONLINE' : 'OFFLINE';
+    badge.className = online
+      ? 'text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-mono'
+      : 'text-[9px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono';
+  }
+  const label = $('ai-conn-label');
+  if (label) {
+    label.textContent = cfg.provider === 'local'
+      ? 'Offline'
+      : (cfg.key ? 'Đã có key' : (cfg.provider === 'ollama' ? 'Local' : 'Chưa có key'));
+  }
+}
+
+function onAIProviderChange() {
+  const p = $('ai-provider') ? $('ai-provider').value : 'local';
+  if (p === 'local') {
+    if ($('ai-base')) $('ai-base').value = '';
+    if ($('ai-model')) $('ai-model').value = '';
+  } else if (AI_PRESETS[p]) {
+    if ($('ai-base')) $('ai-base').value = AI_PRESETS[p].base;
+    if ($('ai-model')) $('ai-model').value = AI_PRESETS[p].model;
+  }
+  updateAIModeBadge();
+}
+
+function saveAIConfig() {
+  const cfg = readAIConfig();
+  try { localStorage.setItem(AI_CFG_KEY, JSON.stringify(cfg)); } catch (e) { /* bỏ qua */ }
+  updateAIModeBadge();
+  showToast(
+    'Đã lưu cấu hình AI',
+    isAIOnline(cfg) ? 'AI online đã sẵn sàng (nếu key hợp lệ).' : 'Đang dùng trợ lý offline trong app.',
+    'ok'
+  );
+}
+
+function clearAIConfig() {
+  try { localStorage.removeItem(AI_CFG_KEY); } catch (e) { /* bỏ qua */ }
+  if ($('ai-provider')) $('ai-provider').value = 'local';
+  if ($('ai-base')) $('ai-base').value = '';
+  if ($('ai-model')) $('ai-model').value = '';
+  if ($('ai-key')) $('ai-key').value = '';
+  updateAIModeBadge();
+  showToast('Đã xoá cấu hình', 'Quay về trợ lý offline, không dùng API key nào.', 'warn');
+}
+
+async function testAIConnection() {
+  const cfg = readAIConfig();
+  if (!isAIOnline(cfg)) {
+    showToast('Chưa cấu hình online', 'Chọn nhà cung cấp, nhập base URL / model / key trước.', 'warn');
+    return;
+  }
+  showToast('Đang kiểm tra…', 'Gửi một yêu cầu nhỏ tới máy chủ AI.', 'info');
+  try {
+    const res = await fetch(cfg.base + '/chat/completions', {
+      method: 'POST',
+      headers: aiHeaders(cfg),
+      body: JSON.stringify({
+        model: cfg.model,
+        messages: [{ role: 'user', content: 'ping' }],
+        max_tokens: 5,
+        stream: false
+      })
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    showToast('Kết nối thành công ✅', 'AI online đã sẵn sàng trả lời.', 'ok');
+  } catch (e) {
+    showToast('Kết nối thất bại', 'Kiểm tra base URL, model, key và kết nối mạng.', 'warn');
+  }
+}
+
+/* ---- Markdown nhẹ, an toàn ---- */
+function mdToHtml(s) {
+  let t = esc(String(s ?? ''));
+  t = t.replace(/```([\s\S]*?)```/g, (m, c) => `<pre class="bg-night-950 border border-slate-800 rounded-lg p-2 text-[11px] overflow-x-auto my-1">${c.trim()}</pre>`);
+  t = t.replace(/`([^`]+)`/g, '<code class="bg-night-950 border border-slate-800 rounded px-1 text-[11px] text-cyan-300">$1</code>');
+  t = t.replace(/\*\*([^*]+)\*\*/g, '<strong class="text-white">$1</strong>');
+  t = t.replace(/^\s*[-•]\s+(.+)$/gm, '<div class="flex gap-1.5 my-0.5"><span class="text-pink-400 shrink-0">•</span><span>$1</span></div>');
+  t = t.replace(/^\s*(\d+)[.)]\s+(.+)$/gm, '<div class="flex gap-1.5 my-0.5"><span class="text-cyan-400 font-mono shrink-0">$1.</span><span>$2</span></div>');
+  t = t.replace(/\n{2,}/g, '<br><br>');
+  t = t.replace(/\n/g, '<br>');
+  t = t.replace(/<\/div>(?:<br>)+/g, '</div>');
+  t = t.replace(/(?:<br>)+<div/g, '<div');
+  return t;
+}
+
+function scrollAILog() {
+  const log = $('ai-chat-log');
+  if (log) log.scrollTop = log.scrollHeight;
+}
+
+function appendAIBubble(role, content) {
+  const log = $('ai-chat-log');
+  if (!log) return null;
+  const wrap = document.createElement('div');
+  wrap.className = role === 'user' ? 'flex justify-end' : 'flex justify-start';
+
+  const bubble = document.createElement('div');
+  bubble.className = role === 'user'
+    ? 'max-w-[86%] rounded-2xl rounded-br-md px-3.5 py-2.5 text-[12.5px] leading-relaxed bg-gradient-to-br from-pink-600 to-indigo-600 text-white shadow-lg'
+    : 'max-w-[86%] rounded-2xl rounded-bl-md px-3.5 py-2.5 text-[12.5px] leading-relaxed bg-night-900 border border-slate-800 text-slate-200';
+
+  const md = document.createElement('div');
+  md.className = 'ai-md break-words';
+  md.innerHTML = role === 'user' ? esc(content) : mdToHtml(content);
+  bubble.appendChild(md);
+  wrap.appendChild(bubble);
+  log.appendChild(wrap);
+
+  aiState.streamEl = md;
+  scrollAILog();
+  return md;
+}
+
+function renderAIChat() {
+  const log = $('ai-chat-log');
+  if (!log) return;
+  log.innerHTML = '';
+  aiState.messages.forEach((m) => appendAIBubble(m.role, m.content));
+  aiState.streamEl = null;
+  scrollAILog();
+}
+
+function saveAIChat() {
+  try { localStorage.setItem(AI_CHAT_KEY, JSON.stringify(aiState.messages.slice(-60))); } catch (e) { /* bỏ qua */ }
+}
+
+function pushAIMessage(role, content) {
+  aiState.messages.push({ role, content });
+  if (aiState.messages.length > 60) aiState.messages = aiState.messages.slice(-60);
+  saveAIChat();
+  renderAIChat();
+}
+
+function welcomeText() {
+  return `Chào bạn 👋 Mình là **Miu**, trợ lý giấc ngủ của SLEEPMATE.\n\nĐêm nay bạn đã dùng **${fmtDur(S.usage.activeSec)}** trên hạn mức ${S.screenLimitMin} phút, giới nghiêm **${S.curfew}**.\n\nBạn có thể hỏi mình về giấc ngủ, cách dùng app, hoặc nhờ đổi nhanh hạn mức / giờ giới nghiêm.`;
+}
+
+function loadAIChat() {
+  try {
+    const raw = localStorage.getItem(AI_CHAT_KEY);
+    if (raw) aiState.messages = JSON.parse(raw) || [];
+  } catch (e) { aiState.messages = []; }
+  if (!Array.isArray(aiState.messages) || !aiState.messages.length) {
+    aiState.messages = [{ role: 'assistant', content: welcomeText() }];
+  }
+  aiState.messages = aiState.messages.filter((m) => m && (m.role === 'user' || m.role === 'assistant') && typeof m.content === 'string');
+  if (!aiState.messages.length) aiState.messages = [{ role: 'assistant', content: welcomeText() }];
+  renderAIChat();
+}
+
+function renderAISuggestions() {
+  const el = $('ai-suggestions');
+  if (!el) return;
+  el.innerHTML = AI_SUGGESTIONS.map((s) =>
+    `<button onclick="sendAIMessage(this.textContent)" class="px-3 py-1.5 rounded-full bg-night-950 border border-slate-800 text-[11px] text-slate-300 hover:border-cyan-500/50 hover:text-cyan-200 btn-bouncy">${esc(s)}</button>`
+  ).join('');
+}
+
+function clearAIChat() {
+  if (!confirm('Xoá toàn bộ hội thoại với trợ lý?')) return;
+  aiState.messages = [{ role: 'assistant', content: welcomeText() }];
+  saveAIChat();
+  renderAIChat();
+}
+
+function autoGrowAI(el) {
+  if (!el) return;
+  el.style.height = 'auto';
+  el.style.height = `${Math.min(112, el.scrollHeight)}px`;
+}
+
+function onAIInputKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    onAISendClick();
+  }
+}
+
+function onAISendClick() {
+  if (aiState.busy) {
+    if (aiState.abort) aiState.abort.abort();
+    return;
+  }
+  sendAIMessage();
+}
+
+function setAIBusy(busy) {
+  aiState.busy = busy;
+  const btn = $('ai-send-btn');
+  if (!btn) return;
+  btn.innerHTML = busy
+    ? '<i class="fa-solid fa-stop"></i> Dừng'
+    : '<i class="fa-solid fa-paper-plane"></i> Gửi';
+  btn.className = busy
+    ? 'px-4 py-3 rounded-xl bg-rose-600 text-white text-xs font-bold btn-bouncy shrink-0'
+    : 'px-4 py-3 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 text-white text-xs font-bold btn-bouncy shrink-0';
+}
+
+async function sendAIMessage(textOverride) {
+  if (aiState.busy) return;
+  const input = $('ai-input');
+  const text = String(textOverride ?? (input ? input.value : '')).trim();
+  if (!text) return;
+  if (input) { input.value = ''; autoGrowAI(input); }
+
+  pushAIMessage('user', text);
+  setAIBusy(true);
+  aiState.streamEl = null;
+
+  const cfg = readAIConfig();
+  try {
+    if (isAIOnline(cfg)) await streamOnlineReply(cfg, text);
+    else await localReplyStream(text);
+  } catch (err) {
+    const msg = `⚠️ ${err && err.message ? err.message : 'Có lỗi xảy ra, thử lại nhé.'}`;
+    if (aiState.streamEl) {
+      aiState.streamEl.innerHTML = mdToHtml(msg);
+      aiState.messages.push({ role: 'assistant', content: msg });
+      saveAIChat();
+    } else {
+      pushAIMessage('assistant', msg);
+    }
+  } finally {
+    aiState.streamEl = null;
+    aiState.abort = null;
+    setAIBusy(false);
+  }
+}
+
+function localReplyStream(text) {
+  return new Promise((resolve) => {
+    const answer = aiLocalReply(text);
+    const target = appendAIBubble('assistant', '');
+    let i = 0;
+    let cancelled = false;
+
+    // Cho phép nút "Dừng" huỷ cả câu trả lời offline (giả lập AbortController)
+    aiState.abort = { abort: () => { cancelled = true; } };
+
+    const finish = (content) => {
+      if (content && content.trim()) {
+        aiState.messages.push({ role: 'assistant', content });
+        saveAIChat();
+      }
+      aiState.streamEl = null;
+      resolve();
+    };
+
+    const timer = setInterval(() => {
+      if (cancelled) {
+        clearInterval(timer);
+        finish(answer.slice(0, i) + ' …');
+        return;
+      }
+      i = Math.min(answer.length, i + 7);
+      if (target) target.innerHTML = mdToHtml(answer.slice(0, i));
+      scrollAILog();
+      if (i >= answer.length) {
+        clearInterval(timer);
+        finish(answer);
+      }
+    }, 14);
+  });
+}
+
+function buildSystemPrompt() {
+  const u = S.usage;
+  return [
+    'Bạn là "Miu", trợ lý giấc ngủ trong ứng dụng SLEEPMATE Pro (app theo dõi thời gian dùng điện thoại ban đêm của người Việt).',
+    'Trả lời bằng tiếng Việt, thân thiện, ngắn gọn (tối đa khoảng 180 từ), dùng gạch đầu dòng khi hữu ích.',
+    'Bạn tư vấn về vệ sinh giấc ngủ, kỹ thuật thở, sóng não, ánh sáng xanh và cách dùng app.',
+    'Không chẩn đoán bệnh. Nếu người dùng mất ngủ kéo dài trên 3 tuần hoặc có dấu hiệu nguy hiểm, hãy khuyên gặp bác sĩ.',
+    `Thời điểm hiện tại: ${new Date().toLocaleString('vi-VN')}.`,
+    `Dữ liệu đêm nay của người dùng: đã dùng ${fmtDur(u.activeSec)} trên hạn mức ${S.screenLimitMin} phút; mở app ${u.opens} lần; rời app ${u.leaves} lần; phiên dài nhất ${fmtDur(u.longestSec)}; giới nghiêm ${S.curfew}; điểm kỷ luật ${Math.round(S.discipline)}%; chế độ thử thách ${S.challengeMode}.`,
+    'Khi người dùng hỏi số liệu, hãy dùng đúng dữ liệu trên.'
+  ].join('\n');
+}
+
+async function streamOnlineReply(cfg, text) {
+  const history = aiState.messages.slice(0, -1).slice(-10).map((m) => ({ role: m.role, content: m.content }));
+  const payload = {
+    model: cfg.model,
+    messages: [{ role: 'system', content: buildSystemPrompt() }, ...history, { role: 'user', content: text }],
+    temperature: 0.7,
+    stream: true
+  };
+
+  const target = appendAIBubble('assistant', '');
+  if (target) {
+    target.innerHTML = '<span class="inline-flex gap-1 items-center"><span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-bounce"></span><span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-bounce" style="animation-delay:.15s"></span><span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-bounce" style="animation-delay:.3s"></span></span>';
+  }
+
+  const ctrl = new AbortController();
+  aiState.abort = ctrl;
+  const timer = setTimeout(() => ctrl.abort(), 90000);
+
+  let res;
+  try {
+    res = await fetch(cfg.base + '/chat/completions', {
+      method: 'POST',
+      headers: aiHeaders(cfg),
+      body: JSON.stringify(payload),
+      signal: ctrl.signal
+    });
+  } catch (e) {
+    clearTimeout(timer);
+    throw new Error(e.name === 'AbortError'
+      ? 'Đã huỷ yêu cầu.'
+      : 'Không kết nối được tới máy chủ AI (kiểm tra mạng, Base URL hoặc CORS).');
+  }
+  clearTimeout(timer);
+
+  if (!res.ok) {
+    let detail = '';
+    try { detail = (await res.text()).slice(0, 180); } catch (e) { /* bỏ qua */ }
+    throw new Error(`Máy chủ AI trả về ${res.status}. ${detail}`);
+  }
+
+  let full = '';
+
+  if (!res.body) {
+    const data = await res.json();
+    full = (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) || '';
+    if (target) target.innerHTML = mdToHtml(full);
+  } else {
+    const reader = res.body.getReader();
+    const dec = new TextDecoder();
+    let buf = '';
+    while (true) {
+      const chunk = await reader.read();
+      if (chunk.done) break;
+      buf += dec.decode(chunk.value, { stream: true });
+      const lines = buf.split('\n');
+      buf = lines.pop();
+      for (const line of lines) {
+        const t = line.trim();
+        if (!t.startsWith('data:')) continue;
+        const data = t.slice(5).trim();
+        if (!data || data === '[DONE]') continue;
+        try {
+          const j = JSON.parse(data);
+          const delta = j.choices && j.choices[0] && j.choices[0].delta && j.choices[0].delta.content;
+          if (delta) {
+            full += delta;
+            if (target) target.innerHTML = mdToHtml(full);
+            scrollAILog();
+          }
+        } catch (e) { /* mảnh không hợp lệ */ }
+      }
+    }
+    if (target) target.innerHTML = mdToHtml(full || '_(Không có nội dung trả về)_');
+  }
+
+  if (!full.trim()) throw new Error('AI trả về nội dung rỗng. Thử model khác hoặc kiểm tra key.');
+
+  aiState.messages.push({ role: 'assistant', content: full });
+  saveAIChat();
+}
+
+/* ---- Bộ trả lời offline ---- */
+function aiUsageReply() {
+  const u = S.usage;
+  const limitSec = S.screenLimitMin * 60;
+  const pct = clamp(Math.round((u.activeSec / limitSec) * 100), 0, 999);
+  const over = u.activeSec >= limitSec;
+  return `📊 **Thống kê đêm nay** (mốc 04:00)\n- Đã dùng: **${fmtDur(u.activeSec)}** / ${S.screenLimitMin} phút (${pct}%)\n- Mở app **${u.opens} lần** · rời app **${u.leaves} lần**\n- Phiên dài nhất: **${fmtDur(u.longestSec)}** · chạy nền: ${fmtDur(u.bgSec)}\n- Điểm kỷ luật: **${Math.round(S.discipline)}%**\n\n${over ? '⚠️ Bạn đã vượt hạn mức. Hãy gập máy để app khóa lại và đi ngủ.' : `✅ Còn **${fmtHM(limitSec - u.activeSec)}** trước khi chạm hạn mức.`}`;
+}
+
+function aiCurfewReply(raw) {
+  const m = String(raw).match(/(\d{1,2})[:h](\d{2})/);
+  if (m && /đổi|đặt|chỉnh|thành|set/i.test(raw)) {
+    const v = `${pad2(clamp(+m[1], 0, 23))}:${pad2(clamp(+m[2], 0, 59))}`;
+    setCurfew(v);
+    return `✅ Đã đổi giới nghiêm thành **${v}**. App sẽ bắt đầu đếm ngược khóa khi qua mốc này.`;
+  }
+  const mins = minutesToCurfew();
+  const past = isPastCurfew();
+  return `⏰ Giới nghiêm hiện tại: **${S.curfew}**.\n${past ? 'Bạn đang **sau** mốc giới nghiêm — app sẽ khóa sau ít phút nữa.' : `Còn **${Math.floor(mins / 60)}h${pad2(mins % 60)}p** nữa tới mốc khóa.`}\n\nMẹo: đặt giới nghiêm sớm hơn giờ ngủ mong muốn khoảng 30 phút để não kịp hạ nhiệt.`;
+}
+
+function aiLimitReply(raw) {
+  const m = String(raw).match(/(\d{1,3})\s*(?:phút|p|min)/i);
+  if (m && /đặt|đổi|chỉnh|thành|set/i.test(raw)) {
+    const v = clamp(+m[1], 5, 180);
+    setScreenLimit(v);
+    return `✅ Đã đặt hạn mức **${v} phút** cho đêm nay.`;
+  }
+  const u = S.usage;
+  const pct = clamp(Math.round((u.activeSec / (S.screenLimitMin * 60)) * 100), 0, 999);
+  return `🎯 Hạn mức đêm nay: **${S.screenLimitMin} phút**.\n- Đã dùng: ${fmtDur(u.activeSec)} (${pct}%)\n- Còn lại: ${fmtDur(Math.max(0, S.screenLimitMin * 60 - u.activeSec))}\n\nNgười lớn thường cần 7–8 tiếng ngủ. Nếu cần dậy 6:00, hãy lên giường trước 22:45 và đặt hạn mức **15–30 phút** sau giờ đó.`;
+}
+
+function aiSleepNeedReply() {
+  return '😴 **Nhu cầu ngủ theo độ tuổi**\n- Cấp 1 (6–11): **9.5–11 tiếng**\n- Cấp 2 (11–15): **8.5–9.5 tiếng**\n- Cấp 3 (15–18): **7.5–8.5 tiếng**\n- Người đi làm: **7–8 tiếng**\n\nNgủ đủ giúp củng cố trí nhớ, ổn định cảm xúc và giảm thèm ăn. Bạn có thể chọn nhóm phù hợp ở tab **Lịch 4 Đối Tượng**.';
+}
+
+function aiCantSleepReply() {
+  return '🌙 **5 việc nên làm khi không ngủ được**\n1. Rời giường sau ~20 phút trằn trọc, ngồi ở nơi tối và đọc sách giấy.\n2. Thở 4-7-8: hít 4s – giữ 7s – thở 8s, lặp 4 vòng.\n3. Viết hết lo lắng ra giấy (tab **Nhật Ký**) để não không phải "giữ" chúng.\n4. Không xem giờ liên tục — càng xem càng tỉnh.\n5. Phòng mát (18–22°C), tối, yên tĩnh.\n\n⚠️ Nếu mất ngủ kéo dài trên 3 tuần hoặc ảnh hưởng ban ngày, hãy gặp bác sĩ.';
+}
+
+function aiBreathReply() {
+  return '🫧 **Kỹ thuật thở 4-7-8**\n1. Ngồi hoặc nằm, lưỡi chạm vòm miệng.\n2. Hít vào bằng mũi **4 giây**.\n3. Giữ hơi **7 giây**.\n4. Thở chậm bằng miệng **8 giây**.\n5. Lặp **4 vòng** (khoảng 76 giây).\n\nMở tab **Thở 4-7-8** để có vòng tròn hướng dẫn và đếm chu kỳ tự động.';
+}
+
+function aiBinauralReply() {
+  return '🎧 **Sóng não (binaural beats)**\n- **Delta 2.5Hz**: hướng tới ngủ sâu, tái tạo cơ thể.\n- **Theta 5Hz**: thư giãn, chuyển tiếp vào giấc ngủ.\n- **Pink noise**: che tiếng ồn môi trường.\n\nCách dùng: đeo tai nghe, âm lượng nhỏ (15–25%), bật ở tab **Sóng Não** khoảng 20–30 phút trước khi ngủ.\n\n⚠️ Người có tiền sử động kinh nên hỏi bác sĩ trước khi dùng.';
+}
+
+function aiCaffeineReply() {
+  return '☕ **Cà phê và giấc ngủ**\n- Caffeine bán huỷ ~5–6 giờ; một ly lúc 16:00 vẫn còn ~25% trong máu lúc 22:00.\n- Nên ngừng caffeine **ít nhất 8 tiếng** trước giờ ngủ.\n- Trà xanh, trà sữa, nước tăng lực và sô-cô-la đen cũng chứa caffeine.\n\nThay vào đó: nước ấm hoặc trà hoa cúc (không đường) sau 20:00.';
+}
+
+function aiBlueLightReply() {
+  return '🟠 **Ánh sáng xanh**\n- Ánh sáng xanh ức chế melatonin — hormone báo hiệu buồn ngủ.\n- Bật **Lọc vàng** ở tab Quản Lý Máy, mức **30–50%** sau 21:00.\n- Giảm độ sáng màn hình, bật chế độ tối, giữ máy cách mặt 40–50cm.\n- Tốt nhất: cất điện thoại khỏi giường 30 phút trước khi ngủ.';
+}
+
+function aiNotifReply() {
+  return '🔔 **Bật nhắc nhở khi thoát app**\n1. Vào tab **Câu Đố & Thông Báo** → bấm **Bật thông báo** → chọn **Cho phép**.\n2. Trên iPhone: Safari → Chia sẻ → **Thêm vào MH chính**, rồi mở app từ icon.\n3. Bật **Báo động khi thoát màn hình** và chọn tần suất 15/30/60 giây.\n\nNếu trình duyệt chặn push, app vẫn hiện **toast trong app** khi bạn quay lại.';
+}
+
+function aiChallengeReply() {
+  return '🧩 **Câu đố dừng báo động**\n- Vào tab **Câu Đố & Thông Báo** để chọn:\n  - **Tự đặt**: câu hỏi + đáp án riêng của bạn.\n  - **Toán**: phép tính ngẫu nhiên mỗi lần.\n  - **Cam kết**: gõ "TOI CAM KET DI NGU NGAY".\n- Khi bị khóa, bạn buộc phải giải đúng mới mở được.\n- Có nút **Hoãn 5 phút** nhưng bị trừ 3 điểm.\n\nMẹo: chọn câu đố gắn với mục tiêu của bạn để tự nhắc mình.';
+}
+
+function aiScoreReply() {
+  return `❤️ **Điểm kỷ luật (0–100%)**\n- **+1** khi nựng Miu, **+2** khi đặt máy lên bàn, **+2** khi đi ngủ đúng, **+3** khi lưu nhật ký hoặc chốt kế hoạch.\n- **-2** mỗi lần rời app, **-3** khi hoãn còi, **-5** khi bị khóa, **-1** khi trả lời sai câu đố.\n\nĐiểm hiện tại của bạn: **${Math.round(S.discipline)}%**.`;
+}
+
+function aiPostureReply() {
+  return '📐 **Cảnh báo tư thế nằm bấm**\n- Bật **Gyroscope** ở tab Câu Đố & Thông Báo (cần cấp quyền cảm biến).\n- Khi góc nghiêng |β| ≤ 22° vào ban đêm, app coi là đang nằm và cảnh báo.\n- Nhắc lại tối đa mỗi 5 phút để không làm phiền.\n\nNằm bấm máy làm mỏi mắt, căng cổ vai gáy và dễ trượt giờ ngủ.';
+}
+
+function aiJournalReply() {
+  return '📖 **Nhật ký xả lo âu (cognitive dump)**\n- Viết ra mọi việc đang lặp trong đầu: bài tập, tin nhắn chưa trả lời, lo lắng ngày mai.\n- Ghi 3 mục tiêu ưu tiên cho sáng mai ở tab **Phương Hướng**.\n- Não sẽ "đóng" các vòng suy nghĩ khi biết chúng đã được ghi lại.\n\nMở tab **Nhật Ký** để viết — mỗi bài được +3 điểm.';
+}
+
+function aiProfilesReply() {
+  return '📅 **4 nhóm đối tượng**\n- **Cấp 1**: ngủ 9.5–11h, giới nghiêm 20:30.\n- **Cấp 2**: 8.5–9.5h, giới nghiêm 21:45.\n- **Cấp 3**: 7.5–8.5h, giới nghiêm 23:00.\n- **Người đi làm**: 7–8h, giới nghiêm 23:30.\n\nChọn nhóm ở tab **Lịch 4 Đối Tượng** để xem lộ trình từng bước.';
+}
+
+function aiWakeReply() {
+  return '⏰ **Ngủ theo chu kỳ 90 phút**\n- Một chu kỳ ≈ 90 phút; thức giữa chu kỳ sẽ rất mệt.\n- Công thức: giờ dậy − (số chu kỳ × 90 phút) − 15 phút dỗ giấc.\n- Ví dụ dậy 6:00, 5 chu kỳ → lên giường **22:45**.\n\nDùng ô **Giờ cần dậy** ở tab Lịch 4 Đối Tượng để app tính sẵn.';
+}
+
+function aiPlanReply() {
+  return '🧭 **Kế hoạch ngày mai**\n- Chọn tối đa 3 việc theo Eisenhower, quan trọng nhất làm trước 10:00.\n- Không nhận việc mới sau 21:30.\n- Viết ra giấy thay vì giữ trong đầu.\n\nMở tab **Phương Hướng** để chốt kế hoạch (+3 điểm).';
+}
+
+function aiHelpReply() {
+  return '🤖 Mình là **Miu**, trợ lý giấc ngủ của SLEEPMATE. Mình có thể:\n- Đọc số liệu đêm nay: thời gian dùng, số lần mở/rời app, khung giờ.\n- Giải thích giới nghiêm, hạn mức, điểm kỷ luật.\n- Hướng dẫn thở 4-7-8, sóng não, lọc ánh sáng xanh.\n- Tư vấn vệ sinh giấc ngủ, cà phê, chu kỳ 90 phút.\n- Đổi nhanh hạn mức hoặc giờ giới nghiêm (ví dụ: "đặt hạn mức 45 phút").\n\nBật **AI online** ở trên để hỏi những câu ngoài phạm vi này.';
+}
+
+function aiNowReply() {
+  const now = new Date();
+  const mins = minutesToCurfew();
+  return `🕐 Bây giờ là **${now.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}** ngày ${now.toLocaleDateString('vi-VN')}.\n${isPastCurfew() ? 'Đã qua giới nghiêm — nên đi ngủ thôi.' : `Còn **${Math.floor(mins / 60)}h${pad2(mins % 60)}p** tới giới nghiêm ${S.curfew}.`}`;
+}
+
+function aiFallbackReply() {
+  return 'Mình chưa chắc đã hiểu ý bạn 🤔. Bạn có thể hỏi:\n- "Đêm nay tôi dùng máy bao lâu?"\n- "Làm sao để ngủ nhanh?"\n- "Giới nghiêm mấy giờ?"\n- "Hướng dẫn thở 4-7-8"\n\nMuốn câu trả lời thông minh hơn cho mọi câu hỏi, hãy mở **Kết nối AI online** ở trên và nhập API key (OpenAI, Gemini, Groq, DeepSeek...).';
+}
+
+const AI_INTENTS = [
+  { keys: ['dùng bao lâu', 'thời gian dùng', 'đã dùng', 'bao nhiêu phút', 'screen time', 'thống kê', 'sử dụng bao nhiêu', 'dùng máy'], reply: aiUsageReply },
+  { keys: ['mấy giờ rồi', 'bây giờ là mấy giờ', 'giờ hiện tại', 'hôm nay là'], reply: aiNowReply },
+  { keys: ['giới nghiêm', 'curfew', 'giờ khóa', 'còn bao lâu tới giờ'], reply: aiCurfewReply },
+  { keys: ['hạn mức', 'giới hạn dùng', 'limit'], reply: aiLimitReply },
+  { keys: ['mất ngủ', 'khó ngủ', 'không ngủ được', 'trằn trọc', 'insomnia'], reply: aiCantSleepReply },
+  { keys: ['4-7-8', 'thở', 'hít vào', 'nín thở'], reply: aiBreathReply },
+  { keys: ['sóng não', 'binaural', 'delta', 'theta', 'pink noise', 'ồn hồng'], reply: aiBinauralReply },
+  { keys: ['cà phê', 'caffeine', 'trà', 'nước tăng lực', 'red bull'], reply: aiCaffeineReply },
+  { keys: ['ánh sáng xanh', 'lọc vàng', 'night shift', 'màn hình sáng'], reply: aiBlueLightReply },
+  { keys: ['thông báo', 'push', 'không nhận được', 'nhắc nhở'], reply: aiNotifReply },
+  { keys: ['câu đố', 'giải đố', 'mở khóa', 'riddle'], reply: aiChallengeReply },
+  { keys: ['điểm', 'kỷ luật', 'score', 'trừ điểm'], reply: aiScoreReply },
+  { keys: ['tư thế', 'nằm bấm', 'góc nghiêng', 'gyro'], reply: aiPostureReply },
+  { keys: ['nhật ký', 'journal', 'xả', 'lo âu', 'căng thẳng', 'stress'], reply: aiJournalReply },
+  { keys: ['ngủ bao nhiêu', 'mấy tiếng', 'nhu cầu ngủ', 'bao nhiêu tiếng'], reply: aiSleepNeedReply },
+  { keys: ['cấp 1', 'cấp 2', 'cấp 3', 'người đi làm', 'đối tượng', 'lịch ngủ'], reply: aiProfilesReply },
+  { keys: ['dậy', 'thức dậy', 'chu kỳ', '90 phút', 'ngủ trưa'], reply: aiWakeReply },
+  { keys: ['kế hoạch', 'ngày mai', 'mục tiêu', 'phương hướng'], reply: aiPlanReply },
+  { keys: ['giúp gì', 'làm được gì', 'chức năng', 'hướng dẫn', 'help', 'bạn là ai'], reply: aiHelpReply },
+  { keys: ['cảm ơn', 'thanks', 'thank'], reply: () => 'Rất vui được giúp bạn 🌙 Chúc bạn ngủ ngon và mai dậy đúng giờ!' },
+  { keys: ['chào', 'hello', 'hi ', 'alo'], reply: () => `Chào bạn 👋 Đêm nay bạn đã dùng **${fmtDur(S.usage.activeSec)}** trên hạn mức ${S.screenLimitMin} phút. Mình có thể giúp gì cho giấc ngủ của bạn?` }
+];
+
+function aiLocalReply(raw) {
+  const q = norm(raw);
+  let best = null;
+  let bestScore = 0;
+  for (const it of AI_INTENTS) {
+    let score = 0;
+    for (const k of it.keys) {
+      if (q.includes(norm(k))) score += 1;
+    }
+    if (score > bestScore) { bestScore = score; best = it; }
+  }
+  return best ? best.reply(raw) : aiFallbackReply();
+}
+
+function initAI() {
+  const cfg = loadAIConfig();
+  const provider = $('ai-provider');
+  if (provider) provider.value = cfg.provider || 'local';
+
+  const preset = AI_PRESETS[cfg.provider];
+  if ($('ai-base')) $('ai-base').value = cfg.base || (preset ? preset.base : '');
+  if ($('ai-model')) $('ai-model').value = cfg.model || (preset ? preset.model : '');
+  if ($('ai-key')) $('ai-key').value = cfg.key || '';
+
+  updateAIModeBadge();
+  renderAISuggestions();
+  loadAIChat();
+}
+
+boot();
+
+initAI();
+</script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+{
+  "id": "./",
+  "name": "SLEEPMATE Pro — Kỷ Luật Giấc Ngủ",
+  "short_name": "SLEEPMATE",
+  "description": "Theo dõi thời gian dùng điện thoại ban đêm, tự khóa giới nghiêm, nhắc bạn đi ngủ và trợ lý AI hỗ trợ.",
+  "lang": "vi",
+  "dir": "ltr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui", "browser"],
+  "orientation": "portrait",
+  "background_color": "#060914",
+  "theme_color": "#060914",
+  "categories": ["health", "lifestyle", "productivity", "education"],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

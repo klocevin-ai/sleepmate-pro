@@ -5,8 +5,8 @@
    Khi cập nhật app: tăng CORE_CACHE và RUNTIME_CACHE bên dưới.
    ===================================================================== */
 
-const CORE_CACHE = 'sleepmate-core-v4';
-const RUNTIME_CACHE = 'sleepmate-runtime-v4';
+const CORE_CACHE = 'sleepmate-core-v5';
+const RUNTIME_CACHE = 'sleepmate-runtime-v5';
 
 const APP_SHELL = [
   './',

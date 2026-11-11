@@ -1,6 +1,6 @@
 # SLEEPMATE Pro 🌙
 
-Ứng dụng kỷ luật giấc ngủ: đo thời gian dùng máy ban đêm, tự khóa giới nghiêm, nhắc nhở khi thoát app, thống kê thực tế và trợ lý AI.
+Ứng dụng kỷ luật giấc ngủ: đo thời gian dùng máy ban đêm, **lịch khóa theo tuần**, tự khóa giới nghiêm, nhắc nhở khi thoát app, thống kê thực tế và trợ lý AI.
 
 **Dùng ngay:** mở link GitHub Pages của repo này bằng Chrome (Android) hoặc Safari (iPhone) rồi cài lên màn hình chính.
 
@@ -31,6 +31,32 @@ Sau khi cài, vào **Cài đặt → Ứng dụng → SLEEPMATE Pro** và bật:
 - **Báo thức chính xác** (Android 12+)
 - **Pin → Không tối ưu hóa** (để hệ thống không trì hoãn báo thức)
 
+> Bản APK chạy **hoàn toàn offline** — Tailwind, Font Awesome và font chữ đã nhúng sẵn trong APK, không cần mạng.
+
+---
+
+## 📅 Lịch khóa theo tuần (mới ở v3.1)
+
+Mỗi thứ trong tuần có lịch khung giờ riêng:
+
+- **Thêm nhiều khung mỗi ngày** — ví dụ Thứ 2 có "Giờ học 19:00–21:30" và "Ngủ đêm 23:00–06:00"
+- **Bật/tắt từng khung** bằng checkbox, không cần xóa
+- **Đặt tên khung** để biết mình đang bị khóa vì lý do gì
+- **Khung qua nửa đêm** (23:00–06:00) tự động tính đúng cả ngày hôm sau
+- **3 preset nhanh**: Ngủ đêm, Giờ học, Nghỉ trưa
+- **Áp dụng ngày này cho cả tuần** — đặt 1 lần, dùng 7 ngày
+- **Đếm ngược**: khung kế tiếp còn bao lâu, đang trong khung nào
+- **Lịch sử khóa**: ghi lại 20 lần khóa gần nhất theo lịch
+
+### Cơ chế khóa
+
+| Tình huống | Hành vi |
+|---|---|
+| Đang trong khung giờ cấm | Đếm ngược 30 giây → phủ màn hình khóa + còi + rung |
+| Giải đúng câu đố khi đang trong khung | Chỉ **hoãn 5 phút**, hết 5 phút khóa lại |
+| Giải đúng khi khóa do hạn mức | Mở hoàn toàn (nếu không còn trong khung cấm) |
+| Qua khung giờ | Tự mở, không cần thao tác |
+
 ---
 
 ## ✨ Tính năng
@@ -41,11 +67,13 @@ Sau khi cài, vào **Cài đặt → Ứng dụng → SLEEPMATE Pro** và bật:
 | Thông báo khi vừa thoát | ✅ | ✅ | ✅ |
 | **Thông báo khi đã đóng hẳn app** | ✅ Báo thức hệ thống | ⚠️ HĐH có thể tạm dừng | ❌ Cần Web Push + server |
 | Rung | ✅ | ✅ | ❌ iOS không hỗ trợ |
+| **Lịch khóa theo tuần** | ✅ Kể cả khi đóng | ⚠️ Khi app chạy | ⚠️ Khi app chạy |
 | Nhắc giới nghiêm hằng ngày | ✅ Kể cả khi đóng | ⚠️ Khi app chạy | ⚠️ Khi app chạy |
 | Tự đặt lại báo thức sau reboot | ✅ | ❌ | ❌ |
 
 **Trong app có:**
 - Đo thời gian dùng máy thật (foreground / idle / background), biểu đồ 12 giờ, danh sách phiên, lịch sử 7 đêm
+- **Lịch khóa tuần**: 7 thứ × tối đa 8 khung giờ, đặt tên, bật/tắt, preset, lịch sử khóa
 - Khóa giới nghiêm + hạn mức 15/30/45/60 phút, phải giải câu đố mới mở
 - Câu đố tùy chỉnh (tự đặt / toán / cam kết)
 - Bám đuổi khi thoát app: nhắc lặp tới khi quay lại
@@ -68,7 +96,7 @@ Sau khi cài, vào **Cài đặt → Ứng dụng → SLEEPMATE Pro** và bật:
 ├── icon-maskable-512.png
 ├── apple-touch-icon.png
 ├── apk/
-│   └── SLEEPMATE-Pro-Android.apk   # APK cài trực tiếp (debug-signed)
+│   └── SLEEPMATE-Pro-Android.apk   # APK v3.1 (versionCode 2), offline, debug-signed
 └── source/
     └── SLEEPMATE-full-source.zip   # Toàn bộ mã nguồn + dự án Gradle
 ```
@@ -77,7 +105,7 @@ Sau khi cài, vào **Cài đặt → Ứng dụng → SLEEPMATE Pro** và bật:
 
 ## 🔒 Quyền riêng tư
 
-Toàn bộ dữ liệu (thời gian dùng, câu đố, nhật ký, API key) lưu trong `localStorage` trên máy bạn. Không có máy chủ trung gian, không thu thập dữ liệu.
+Toàn bộ dữ liệu (thời gian dùng, câu đố, lịch khóa, nhật ký, API key) lưu trong `localStorage` trên máy bạn. Không có máy chủ trung gian, không thu thập dữ liệu.
 
 Nếu bạn nhập API key cho trợ lý AI, key chỉ được gửi tới đúng Base URL bạn cấu hình.
 
@@ -86,6 +114,7 @@ Nếu bạn nhập API key cho trợ lý AI, key chỉ được gửi tới đú
 ## ⚠️ Giới hạn đã biết
 
 - Ứng dụng **không đọc được** thời gian bạn dùng Facebook, TikTok… (cần quyền Usage Access trên Android; iOS không cho phép). App đo thời gian bạn ở trong SLEEPMATE và thời gian bạn rời đi.
+- Lịch khóa tuần chỉ chặn **bên trong SLEEPMATE**, không chặn app khác. Muốn chặn toàn máy cần quyền Device Admin / Screen Time của hệ điều hành.
 - Một số máy tối ưu pin mạnh (Xiaomi, OPPO, vivo, Samsung) có thể trì hoãn báo thức Android nếu không tắt tối ưu pin.
 - APK ký bằng **debug key** để cài trực tiếp, không phải bản phát hành Play Store.
 - Trợ lý AI có thể trả lời sai. Không dùng thay cho lời khuyên y khoa.

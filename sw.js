@@ -5,12 +5,14 @@
    Khi cập nhật app: tăng CORE_CACHE và RUNTIME_CACHE bên dưới.
    ===================================================================== */
 
-const CORE_CACHE = 'sleepmate-core-v5';
-const RUNTIME_CACHE = 'sleepmate-runtime-v5';
+const CORE_CACHE = 'sleepmate-core-v6';
+const RUNTIME_CACHE = 'sleepmate-runtime-v6';
 
 const APP_SHELL = [
   './',
   './index.html',
+  './firebase-config.js',
+  './admin.html',
   './manifest.webmanifest',
   './icon-192.png',
   './icon-512.png',

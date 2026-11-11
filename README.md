@@ -1,139 +1,98 @@
-# SLEEPMATE Pro 🌙
+# SLEEPMATE Pro — Bản PWA
 
-Ứng dụng kỷ luật giấc ngủ: đo thời gian dùng máy ban đêm, **lịch khóa theo tuần**, tự khóa giới nghiêm, nhắc nhở khi thoát app, thống kê thực tế và trợ lý AI.
+Thư mục này là bản web (Progressive Web App) của SLEEPMATE Pro — chạy được trên iPhone và Android, cài lên màn hình chính như app thật.
 
-**Dùng ngay:** mở link GitHub Pages của repo này bằng Chrome (Android) hoặc Safari (iPhone) rồi cài lên màn hình chính.
+## Chạy thử trên máy tính
 
----
+```bash
+npx serve .
+# hoặc
+npx http-server . -p 8080
+```
 
-## 📲 Cài đặt
+Mở `http://localhost:8080`. **Không mở trực tiếp file `index.html`** — Service Worker và Notification chỉ hoạt động trong secure context (`https://` hoặc `localhost`).
 
-### iPhone / iPad (Safari)
+## Deploy
 
-1. Mở link bằng **Safari** (bắt buộc Safari — Chrome trên iOS không cài được PWA)
-2. Bấm **Chia sẻ** → **Thêm vào MH chính** → **Thêm**
-3. Mở app từ icon vừa tạo → tab **Câu Đố & Thông Báo** → **Bật thông báo** → **Cho phép**
+Thư mục này tự chứa, deploy nguyên thư mục lên bất kỳ hosting tĩnh nào:
 
-Cần iOS 16.4+ để nhận thông báo hệ thống.
-
-### Android — PWA (Chrome)
-
-1. Mở link bằng **Chrome**
-2. Bấm **Cài app** trong tab **Câu Đố & Thông Báo**, hoặc menu **⋮ → Cài đặt ứng dụng**
-3. Mở app từ icon ngoài màn hình chính
-
-### Android — APK (khuyên dùng, nhắc cả khi đóng app)
-
-Tải **[`apk/SLEEPMATE-Pro-Android.apk`](apk/SLEEPMATE-Pro-Android.apk)** → mở file → bật *Cài từ nguồn không rõ* → **Cài đặt**.
-
-Sau khi cài, vào **Cài đặt → Ứng dụng → SLEEPMATE Pro** và bật:
-- Thông báo, Âm thanh, Rung, Hiển thị trên màn hình khóa
-- **Báo thức chính xác** (Android 12+)
-- **Pin → Không tối ưu hóa** (để hệ thống không trì hoãn báo thức)
-
-> Bản APK chạy **hoàn toàn offline** — Tailwind, Font Awesome và font chữ đã nhúng sẵn trong APK, không cần mạng.
-
----
-
-## 📅 Lịch khóa theo tuần (mới ở v3.1)
-
-Mỗi thứ trong tuần có lịch khung giờ riêng:
-
-- **Thêm nhiều khung mỗi ngày** — ví dụ Thứ 2 có "Giờ học 19:00–21:30" và "Ngủ đêm 23:00–06:00"
-- **Bật/tắt từng khung** bằng checkbox, không cần xóa
-- **Đặt tên khung** để biết mình đang bị khóa vì lý do gì
-- **Khung qua nửa đêm** (23:00–06:00) tự động tính đúng cả ngày hôm sau
-- **3 preset nhanh**: Ngủ đêm, Giờ học, Nghỉ trưa
-- **Áp dụng ngày này cho cả tuần** — đặt 1 lần, dùng 7 ngày
-- **Đếm ngược**: khung kế tiếp còn bao lâu, đang trong khung nào
-- **Lịch sử khóa**: ghi lại 20 lần khóa gần nhất theo lịch
-
-### Cơ chế khóa
-
-| Tình huống | Hành vi |
+| Hosting | Cách làm |
 |---|---|
-| Đang trong khung giờ cấm | Đếm ngược 30 giây → phủ màn hình khóa + còi + rung |
-| Giải đúng câu đố khi đang trong khung | Chỉ **hoãn 5 phút**, hết 5 phút khóa lại |
-| Giải đúng khi khóa do hạn mức | Mở hoàn toàn (nếu không còn trong khung cấm) |
-| Qua khung giờ | Tự mở, không cần thao tác |
+| **GitHub Pages** | Đẩy toàn bộ file lên nhánh `main`, Settings → Pages → Source: `main / (root)` |
+| **Netlify** | Kéo thả `sleepmate-pwa.zip` lên https://app.netlify.com/drop |
+| **Cloudflare Pages** | Upload trực tiếp hoặc nối GitHub repo |
+| **Vercel** | `vercel --prod` trong thư mục này |
 
----
+Đều miễn phí và cho HTTPS tự động (bắt buộc để cài PWA).
 
-## ✨ Tính năng
-
-| | Android APK | Android PWA | iPhone PWA |
-|---|---|---|---|
-| Thông báo khi đang mở app | ✅ | ✅ | ✅ (iOS 16.4+) |
-| Thông báo khi vừa thoát | ✅ | ✅ | ✅ |
-| **Thông báo khi đã đóng hẳn app** | ✅ Báo thức hệ thống | ⚠️ HĐH có thể tạm dừng | ❌ Cần Web Push + server |
-| Rung | ✅ | ✅ | ❌ iOS không hỗ trợ |
-| **Lịch khóa theo tuần** | ✅ Kể cả khi đóng | ⚠️ Khi app chạy | ⚠️ Khi app chạy |
-| Nhắc giới nghiêm hằng ngày | ✅ Kể cả khi đóng | ⚠️ Khi app chạy | ⚠️ Khi app chạy |
-| Tự đặt lại báo thức sau reboot | ✅ | ❌ | ❌ |
-
-**Trong app có:**
-- Đo thời gian dùng máy thật (foreground / idle / background), biểu đồ 12 giờ, danh sách phiên, lịch sử 7 đêm
-- **Lịch khóa tuần**: 7 thứ × tối đa 8 khung giờ, đặt tên, bật/tắt, preset, lịch sử khóa
-- Khóa giới nghiêm + hạn mức 15/30/45/60 phút, phải giải câu đố mới mở
-- Câu đố tùy chỉnh (tự đặt / toán / cam kết)
-- Bám đuổi khi thoát app: nhắc lặp tới khi quay lại
-- Cảm biến góc nghiêng phát hiện nằm bấm máy
-- Trợ lý AI (offline + tùy chọn kết nối OpenAI/Gemini/Groq/DeepSeek/OpenRouter/Ollama bằng key của bạn)
-- Lịch ngủ 4 nhóm đối tượng, tính chu kỳ 90 phút
-- Nhật ký xả lo âu, thở 4-7-8, sóng não binaural
-- Lọc ánh sáng xanh, chế độ ngủ
-
----
-
-## 🗂 Cấu trúc repo
+## Cấu trúc
 
 ```
-├── index.html                  # Toàn bộ app (1 file, không build step)
-├── sw.js                       # Service Worker: cache offline + notificationclick
-├── manifest.webmanifest        # PWA manifest
+├── index.html              # Toàn bộ app — 1 file, không cần build
+├── firebase-config.js      # Cấu hình Firebase + email Admin (dán thông số vào đây)
+├── admin.html              # Bảng điều khiển Admin (thống kê, xếp hạng, nhắc nhở, luật)
+├── firestore.rules         # Luật bảo mật dữ liệu (dán vào Firestore → Rules)
+├── FIREBASE-SETUP.md       # Hướng dẫn bật Firebase từng bước
+├── sw.js                   # Service Worker: cache offline, notificationclick, push
+├── manifest.webmanifest    # Tên app, icon, màu, chế độ standalone
 ├── icon-192.png
 ├── icon-512.png
 ├── icon-maskable-512.png
-├── apple-touch-icon.png
-├── apk/
-│   └── SLEEPMATE-Pro-Android.apk   # APK v3.1 (versionCode 2), offline, debug-signed
-└── source/
-    └── SLEEPMATE-full-source.zip   # Toàn bộ mã nguồn + dự án Gradle
+└── apple-touch-icon.png
 ```
 
----
+`index.html` là **bản sao byte-for-byte** của `sleepmate-pro.html` (file gốc trong dự án). Sửa app thì sửa file gốc rồi copy đè sang đây.
 
-## 🔒 Quyền riêng tư
+## Cài lên điện thoại
 
-Toàn bộ dữ liệu (thời gian dùng, câu đố, lịch khóa, nhật ký, API key) lưu trong `localStorage` trên máy bạn. Không có máy chủ trung gian, không thu thập dữ liệu.
+**iPhone / iPad** — phải dùng **Safari**:
+1. Mở link HTTPS bằng Safari
+2. Nút **Chia sẻ** → **Thêm vào MH chính** → **Thêm**
+3. Mở app từ icon → tab **Câu Đố & Thông Báo** → **Bật thông báo** → **Cho phép**
 
-Nếu bạn nhập API key cho trợ lý AI, key chỉ được gửi tới đúng Base URL bạn cấu hình.
+Cần **iOS 16.4+** để nhận thông báo hệ thống. Bản PWA trên iPhone **không** nhắc được khi app đã bị đóng hẳn (Apple giới hạn — cần Web Push + máy chủ).
 
----
+**Android** — dùng **Chrome**:
+1. Mở link HTTPS bằng Chrome
+2. Menu **⋮** → **Cài đặt ứng dụng** (hoặc bấm **Cài app** trong tab Câu Đố & Thông Báo)
+3. Mở app từ icon ngoài màn hình chính
 
-## ⚠️ Giới hạn đã biết
+Muốn nhắc nhở hoạt động cả khi đã đóng hẳn app trên Android → dùng **APK** (`SLEEPMATE-Pro-Android.apk`), không dùng PWA.
 
-- Ứng dụng **không đọc được** thời gian bạn dùng Facebook, TikTok… (cần quyền Usage Access trên Android; iOS không cho phép). App đo thời gian bạn ở trong SLEEPMATE và thời gian bạn rời đi.
-- Lịch khóa tuần chỉ chặn **bên trong SLEEPMATE**, không chặn app khác. Muốn chặn toàn máy cần quyền Device Admin / Screen Time của hệ điều hành.
-- Một số máy tối ưu pin mạnh (Xiaomi, OPPO, vivo, Samsung) có thể trì hoãn báo thức Android nếu không tắt tối ưu pin.
-- APK ký bằng **debug key** để cài trực tiếp, không phải bản phát hành Play Store.
-- Trợ lý AI có thể trả lời sai. Không dùng thay cho lời khuyên y khoa.
+## Cập nhật app
 
----
+1. Sửa `../sleepmate-pro.html` (nguồn chân lý duy nhất)
+2. Copy đè sang `index.html`
+3. Nếu đổi logic hoặc thêm file vào app shell: tăng `CORE_CACHE` và `RUNTIME_CACHE` trong `sw.js` (hiện là `v6`) — bắt buộc, nếu không người dùng cũ vẫn chạy bản cache cũ
+4. Deploy lại
 
-## 🛠 Tự build
+## Tính năng mới ở v3.2 — Nhiều người dùng & Admin
 
-Yêu cầu: JDK 17, Android SDK (platform 34, build-tools 34), Gradle 8.7.
+- **Bắt buộc đăng nhập** — mỗi người tự đăng ký tài khoản (Email + mật khẩu)
+- Dữ liệu giấc ngủ **tự đồng bộ** lên Firebase mỗi 45 giây + lúc qua ngày mới
+- **Trang Admin** (`admin.html`): danh sách người dùng, tỷ lệ hoàn hảo, mức tham gia,
+  bảng xếp hạng, lịch sử khoá, chi tiết 14 đêm
+- Admin **gửi nhắc nhở** cho từng người hoặc cả nhóm (hộp thư trong app)
+- Admin **cài luật chung từ xa**: giới nghiêm, hạn mức phút, lịch khoá ban đêm
+- Phân quyền bảo mật bằng `firestore.rules`
+- Xem hướng dẫn bật Firebase từng bước trong `FIREBASE-SETUP.md`
 
-```bash
-# Giải nén source/SLEEPMATE-full-source.zip
-export JAVA_HOME=/path/to/jdk-17
-export ANDROID_HOME=/path/to/android-sdk
-cd android
-gradle assembleDebug --no-daemon
-# APK: app/build/outputs/apk/debug/app-debug.apk
-```
+Khi **chưa** cấu hình Firebase, app vẫn mở ở **Chế độ dùng thử** (dữ liệu chỉ lưu trên máy).
 
-> Gradle không build được từ đường dẫn có dấu tiếng Việt (`Bad pathname`). Copy thư mục sang đường dẫn ASCII thuần trước khi build.
+## Tính năng mới ở v3.1
 
-Chi tiết kiến trúc, khác biệt giữa các bản HTML và cách cập nhật app: xem `README.md` bên trong `source/SLEEPMATE-full-source.zip`.
+**Lịch khóa theo tuần** — tab *Lịch Khóa Tuần*:
+- 7 thứ, mỗi ngày tối đa 8 khung giờ
+- Đặt tên khung, bật/tắt từng khung không cần xóa
+- Khung qua nửa đêm (23:00–06:00) tính đúng cả ngày hôm sau
+- Preset nhanh: Ngủ đêm / Giờ học / Nghỉ trưa
+- Áp dụng 1 ngày cho cả tuần
+- Đếm ngược khung kế tiếp + lịch sử 20 lần khóa gần nhất
+- Đang trong khung cấm: giải đố chỉ hoãn được 5 phút
+
+## Giới hạn
+
+- Không đọc được thời gian dùng app khác (cần Usage Access trên Android, iOS không cho phép)
+- Lịch khóa chỉ chặn bên trong SLEEPMATE
+- iOS không hỗ trợ rung bằng Web API
+- Trên PWA, thông báo khi đã đóng hẳn app phụ thuộc hệ điều hành — không đảm bảo

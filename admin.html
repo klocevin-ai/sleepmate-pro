@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>SLEEPMATE Pro — Quản Trị</title>
+<meta name="theme-color" content="#060914">
+<link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  darkMode: 'class',
+  theme: {
+    extend: {
+      colors: {
+        night: { 850: '#111933', 900: '#0b1124', 950: '#060914' }
+      },
+      boxShadow: {
+        'neon-pink': '0 0 18px rgba(244,114,182,.35), 0 0 46px rgba(129,140,248,.15)'
+      }
+    }
+  }
+};
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+  .btn-bouncy { transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease; }
+  .btn-bouncy:active { transform: scale(.96); }
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 8px; }
+  .glass-panel { background: rgba(11,17,36,.72); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  input, select, textarea { color-scheme: dark; }
+  .table-wrap { max-height: calc(100vh - 320px); }
+  @media (max-width: 640px) { .table-wrap { max-height: none; } }
+</style>
+</head>
+<body class="bg-night-950 text-slate-100 min-h-screen" style="background-image:radial-gradient(circle at 15% 0%, rgba(236,72,153,.12), transparent 40%),radial-gradient(circle at 85% 100%, rgba(99,102,241,.14), transparent 40%);">
+
+<!-- ===== MÀN CHƯA CẤU HÌNH ===== -->
+<div id="admin-setup" class="fixed inset-0 z-[1000] bg-[#060914] flex items-center justify-center p-4 hidden">
+  <div class="max-w-md w-full rounded-3xl border border-slate-800 bg-night-900/90 p-8 text-center">
+    <div class="text-5xl mb-3">🐾</div>
+    <h1 class="text-xl font-black text-white">SLEEPMATE Pro — Quản Trị</h1>
+    <p class="text-xs text-slate-400 mt-2 leading-relaxed">Chưa kết nối Firebase. Hãy dán cấu hình vào file <code class="text-pink-300">firebase-config.js</code> (gồm cả email admin trong <code class="text-pink-300">SLEEPMATE_ADMIN_EMAILS</code>) rồi tải lại trang.</p>
+    <button onclick="location.reload()" class="mt-5 px-5 py-2.5 rounded-2xl text-xs font-bold bg-gradient-to-r from-pink-500 to-indigo-600 text-white btn-bouncy"><i class="fa-solid fa-rotate mr-1"></i> Tải lại</button>
+  </div>
+</div>
+
+<!-- ===== MÀN ĐĂNG NHẬP ===== -->
+<div id="admin-login" class="fixed inset-0 z-[1000] bg-[#060914] flex items-center justify-center p-4 hidden">
+  <div class="max-w-md w-full rounded-3xl border border-slate-800 bg-night-900/90 p-8">
+    <div class="text-center mb-6">
+      <div class="w-14 h-14 mx-auto mb-3 rounded-2xl bg-gradient-to-tr from-pink-500 via-purple-500 to-indigo-500 p-[2px]">
+        <div class="w-full h-full bg-night-950 rounded-[14px] flex items-center justify-center text-xl text-pink-400"><i class="fa-solid fa-gauge-high"></i></div>
+      </div>
+      <h1 class="text-lg font-black text-white">Quản trị SLEEPMATE Pro</h1>
+      <p class="text-[11px] text-slate-400 mt-1">Chỉ tài khoản Admin (đã cấu hình trong firebase-config.js) mới vào được.</p>
+    </div>
+    <div id="admin-login-error" class="hidden text-[11px] text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-3 py-2 mb-3"></div>
+    <div class="mb-3">
+      <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Email Admin</label>
+      <input id="admin-email" type="email" autocomplete="email" class="w-full bg-night-950 border border-slate-700 text-slate-100 text-sm rounded-xl px-3.5 py-2.5 outline-none focus:border-pink-500/70" placeholder="admin@truong.edu.vn">
+    </div>
+    <div class="mb-4">
+      <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Mật khẩu</label>
+      <input id="admin-pass" type="password" autocomplete="current-password" class="w-full bg-night-950 border border-slate-700 text-slate-100 text-sm rounded-xl px-3.5 py-2.5 outline-none focus:border-pink-500/70" placeholder="••••••••">
+    </div>
+    <button onclick="ADMIN.login()" class="w-full py-3 rounded-2xl text-xs font-bold bg-gradient-to-r from-pink-500 to-indigo-600 text-white btn-bouncy"><i class="fa-solid fa-right-to-bracket mr-1"></i> Đăng nhập</button>
+  </div>
+</div>
+
+<!-- ===== MÀN TỪ CHỐI ===== -->
+<div id="admin-denied" class="fixed inset-0 z-[1000] bg-[#060914] flex items-center justify-center p-4 hidden">
+  <div class="max-w-md w-full rounded-3xl border border-slate-800 bg-night-900/90 p-8 text-center">
+    <div class="text-4xl mb-3 text-rose-400"><i class="fa-solid fa-lock"></i></div>
+    <h1 class="text-lg font-black text-white">Không có quyền truy cập</h1>
+    <p class="text-xs text-slate-400 mt-2 leading-relaxed">Tài khoản <span id="denied-email" class="text-pink-300"></span> không nằm trong danh sách Admin. Hãy thêm email này vào <code class="text-pink-300">SLEEPMATE_ADMIN_EMAILS</code> trong firebase-config.js.</p>
+    <button onclick="ADMIN.signOut()" class="mt-5 px-5 py-2.5 rounded-2xl text-xs font-bold bg-night-950 border border-slate-700 text-slate-200 btn-bouncy"><i class="fa-solid fa-right-from-bracket mr-1"></i> Đăng xuất</button>
+  </div>
+</div>
+
+<!-- ===== APP ADMIN ===== -->
+<div id="admin-app" class="hidden max-w-7xl mx-auto px-4 py-6">
+
+  <div class="glass-panel border border-slate-800/80 rounded-3xl px-5 py-4 flex flex-wrap items-center justify-between gap-3">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-pink-500 via-purple-500 to-indigo-500 p-[2px]">
+        <div class="w-full h-full bg-night-950 rounded-[14px] flex items-center justify-center text-pink-400"><i class="fa-solid fa-gauge-high"></i></div>
+      </div>
+      <div>
+        <h1 class="text-base font-black text-white leading-tight">Bảng Điều Khiển <span class="bg-clip-text text-transparent bg-gradient-to-r from-pink-400 to-indigo-300">Admin</span></h1>
+        <p class="text-[10px] text-slate-500" id="admin-sys-name">SLEEPMATE Pro</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2">
+      <span class="hidden sm:flex items-center gap-1.5 text-[11px] text-slate-400 bg-night-900/90 px-3 py-1.5 rounded-full border border-slate-800"><i class="fa-solid fa-shield-halved text-emerald-400"></i> <span id="admin-who" class="font-bold"></span></span>
+      <button onclick="ADMIN.refresh()" class="px-3 py-1.5 rounded-full text-xs font-bold bg-night-900/90 border border-slate-800 text-slate-300 btn-bouncy"><i class="fa-solid fa-rotate"></i></button>
+      <button onclick="ADMIN.signOut()" class="px-3 py-1.5 rounded-full text-xs font-bold bg-rose-500/20 border border-rose-500/40 text-rose-300 btn-bouncy"><i class="fa-solid fa-right-from-bracket mr-1"></i> Thoát</button>
+    </div>
+  </div>
+
+  <!-- THẺ THỐNG KÊ -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-5" id="stat-cards">
+    <div class="glass-panel border border-slate-800 rounded-2xl p-4">
+      <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider"><i class="fa-solid fa-users text-pink-400 mr-1"></i> Tổng người dùng</p>
+      <p class="text-2xl font-black text-white mt-1" id="stat-users">0</p>
+    </div>
+    <div class="glass-panel border border-slate-800 rounded-2xl p-4">
+      <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider"><i class="fa-solid fa-bolt text-amber-400 mr-1"></i> Hoạt động 24h</p>
+      <p class="text-2xl font-black text-white mt-1" id="stat-active">0</p>
+    </div>
+    <div class="glass-panel border border-slate-800 rounded-2xl p-4">
+      <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider"><i class="fa-solid fa-star text-emerald-400 mr-1"></i> Tỷ lệ hoàn hảo TB</p>
+      <p class="text-2xl font-black text-white mt-1" id="stat-perfect">—</p>
+    </div>
+    <div class="glass-panel border border-slate-800 rounded-2xl p-4">
+      <p class="text-[10px] font-bold text-slate-500 uppercase tracking-wider"><i class="fa-solid fa-handshake text-cyan-400 mr-1"></i> Tham gia hôm nay</p>
+      <p class="text-2xl font-black text-white mt-1" id="stat-today">—</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-5">
+    <!-- LUẬT NHÓM -->
+    <div class="glass-panel border border-slate-800 rounded-3xl p-5">
+      <h2 class="text-sm font-black text-white flex items-center gap-2 mb-4"><i class="fa-solid fa-sliders text-violet-400"></i> Luật chung cho cả nhóm</h2>
+      <label class="flex items-center gap-2 text-xs text-slate-300 mb-3 cursor-pointer">
+        <input type="checkbox" id="rule-enabled" class="accent-pink-500 w-4 h-4">
+        Bật luật (tự áp dụng cho mọi thành viên)
+      </label>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Giờ giới nghiêm</label>
+          <input type="time" id="rule-curfew" class="w-full bg-night-950 border border-slate-700 text-pink-300 font-mono font-bold text-sm rounded-xl px-3 py-2.5 outline-none focus:border-pink-500/70">
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Hạn mức (phút)</label>
+          <input type="number" id="rule-limit" min="15" max="240" step="5" class="w-full bg-night-950 border border-slate-700 text-cyan-300 font-mono font-bold text-sm rounded-xl px-3 py-2.5 outline-none focus:border-pink-500/70">
+        </div>
+      </div>
+      <label class="flex items-center gap-2 text-xs text-slate-300 mt-3 cursor-pointer">
+        <input type="checkbox" id="rule-bed-enabled" class="accent-pink-500 w-4 h-4">
+        Khoá cứng ban đêm cả tuần (giờ ngủ bắt buộc)
+      </label>
+      <div class="grid grid-cols-2 gap-3 mt-2">
+        <div>
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Từ</label>
+          <input type="time" id="rule-bed-start" class="w-full bg-night-950 border border-slate-700 text-pink-300 font-mono font-bold text-sm rounded-xl px-3 py-2.5 outline-none focus:border-pink-500/70">
+        </div>
+        <div>
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Đến</label>
+          <input type="time" id="rule-bed-end" class="w-full bg-night-950 border border-slate-700 text-pink-300 font-mono font-bold text-sm rounded-xl px-3 py-2.5 outline-none focus:border-pink-500/70">
+        </div>
+      </div>
+      <div class="mt-3">
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Lời nhắn kèm theo</label>
+        <textarea id="rule-note" rows="2" class="w-full bg-night-950 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 outline-none focus:border-pink-500/70" placeholder="VD: Cả lớp cố gắng lên giường trước 23:00 nhé!"></textarea>
+      </div>
+      <div class="flex gap-2 mt-4">
+        <button onclick="ADMIN.saveRules()" class="flex-1 py-2.5 rounded-2xl text-xs font-bold bg-gradient-to-r from-violet-500 to-indigo-600 text-white btn-bouncy"><i class="fa-solid fa-floppy-disk mr-1"></i> Lưu &amp; áp dụng</button>
+        <button onclick="ADMIN.loadRules()" class="px-4 py-2.5 rounded-2xl text-xs font-bold bg-night-950 border border-slate-700 text-slate-300 btn-bouncy"><i class="fa-solid fa-rotate-left"></i></button>
+      </div>
+      <p class="text-[10px] text-slate-600 mt-3 leading-relaxed"><i class="fa-solid fa-circle-info mr-1"></i> Thành viên sẽ tự nhận luật mới trong vòng vài giây (đồng bộ thời gian thực).</p>
+    </div>
+
+    <!-- NHẮN NHỞ CHUNG -->
+    <div class="glass-panel border border-slate-800 rounded-3xl p-5">
+      <h2 class="text-sm font-black text-white flex items-center gap-2 mb-4"><i class="fa-solid fa-tower-broadcast text-amber-400"></i> Nhắn nhở toàn bộ người dùng</h2>
+      <textarea id="broadcast-text" rows="4" class="w-full bg-night-950 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 outline-none focus:border-amber-500/70" placeholder="VD: Cả lớp lưu ý: tuần này phải đi ngủ trước 23:00 để mai dậy đúng giờ nhé!"></textarea>
+      <button onclick="ADMIN.broadcast()" class="w-full mt-3 py-2.5 rounded-2xl text-xs font-bold bg-gradient-to-r from-amber-500 to-orange-600 text-white btn-bouncy"><i class="fa-solid fa-paper-plane mr-1"></i> Gửi nhắc nhở cho tất cả</button>
+      <div id="broadcast-status" class="text-[10px] text-slate-500 mt-2"></div>
+      <div class="mt-4 pt-4 border-t border-slate-800">
+        <h3 class="text-[11px] font-bold text-slate-300 mb-2"><i class="fa-solid fa-list"></i> Hướng dẫn nhanh</h3>
+        <ul class="text-[10px] text-slate-500 space-y-1 list-disc list-inside">
+          <li><strong class="text-slate-300">Hoàn hảo</strong> = đêm vừa trong hạn mức vừa đúng giới nghiêm.</li>
+          <li><strong class="text-slate-300">Tham gia</strong> = số ngày có dữ liệu trong 7 ngày gần nhất.</li>
+          <li>Bấm vào từng dòng để xem chi tiết &amp; gửi nhắc nhở riêng.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- TÌM KIẾM + TUỲ CHỈNH -->
+    <div class="glass-panel border border-slate-800 rounded-3xl p-5 flex flex-col">
+      <h2 class="text-sm font-black text-white flex items-center gap-2 mb-4"><i class="fa-solid fa-magnifying-glass text-cyan-400"></i> Tìm &amp; sắp xếp</h2>
+      <input id="search-input" oninput="ADMIN.renderTable()" class="w-full bg-night-950 border border-slate-700 text-slate-200 text-sm rounded-xl px-3.5 py-2.5 outline-none focus:border-cyan-500/70" placeholder="Tìm tên hoặc email…">
+      <div class="mt-3">
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Xếp hạng theo</label>
+        <div class="flex flex-wrap gap-1.5">
+          <button onclick="ADMIN.setSort('perfect')" data-sort="perfect" class="sort-btn px-3 py-1.5 rounded-full text-[10px] font-bold border border-slate-700 text-slate-300 btn-bouncy">Tỷ lệ hoàn hảo</button>
+          <button onclick="ADMIN.setSort('disc')" data-sort="disc" class="sort-btn px-3 py-1.5 rounded-full text-[10px] font-bold border border-slate-700 text-slate-300 btn-bouncy">Điểm kỷ luật</button>
+          <button onclick="ADMIN.setSort('active')" data-sort="active" class="sort-btn px-3 py-1.5 rounded-full text-[10px] font-bold border border-slate-700 text-slate-300 btn-bouncy">Hoạt động gần nhất</button>
+          <button onclick="ADMIN.setSort('name')" data-sort="name" class="sort-btn px-3 py-1.5 rounded-full text-[10px] font-bold border border-slate-700 text-slate-300 btn-bouncy">Tên</button>
+        </div>
+      </div>
+      <div class="mt-auto pt-4 text-[10px] text-slate-600" id="last-updated">Chưa tải dữ liệu.</div>
+    </div>
+  </div>
+
+  <!-- BẢNG NGƯỜI DÙNG -->
+  <div class="glass-panel border border-slate-800 rounded-3xl p-4 sm:p-5 mt-5">
+    <div class="flex items-center justify-between mb-3">
+      <h2 class="text-sm font-black text-white flex items-center gap-2"><i class="fa-solid fa-table-list text-indigo-400"></i> Quản lý người dùng <span id="row-count" class="text-[10px] font-bold text-slate-500"></span></h2>
+      <div class="flex items-center gap-2 text-[10px] text-slate-500">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 inline-block"></span> Hoàn hảo
+        <span class="w-2.5 h-2.5 rounded-full bg-amber-400 inline-block ml-2"></span> Vướng 1 tiêu chí
+        <span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block ml-2"></span> Chưa hoàn hảo
+      </div>
+    </div>
+    <div class="table-wrap overflow-auto">
+      <table class="w-full text-left text-xs min-w-[900px]">
+        <thead class="text-[10px] uppercase tracking-wider text-slate-500 border-b border-slate-800">
+          <tr>
+            <th class="py-2 pr-3">#</th>
+            <th class="py-2 pr-3">Thành viên</th>
+            <th class="py-2 pr-3">Hôm nay</th>
+            <th class="py-2 pr-3">Hoàn hảo (7n)</th>
+            <th class="py-2 pr-3">Tham gia (7n)</th>
+            <th class="py-2 pr-3">Điểm TB</th>
+            <th class="py-2 pr-3">Streak</th>
+            <th class="py-2 pr-3">Cập nhật</th>
+            <th class="py-2 text-right">Hành động</th>
+          </tr>
+        </thead>
+        <tbody id="user-tbody"></tbody>
+      </table>
+      <p id="user-empty" class="text-[11px] text-slate-500 text-center py-8 hidden">Chưa có người dùng nào đăng ký.</p>
+    </div>
+  </div>
+
+  <p class="text-center text-[10px] text-slate-600 mt-6 pb-6">SLEEPMATE Pro · Hệ thống quản lý kỷ luật giấc ngủ · Admin theo dõi thời gian thực 🔒</p>
+</div>
+
+<!-- ===== MODAL CHI TIẾT THÀNH VIÊN ===== -->
+<div id="member-modal" class="fixed inset-0 z-[1010] hidden">
+  <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="ADMIN.closeMember()"></div>
+  <div class="relative w-full max-w-2xl mx-auto mt-[6vh] p-4">
+    <div class="glass-panel border border-slate-700 rounded-3xl shadow-2xl overflow-hidden max-h-[88vh] flex flex-col">
+      <div class="flex items-center justify-between px-5 py-4 border-b border-slate-800">
+        <div>
+          <h3 class="text-sm font-black text-white" id="mm-name">—</h3>
+          <p class="text-[10px] text-slate-500" id="mm-email">—</p>
+        </div>
+        <button onclick="ADMIN.closeMember()" class="w-8 h-8 rounded-full bg-night-950 border border-slate-700 text-slate-400 text-xs"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="overflow-y-auto p-5 space-y-5">
+        <div class="grid grid-cols-3 gap-3 text-center" id="mm-stats"></div>
+        <div>
+          <h4 class="text-[11px] font-bold text-slate-300 mb-2"><i class="fa-solid fa-calendar-days text-cyan-400 mr-1"></i> 14 đêm gần nhất</h4>
+          <div class="overflow-x-auto"><table class="w-full text-[11px]">
+            <thead class="text-[9px] uppercase text-slate-500 border-b border-slate-800"><tr>
+              <th class="py-1.5 pr-2 text-left">Đêm</th><th class="py-1.5 pr-2 text-right">Dùng</th><th class="py-1.5 pr-2 text-right">Khuya</th><th class="py-1.5 pr-2 text-right">Mở</th><th class="py-1.5 pr-2 text-right">Khoá</th><th class="py-1.5 pr-2 text-right">Điểm</th><th class="py-1.5 text-right">Kết quả</th>
+            </tr></thead>
+            <tbody id="mm-days"></tbody>
+          </table></div>
+        </div>
+        <div>
+          <h4 class="text-[11px] font-bold text-slate-300 mb-2"><i class="fa-solid fa-lock text-rose-400 mr-1"></i> Lịch sử khoá gần đây</h4>
+          <div id="mm-locks" class="space-y-1.5"></div>
+        </div>
+        <div>
+          <h4 class="text-[11px] font-bold text-slate-300 mb-2"><i class="fa-solid fa-envelope text-amber-400 mr-1"></i> Gửi nhắc nhở riêng</h4>
+          <textarea id="mm-msg" rows="2" class="w-full bg-night-950 border border-slate-700 text-slate-200 text-xs rounded-xl px-3 py-2 outline-none focus:border-amber-500/70" placeholder="Nhắc nhở dành riêng cho thành viên này…"></textarea>
+          <button onclick="ADMIN.sendToSelected()" class="mt-2 px-4 py-2 rounded-2xl text-xs font-bold bg-gradient-to-r from-amber-500 to-orange-600 text-white btn-bouncy"><i class="fa-solid fa-paper-plane mr-1"></i> Gửi nhắc nhở</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== TOAST ===== -->
+<div id="toast-stack" aria-live="polite" class="fixed bottom-5 right-4 z-[1020] space-y-2 w-[min(92vw,360px)]"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="./firebase-config.js"></script>
+<script>
+'use strict';
+window.ADMIN = (function () {
+  const CONFIG = window.SLEEPMATE_FB_CONFIG || null;
+  const ADMIN_EMAILS = (Array.isArray(window.SLEEPMATE_ADMIN_EMAILS) ? window.SLEEPMATE_ADMIN_EMAILS : [])
+    .map((e) => String(e).trim().toLowerCase()).filter(Boolean);
+  const SYS_NAME = window.SLEEPMATE_SYSTEM_NAME || 'SLEEPMATE Pro';
+  const CONFIGURED = !!(CONFIG && CONFIG.projectId && !/DAN_VAO_DAY|YOUR_/i.test(String(CONFIG.projectId)));
+
+  let auth = null, db = null, me = null;
+  let usersSnap = null, unsubUsers = null;
+  let allUsers = [];        // mảng {id, doc} đã sort
+  let rowCache = [];        // đã tính metrics + lọc
+  let sortMode = 'perfect';
+  let selectedUid = null;
+  let refreshTimer = null;
+
+  const $id = (id) => document.getElementById(id);
+  const vn = (s) => String(s == null ? '' : s).trim();
+  const pad2 = (n) => String(n).padStart(2, '0');
+
+  /* ---------- helpers ngày/thời gian ---------- */
+  function sleepDayKey(d = new Date()) {
+    const x = new Date(d);
+    if (x.getHours() < 4) x.setDate(x.getDate() - 1);
+    return `${x.getFullYear()}-${pad2(x.getMonth() + 1)}-${pad2(x.getDate())}`;
+  }
+  function lastNDayKeys(n) {
+    const out = [];
+    for (let i = n - 1; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      out.push(sleepDayKey(d));
+    }
+    return out;
+  }
+  function fmtClock(ts) {
+    try { return new Date(ts).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' }); }
+    catch (e) { return ''; }
+  }
+  function fmtAgo(ts) {
+    if (!ts) return '—';
+    const s = Math.max(0, (Date.now() - ts) / 1000);
+    if (s < 60) return 'vừa xong';
+    if (s < 3600) return Math.floor(s / 60) + ' phút';
+    if (s < 86400) return Math.floor(s / 3600) + ' giờ';
+    return Math.floor(s / 86400) + ' ngày';
+  }
+  function fmtDur(sec) {
+    sec = Math.max(0, Math.round(sec || 0));
+    const h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60);
+    if (h) return `${h}h${pad2(m)}p`;
+    return `${m}p`;
+  }
+  function dateLabel(key) {
+    const p = String(key).split('-').map(Number);
+    if (p.length !== 3) return key;
+    const d = new Date(p[0], p[1] - 1, p[2]);
+    const days = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+    return `${pad2(p[2])}/${pad2(p[1])} ${days[d.getDay()]}`;
+  }
+
+  function toast(title, body, kind) {
+    const stack = $id('toast-stack');
+    if (!stack) return;
+    const el = document.createElement('div');
+    el.className = 'glass-panel border rounded-2xl px-4 py-3 shadow-2xl cursor-pointer ' +
+      (kind === 'warn' ? 'border-rose-500/40' : kind === 'ok' ? 'border-emerald-500/40' : 'border-slate-700');
+    el.innerHTML = `<div class="flex items-start gap-2.5">
+      <div class="text-base leading-none mt-0.5">${kind === 'warn' ? '⚠️' : kind === 'ok' ? '✅' : '🌙'}</div>
+      <div class="min-w-0"><p class="text-[12px] font-bold text-white leading-snug">${title}</p>
+      <p class="text-[11px] text-slate-400 leading-snug mt-0.5">${body}</p></div></div>`;
+    el.addEventListener('click', () => el.remove());
+    stack.appendChild(el);
+    setTimeout(() => el.remove(), 5000);
+  }
+
+  function show(el, on) {
+    const e = typeof el === 'string' ? $id(el) : el;
+    if (e) e.classList.toggle('hidden', !on);
+  }
+
+  function mapAuthError(e) {
+    const code = (e && e.code) || '';
+    const map = {
+      'auth/invalid-email': 'Email không hợp lệ.', 'auth/user-not-found': 'Không tìm thấy tài khoản.',
+      'auth/wrong-password': 'Mật khẩu sai.', 'auth/invalid-credential': 'Email hoặc mật khẩu không đúng.',
+      'auth/network-request-failed': 'Không có mạng.', 'auth/too-many-requests': 'Thử quá nhiều lần, chờ chút nhé.'
+    };
+    return map[code] || (e && e.message) || 'Có lỗi xảy ra.';
+  }
+
+  /* ---------- khởi tạo ---------- */
+  function init() {
+    $id('admin-sys-name').textContent = SYS_NAME + ' · ' + new Date().getFullYear();
+    if (!CONFIGURED || !window.firebase) { show('admin-setup', true); show('admin-login', false); show('admin-denied', false); show('admin-app', false); return; }
+    if (!firebase.apps || !firebase.apps.length) firebase.initializeApp(CONFIG);
+    auth = firebase.auth();
+    db = firebase.firestore();
+    auth.onAuthStateChanged(async (u) => {
+      if (!u) { closeAll(); show('admin-login', true); show('admin-setup', false); show('admin-denied', false); show('admin-app', false); return; }
+      // kiểm tra quyền admin
+      let role = '';
+      try {
+        const snap = await db.collection('users').doc(u.uid).get();
+        if (snap.exists && snap.data().role) role = snap.data().role;
+      } catch (e) { role = ''; }
+      const email = (u.email || '').toLowerCase();
+      const allowed = ADMIN_EMAILS.includes(email) || role === 'admin';
+      if (!allowed) {
+        closeAll();
+        $id('denied-email').textContent = u.email || '';
+        show('admin-denied', true); show('admin-login', false); show('admin-app', false);
+        return;
+      }
+      me = { uid: u.uid, email: u.email || '' };
+      $id('admin-who').textContent = me.email;
+      closeAll();
+      show('admin-app', true);
+      subscribe();
+      loadRules();
+    });
+  }
+
+  function closeAll() {
+    show('admin-setup', false); show('admin-login', false); show('admin-denied', false);
+    stop(); show('admin-app', false); show('member-modal', false);
+  }
+
+  function login() {
+    if (!auth) return;
+    const email = vn($id('admin-email').value), pass = $id('admin-pass').value || '';
+    const err = $id('admin-login-error');
+    if (!email || !pass) { err.textContent = 'Nhập đủ email và mật khẩu.'; err.classList.remove('hidden'); return; }
+    err.classList.add('hidden');
+    auth.signInWithEmailAndPassword(email, pass).catch((e) => {
+      err.textContent = mapAuthError(e); err.classList.remove('hidden');
+    });
+  }
+
+  function signOut() {
+    if (auth) auth.signOut().catch(() => {});
+    closeAll();
+    show('admin-login', true);
+  }
+
+  /* ---------- đăng ký lắng nghe người dùng ---------- */
+  function subscribe() {
+    stop();
+    unsubUsers = db.collection('users').limit(300).onSnapshot(
+      (snap) => {
+        allUsers = [];
+        snap.forEach((d) => allUsers.push({ id: d.id, doc: d.data() || {} }));
+        computeAll();
+      },
+      (e) => toast('Lỗi dữ liệu', 'Không đọc được danh sách người dùng — kiểm tra Firestore rules.', 'warn')
+    );
+  }
+
+  function stop() {
+    if (unsubUsers) { try { unsubUsers(); } catch (e) {} unsubUsers = null; }
+    if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
+  }
+
+  async function computeAll() {
+    renderTable(); // render sớm với thông tin có sẵn
+    const keys = lastNDayKeys(7);
+    const rows = await Promise.all(allUsers.map(async (u) => {
+      const m = await userMetrics(u, keys);
+      return Object.assign({ uid: u.id, name: u.doc.name || '—', email: u.doc.email || '', role: u.doc.role || 'member', lastSeenAt: u.doc.lastSeenAt || 0 }, m);
+    }));
+    rowCache = rows;
+    updateStats(rows);
+    renderTable();
+    $id('last-updated').textContent = 'Cập nhật lúc ' + new Date().toLocaleTimeString('vi-VN') + ' · tự động đồng bộ';
+  }
+
+  async function userMetrics(u, keys) {
+    const days = [];
+    try {
+      const snap = await db.collection('users').doc(u.id).collection('days')
+        .orderBy('sleepDay', 'desc').limit(14).get();
+      snap.forEach((d) => days.push(d.data() || {}));
+    } catch (e) { /* quyền bị chặn */ }
+    const byKey = {};
+    days.forEach((d) => { byKey[d.sleepDay] = d; });
+    const todayKey = sleepDayKey();
+    const last7 = keys.map((k) => byKey[k]).filter(Boolean);
+    const perfectDays = last7.filter((d) => d.perfect).length;
+    const perfectPct = last7.length ? Math.round(perfectDays / last7.length * 100) : null;
+    const participation = Math.round(last7.length / 7 * 100);
+    const discSum = days.reduce((s, d) => s + (Number(d.discipline) || 0), 0);
+    const discAvg = days.length ? Math.round(discSum / days.length) : null;
+    const streak = days.length ? Math.max(...days.map((d) => Number(d.streak) || 0)) : 0;
+    const today = byKey[todayKey];
+    return {
+      perfectPct, participation, discAvg, streak,
+      today: today ? {
+        activeSec: today.activeSec, limitOk: today.limitOk, curfewOk: today.curfewOk,
+        perfect: today.perfect, screenLimitMin: today.screenLimitMin, updatedAt: today.updatedAt
+      } : null,
+      days: days.slice(0, 14)
+    };
+  }
+
+  /* ---------- thống kê ---------- */
+  function updateStats(rows) {
+    const now = Date.now();
+    $id('stat-users').textContent = rows.length;
+    $id('stat-active').textContent = rows.filter((r) => (now - r.lastSeenAt) < 86400000).length;
+    const pcts = rows.map((r) => r.perfectPct).filter((p) => p !== null);
+    $id('stat-perfect').textContent = pcts.length ? Math.round(pcts.reduce((a, b) => a + b, 0) / pcts.length) + '%' : '—';
+    const td = rows.filter((r) => r.today).length;
+    $id('stat-today').textContent = rows.length ? Math.round(td / rows.length * 100) + '%' : '—';
+  }
+
+  /* ---------- bảng ---------- */
+  function setSort(mode) {
+    sortMode = mode;
+    document.querySelectorAll('.sort-btn').forEach((b) => {
+      const on = b.dataset.sort === mode;
+      b.className = on
+        ? 'px-3 py-1.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-pink-500 to-indigo-600 text-white btn-bouncy'
+        : 'px-3 py-1.5 rounded-full text-[10px] font-bold border border-slate-700 text-slate-300 btn-bouncy';
+    });
+    renderTable();
+  }
+
+  function statusBadge(today) {
+    if (!today) return '<span class="text-slate-600 text-[10px]">—</span>';
+    if (today.perfect) return '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold"><i class="fa-solid fa-circle-check"></i> Hoàn hảo</span>';
+    if (!today.limitOk && !today.curfewOk) return '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rose-500/15 text-rose-300 border border-rose-500/30 text-[10px] font-bold"><i class="fa-solid fa-circle-xmark"></i> Chưa hoàn hảo</span>';
+    return '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[10px] font-bold"><i class="fa-solid fa-circle-exclamation"></i> Vướng ' +
+      (today.limitOk ? 'giờ' : 'hạn mức') + '</span>';
+  }
+
+  function renderTable() {
+    const q = vn($id('search-input').value).toLowerCase();
+    let list = rowCache.length ? rowCache.slice() : allUsers.map((u) => ({
+      uid: u.id, name: u.doc.name || '—', email: u.doc.email || '', lastSeenAt: u.doc.lastSeenAt || 0,
+      perfectPct: null, participation: 0, discAvg: null, streak: 0, today: null, days: []
+    }));
+    if (q) list = list.filter((r) => r.name.toLowerCase().includes(q) || (r.email || '').toLowerCase().includes(q));
+    list.sort((a, b) => {
+      if (sortMode === 'disc') return (b.discAvg ?? -1) - (a.discAvg ?? -1);
+      if (sortMode === 'active') return (b.lastSeenAt || 0) - (a.lastSeenAt || 0);
+      if (sortMode === 'name') return (a.name || '').localeCompare(b.name || '', 'vi');
+      return (b.perfectPct ?? -1) - (a.perfectPct ?? -1);
+    });
+
+    const tbody = $id('user-tbody');
+    $id('user-empty').classList.toggle('hidden', list.length > 0);
+    $id('row-count').textContent = list.length ? '(' + list.length + ' người)' : '';
+    tbody.innerHTML = list.map((r, i) => {
+      const initial = (r.name || '?').trim().charAt(0).toUpperCase();
+      const perfectCell = r.perfectPct === null
+        ? '<span class="text-slate-600">—</span>'
+        : `<div class="flex items-center gap-2"><div class="w-14 h-1.5 rounded-full bg-night-950 overflow-hidden"><div class="h-full rounded-full ${r.perfectPct >= 80 ? 'bg-gradient-to-r from-emerald-500 to-teal-400' : r.perfectPct >= 40 ? 'bg-gradient-to-r from-amber-500 to-yellow-400' : 'bg-gradient-to-r from-rose-600 to-pink-500'}" style="width:${Math.min(100, r.perfectPct)}%"></div></div><span class="font-mono font-bold ${r.perfectPct >= 80 ? 'text-emerald-300' : r.perfectPct >= 40 ? 'text-amber-300' : 'text-rose-300'}">${r.perfectPct}%</span></div>`;
+      const partCell = `<div class="flex items-center gap-2"><div class="w-14 h-1.5 rounded-full bg-night-950 overflow-hidden"><div class="h-full rounded-full bg-gradient-to-r from-cyan-500 to-sky-400" style="width:${r.participation}%"></div></div><span class="font-mono text-slate-300">${r.participation}%</span></div>`;
+      const rankBadge = i < 3
+        ? `<span class="text-amber-300"><i class="fa-solid fa-${i === 0 ? 'crown' : i === 1 ? 'medal' : 'star'}"></i></span>`
+        : `<span class="text-slate-600 font-mono">${i + 1}</span>`;
+      return `<tr class="border-b border-slate-800/60 hover:bg-night-850/60 cursor-pointer" onclick="ADMIN.openMember('${r.uid}')">
+        <td class="py-2.5 pr-3 font-black text-sm">${rankBadge}</td>
+        <td class="py-2.5 pr-3"><div class="flex items-center gap-2"><span class="w-7 h-7 rounded-full bg-gradient-to-tr from-pink-500 to-indigo-500 text-white text-[11px] font-bold flex items-center justify-center shrink-0">${initial}</span><div class="min-w-0"><p class="font-bold text-slate-200 truncate max-w-[170px]">${r.name}${r.role === 'admin' ? ' <i class="fa-solid fa-gauge-high text-violet-400"></i>' : ''}</p><p class="text-[10px] text-slate-500 truncate max-w-[170px]">${r.email}</p></div></div></td>
+        <td class="py-2.5 pr-3">${statusBadge(r.today)}${r.today ? `<p class="text-[9px] text-slate-500 font-mono mt-1">${fmtDur(r.today.activeSec)}/${r.today.screenLimitMin || 30}p</p>` : ''}</td>
+        <td class="py-2.5 pr-3">${perfectCell}</td>
+        <td class="py-2.5 pr-3">${partCell}</td>
+        <td class="py-2.5 pr-3"><span class="font-mono text-slate-200 font-bold">${r.discAvg === null ? '—' : r.discAvg + '%'}</span></td>
+        <td class="py-2.5 pr-3"><span class="font-mono text-pink-300 font-bold">${r.streak ? r.streak + '🔥' : '—'}</span></td>
+        <td class="py-2.5 pr-3 text-[10px] text-slate-500">${fmtAgo(r.lastSeenAt)}</td>
+        <td class="py-2.5 text-right whitespace-nowrap"><button onclick="event.stopPropagation();ADMIN.openMember('${r.uid}')" class="px-2.5 py-1 rounded-lg bg-night-950 border border-slate-700 text-slate-300 text-[10px] font-bold btn-bouncy mr-1"><i class="fa-solid fa-eye"></i></button><button onclick="event.stopPropagation();ADMIN.openMember('${r.uid}',true)" class="px-2.5 py-1 rounded-lg bg-night-950 border border-slate-700 text-amber-300 text-[10px] font-bold btn-bouncy"><i class="fa-solid fa-envelope"></i></button></td>
+      </tr>`;
+    }).join('');
+  }
+
+  /* ---------- chi tiết thành viên ---------- */
+  async function openMember(uid, focusMsg) {
+    selectedUid = uid;
+    const row = rowCache.find((r) => r.uid === uid);
+    $id('mm-name').textContent = row ? row.name : '—';
+    $id('mm-email').textContent = row ? row.email : '';
+    const today = row && row.today;
+    $id('mm-stats').innerHTML = [
+      ['Hôm nay', today ? (today.perfect ? 'Hoàn hảo ✅' : today.limitOk ? 'Vướng giờ ⚠️' : today.curfewOk ? 'Vướng hạn mức ⚠️' : 'Chưa hoàn hảo ❌') : 'Chưa có dữ liệu'],
+      ['Hoàn hảo 7 ngày', row && row.perfectPct !== null ? row.perfectPct + '%' : '—'],
+      ['Tham gia 7 ngày', row ? row.participation + '%' : '—'],
+      ['Điểm TB', row && row.discAvg !== null ? row.discAvg + '%' : '—'],
+      ['Streak', row && row.streak ? row.streak + '🔥' : '—'],
+      ['Hoạt động', row ? fmtAgo(row.lastSeenAt) : '—']
+    ].map(([l, v]) => `<div class="glass-panel border border-slate-800 rounded-2xl p-3"><p class="text-[9px] text-slate-500 uppercase font-bold">${l}</p><p class="text-sm font-black text-white mt-0.5">${v}</p></div>`).join('');
+    $id('mm-days').innerHTML = (row && row.days && row.days.length)
+      ? row.days.map((d) => `<tr class="border-b border-slate-800/50">
+          <td class="py-1.5 pr-2 text-slate-400">${dateLabel(d.sleepDay)}</td>
+          <td class="py-1.5 pr-2 text-right font-mono text-cyan-300">${fmtDur(d.activeSec)}</td>
+          <td class="py-1.5 pr-2 text-right font-mono text-amber-300">${fmtDur(d.lateSec)}</td>
+          <td class="py-1.5 pr-2 text-right font-mono text-slate-300">${d.opens || 0}</td>
+          <td class="py-1.5 pr-2 text-right font-mono text-rose-300">${d.lockouts || 0}</td>
+          <td class="py-1.5 pr-2 text-right font-mono text-pink-300">${d.discipline ?? '—'}</td>
+          <td class="py-1.5 text-right">${d.perfect ? '<span class="text-emerald-300 font-bold">✅</span>' : d.limitOk || d.curfewOk ? '<span class="text-amber-300 font-bold">⚠️</span>' : '<span class="text-rose-400 font-bold">✗</span>'}</td>
+        </tr>`).join('')
+      : '<tr><td colspan="7" class="py-4 text-center text-slate-600">Chưa có dữ liệu ngày nào.</td></tr>';
+    // lịch sử khoá
+    try {
+      const snap = await db.collection('users').doc(uid).collection('locks').orderBy('at', 'desc').limit(6).get();
+      const locks = []; snap.forEach((d) => locks.push(d.data() || {}));
+      $id('mm-locks').innerHTML = locks.length
+        ? locks.map((l) => `<div class="flex items-center gap-2 px-3 py-2 rounded-xl bg-night-950 border border-slate-800">
+            <i class="fa-solid fa-lock text-rose-400 shrink-0"></i>
+            <div class="min-w-0 flex-1"><p class="text-[11px] text-slate-300 truncate">${vn(l.reason || l.label || 'Khoá thiết bị')}</p></div>
+            <span class="text-[9px] text-slate-500 font-mono shrink-0">${fmtClock(l.at)}</span></div>`).join('')
+        : '<p class="text-[11px] text-slate-600 py-2">Chưa có lần khoá nào.</p>';
+    } catch (e) { $id('mm-locks').innerHTML = '<p class="text-[11px] text-slate-600">Không đọc được lịch sử khoá (thiếu quyền).</p>'; }
+    show('member-modal', true);
+    if (focusMsg) { window.setTimeout(() => { const t = $id('mm-msg'); if (t) t.focus(); }, 80); }
+  }
+
+  function closeMember() { show('member-modal', false); }
+
+  function sendToSelected() {
+    if (!selectedUid) return;
+    const text = vn($id('mm-msg').value);
+    if (!text) { toast('Nhập nội dung', 'Gõ lời nhắc nhở trước khi gửi.', 'warn'); return; }
+    db.collection('users').doc(selectedUid).collection('inbox').add({ at: Date.now(), text, read: false })
+      .then(() => { $id('mm-msg').value = ''; toast('Đã gửi', 'Nhắc nhở đã tới hộp thư của thành viên.', 'ok'); })
+      .catch((e) => toast('Gửi thất bại', mapAuthError(e), 'warn'));
+  }
+
+  /* ---------- broadcast ---------- */
+  async function broadcast() {
+    const text = vn($id('broadcast-text').value);
+    if (!text) { toast('Nhập nội dung', 'Viết lời nhắc nhở cho cả nhóm.', 'warn'); return; }
+    const status = $id('broadcast-status');
+    status.textContent = 'Đang gửi…';
+    const snap = await db.collection('users').limit(300).get();
+    const promises = [];
+    snap.forEach((d) => promises.push(
+      db.collection('users').doc(d.id).collection('inbox').add({ at: Date.now(), text, read: false })
+    ));
+    Promise.all(promises).then((res) => {
+      $id('broadcast-text').value = '';
+      status.textContent = 'Đã gửi tới ' + res.length + ' người dùng lúc ' + new Date().toLocaleTimeString('vi-VN') + '.';
+      toast('Gửi xong', 'Nhắc nhở đã tới ' + res.length + ' thành viên.', 'ok');
+    }).catch((e) => { status.textContent = 'Gửi thất bại: ' + mapAuthError(e); });
+  }
+
+  /* ---------- luật nhóm ---------- */
+  async function saveRules() {
+    if (!db) return;
+    const enabled = $id('rule-enabled').checked;
+    const curfew = $id('rule-curfew').value || '23:00';
+    const limit = Math.max(15, Math.min(240, parseInt($id('rule-limit').value, 10) || 30));
+    const bedOn = $id('rule-bed-enabled').checked;
+    const bedStart = $id('rule-bed-start').value || '23:00';
+    const bedEnd = $id('rule-bed-end').value || '06:00';
+    const note = vn($id('rule-note').value);
+    const week = { enabled: bedOn, days: Array.from({ length: 7 }, () => [{ on: bedOn, start: bedStart, end: bedEnd, label: 'Giờ ngủ (Admin)' }]) };
+    await db.collection('config').doc('groupRules').set({ enabled, curfew, screenLimitMin: limit, week, note, updatedAt: Date.now() })
+      .then(() => toast('Đã áp dụng luật', 'Luật mới đang tự đồng bộ tới mọi thành viên.', 'ok'))
+      .catch((e) => toast('Lưu thất bại', mapAuthError(e) + ' (kiểm tra Firestore rules)', 'warn'));
+  }
+
+  async function loadRules() {
+    if (!db) return;
+    try {
+      const snap = await db.collection('config').doc('groupRules').get();
+      if (!snap.exists) {
+        $id('rule-enabled').checked = false; $id('rule-curfew').value = '23:00'; $id('rule-limit').value = 30;
+        $id('rule-bed-enabled').checked = false; $id('rule-bed-start').value = '23:00'; $id('rule-bed-end').value = '06:00'; $id('rule-note').value = '';
+        return;
+      }
+      const r = snap.data() || {};
+      $id('rule-enabled').checked = !!r.enabled; $id('rule-curfew').value = r.curfew || '23:00'; $id('rule-limit').value = r.screenLimitMin || 30;
+      const w = r.week || {};
+      $id('rule-bed-enabled').checked = !!w.enabled;
+      const first = (w.days && w.days[0] && w.days[0][0]) || {};
+      $id('rule-bed-start').value = first.start || '23:00'; $id('rule-bed-end').value = first.end || '06:00'; $id('rule-note').value = r.note || '';
+    } catch (e) { toast('Chưa đọc được luật', 'Bạn cần quyền ghi config/groupRules.', 'warn'); }
+  }
+
+  function refresh() {
+    if (unsubUsers) { try { unsubUsers(); } catch (e) {} unsubUsers = null; }
+    if (db) subscribe();
+    loadRules();
+    toast('Đang làm mới', 'Đồng bộ lại dữ liệu người dùng…', 'info');
+  }
+
+  init();
+  return { login, signOut, refresh, renderTable, setSort, openMember, closeMember, sendToSelected, broadcast, saveRules, loadRules };
+})();
+</script>
+</body>
+</html>

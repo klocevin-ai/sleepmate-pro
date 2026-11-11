@@ -175,6 +175,87 @@ tailwind.config = {
 <div id="screen-strobe-overlay" class="fixed inset-0 z-40 emergency-strobe pointer-events-none hidden"></div>
 <div id="toast-stack" aria-live="polite"></div>
 
+<div id="sm-gate" class="fixed inset-0 z-[1000] bg-[#060914] overflow-y-auto flex items-start sm:items-center justify-center p-4" style="background-image:radial-gradient(circle at 20% 10%, rgba(236,72,153,.14), transparent 45%),radial-gradient(circle at 80% 90%, rgba(99,102,241,.16), transparent 45%);">
+  <div class="relative w-full max-w-md my-6">
+
+    <!-- KHI CHƯA CẤU HÌNH FIREBASE -->
+    <div id="auth-setup" class="hidden rounded-3xl border border-slate-800 bg-night-900/90 backdrop-blur-xl p-6 sm:p-8 shadow-2xl">
+      <div class="text-center mb-5">
+        <div class="text-5xl mb-3">🐾</div>
+        <h1 class="text-xl font-black text-white">SLEEPMATE Pro</h1>
+        <p class="text-xs text-slate-400 mt-1">Hệ thống kỷ luật giấc ngủ nhiều người dùng</p>
+      </div>
+      <div class="space-y-2 text-[11px] leading-relaxed text-slate-300 bg-night-950/60 border border-slate-800 rounded-2xl p-4">
+        <p><i class="fa-solid fa-triangle-exclamation text-amber-400 mr-1"></i> <strong>Chưa kết nối Firebase</strong> — Admin cần dán cấu hình vào file <code class="text-pink-300">firebase-config.js</code> rồi cập nhật lại trang.</p>
+        <p class="text-slate-500">Trong lúc chờ, bạn vẫn có thể dùng thử (dữ liệu chỉ lưu trên máy này, không gửi cho Admin).</p>
+      </div>
+      <button onclick="SM_ACCT.demoBypass()" class="w-full mt-5 py-3 rounded-2xl text-xs font-bold bg-gradient-to-r from-emerald-500 to-teal-600 text-white btn-bouncy">
+        <i class="fa-solid fa-flask mr-1.5"></i> Chế độ dùng thử
+      </button>
+      <p class="text-center text-[10px] text-slate-600 mt-3">Bắt buộc đăng nhập khi hệ thống đã cấu hình Firebase.</p>
+    </div>
+
+    <!-- ĐĂNG NHẬP / ĐĂNG KÝ -->
+    <div id="auth-gate" class="hidden rounded-3xl border border-slate-800 bg-night-900/90 backdrop-blur-xl p-6 sm:p-8 shadow-2xl">
+      <div class="text-center mb-5">
+        <div class="w-16 h-16 mx-auto mb-3 rounded-3xl bg-gradient-to-tr from-pink-500 via-purple-500 to-indigo-500 p-[2px] shadow-neon-pink">
+          <div class="w-full h-full bg-night-950 rounded-[22px] flex items-center justify-center text-2xl text-pink-400"><i class="fa-solid fa-moon"></i></div>
+        </div>
+        <h1 class="text-xl font-black text-white">SLEEPMATE Pro</h1>
+        <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">Đăng nhập để bắt đầu. Dữ liệu giấc ngủ của bạn sẽ tự đồng bộ<br>cho Admin theo dõi &amp; nhắc nhở.</p>
+      </div>
+
+      <div class="flex gap-2 p-1 bg-night-950/80 border border-slate-800 rounded-2xl mb-4">
+        <button id="auth-tab-login" onclick="SM_ACCT.toggleAuthTab('login')" class="flex-1 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-pink-500 to-indigo-600 text-white btn-bouncy">Đăng nhập</button>
+        <button id="auth-tab-register" onclick="SM_ACCT.toggleAuthTab('register')" class="flex-1 py-2.5 rounded-xl text-xs font-bold text-slate-400 bg-night-900 btn-bouncy">Đăng ký</button>
+      </div>
+
+      <div id="auth-error" class="hidden text-[11px] text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl px-3 py-2 mb-3"></div>
+
+      <div id="auth-name-row" class="hidden mb-3">
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Họ tên</label>
+        <input id="auth-name" autocomplete="name" placeholder="Nguyễn Văn A" class="w-full bg-night-950 border border-slate-700 text-slate-100 text-sm rounded-xl px-3.5 py-2.5 outline-none focus:border-pink-500/70">
+      </div>
+
+      <div class="mb-3">
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Email</label>
+        <input id="auth-email" type="email" autocomplete="email" placeholder="ten@truong.edu.vn" class="w-full bg-night-950 border border-slate-700 text-slate-100 text-sm rounded-xl px-3.5 py-2.5 outline-none focus:border-pink-500/70">
+      </div>
+
+      <div class="mb-3">
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Mật khẩu</label>
+        <input id="auth-pass" type="password" autocomplete="current-password" placeholder="Ít nhất 6 ký tự" class="w-full bg-night-950 border border-slate-700 text-slate-100 text-sm rounded-xl px-3.5 py-2.5 outline-none focus:border-pink-500/70">
+      </div>
+
+      <div id="auth-pass2-row" class="hidden mb-4">
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Nhập lại mật khẩu</label>
+        <input id="auth-pass2" type="password" autocomplete="new-password" placeholder="Gõ lại mật khẩu" class="w-full bg-night-950 border border-slate-700 text-slate-100 text-sm rounded-xl px-3.5 py-2.5 outline-none focus:border-pink-500/70">
+      </div>
+
+      <button id="auth-submit" onclick="SM_ACCT.submit()" class="w-full py-3 rounded-2xl text-xs font-bold bg-gradient-to-r from-pink-500 to-indigo-600 text-white shadow-neon-pink btn-bouncy">Đăng nhập</button>
+      <p id="auth-tab-hint" class="text-center text-[10px] text-slate-500 mt-3 leading-relaxed"></p>
+
+      <div class="mt-4 pt-4 border-t border-slate-800 text-[10px] text-slate-600 leading-relaxed">
+        <p><i class="fa-solid fa-shield-halved text-emerald-500 mr-1"></i> Bảo mật: mỗi người chỉ xem được dữ liệu của chính mình. Admin xem tổng hợp để hỗ trợ bạn đi ngủ đúng giờ.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HỘP THƯ TIN NHẮN TỪ ADMIN -->
+<div id="inbox-modal" class="fixed inset-0 z-[1010] hidden">
+  <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="SM_ACCT.closeInbox()"></div>
+  <div class="relative w-full max-w-sm mx-auto mt-[10vh] p-4">
+    <div class="rounded-3xl border border-slate-700 bg-night-900 shadow-2xl overflow-hidden">
+      <div class="flex items-center justify-between px-4 py-3 border-b border-slate-800">
+        <h3 class="text-sm font-bold text-white"><i class="fa-solid fa-envelope text-amber-400 mr-2"></i>Tin từ Admin</h3>
+        <button onclick="SM_ACCT.closeInbox()" class="w-7 h-7 rounded-full bg-night-950 border border-slate-700 text-slate-400 text-xs"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div id="inbox-list" class="p-3 space-y-2 max-h-[60vh] overflow-y-auto"></div>
+    </div>
+  </div>
+</div>
+
 <!-- BANNER ĐẾM NGƯỢC TỰ ĐỘNG KHÓA -->
 <div id="auto-lock-countdown-bar" class="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-rose-600 via-pink-600 to-rose-700 text-white py-2.5 px-4 text-xs font-bold shadow-2xl flex items-center justify-between gap-3 hidden">
   <span class="flex items-center gap-2 min-w-0">
@@ -292,7 +373,7 @@ tailwind.config = {
       <div class="min-w-0">
         <div class="flex items-center gap-1.5">
           <span class="font-extrabold text-sm tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-pink-400 via-purple-300 to-cyan-300 truncate">SLEEPMATE Pro</span>
-          <span class="text-[9px] px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-bold font-mono shrink-0">v3.1</span>
+          <span class="text-[9px] px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-bold font-mono shrink-0">v3.2</span>
         </div>
         <span class="text-[10px] text-slate-400 hidden sm:inline">Suite Kỷ Luật &amp; Khoa Học Giấc Ngủ</span>
       </div>
@@ -311,6 +392,7 @@ tailwind.config = {
         <i class="fa-solid fa-clock text-cyan-400"></i>
         <span id="hud-session-timer" class="font-mono text-cyan-300 font-bold">00:00</span>
       </div>
+      <div id="account-chip-holder"></div>
     </div>
   </div>
 </header>
@@ -4757,6 +4839,584 @@ function initAI() {
 boot();
 
 initAI();
+</script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script src="./firebase-config.js"></script>
+<script>
+/* ============================================================================
+   SLEEPMATE Pro — TÀI KHOẢN & ĐỒNG BỘ ĐÁM MÂY (v3.2)
+   ----------------------------------------------------------------------------
+   Chạy SAU main script. Yêu cầu:
+     - firebase-app-compat / firebase-auth-compat / firebase-firestore-compat
+     - window.SLEEPMATE_FB_CONFIG, window.SLEEPMATE_ADMIN_EMAILS
+   Dùng lại từ main: $, S, save, sleepDayKey, curfewMinutes, CUTOFF_HOUR,
+   triggerHardcoreLockout, rolloverIfNeeded, showToast, refreshAll, renderWeek,
+   setCurfew, setScreenLimit, normalizeWeek, fmtClock.
+   ========================================================================== */
+window.SM_ACCT = (function () {
+  'use strict';
+
+  const CONFIG = (typeof window !== 'undefined' && window.SLEEPMATE_FB_CONFIG) || null;
+  const ADMIN_EMAILS = Array.isArray(window.SLEEPMATE_ADMIN_EMAILS)
+    ? window.SLEEPMATE_ADMIN_EMAILS.map((e) => String(e).trim().toLowerCase()).filter(Boolean)
+    : [];
+  const SYS_NAME = (typeof window.SLEEPMATE_SYSTEM_NAME === 'string' && window.SLEEPMATE_SYSTEM_NAME)
+    ? window.SLEEPMATE_SYSTEM_NAME : 'SLEEPMATE Pro';
+  const CONFIGURED = !!(CONFIG && CONFIG.projectId &&
+    !/DAN_VAO_DAY|YOUR_|xxx/i.test(String(CONFIG.projectId)));
+
+  let firebaseSdk = null, auth = null, db = null;
+  let user = null;                 // { uid, email, name, role }
+  let unsubInbox = null, unsubRules = null;
+  let syncTimer = null;
+  let hooksInstalled = false;
+  let lastInboxAt = 0;
+  let appliedRulesSig = '';
+  let currentTab = 'login';
+
+  const $id = (id) => (typeof document !== 'undefined' ? document.getElementById(id) : null);
+  const vn = (s) => String(s == null ? '' : s).trim();
+  const nowMs = () => Date.now();
+
+  /* ------------------------------- SDK ------------------------------- */
+  function initSDK() {
+    if (!CONFIGURED) return false;
+    try {
+      firebaseSdk = window.firebase;
+      if (!firebaseSdk) return false;
+      if (!firebaseSdk.apps || !firebaseSdk.apps.length) firebaseSdk.initializeApp(CONFIG);
+      auth = firebaseSdk.auth();
+      db = firebaseSdk.firestore();
+      return true;
+    } catch (e) {
+      try { console.error('[SM] init SDK:', e); } catch (err) {}
+      return false;
+    }
+  }
+
+  /* --------------------------- UI hiện/ẩn --------------------------- */
+  function showPanel(setup, authForm) {
+    const setupEl = $id('auth-setup');
+    const gateEl = $id('auth-gate');
+    const gateShell = $id('sm-gate');
+    if (gateShell) gateShell.classList.remove('hidden');
+    if (setupEl) setupEl.classList.toggle('hidden', !setup);
+    if (gateEl) gateEl.classList.toggle('hidden', !authForm);
+  }
+
+  function hideGate() {
+    const shell = $id('sm-gate');
+    if (shell) shell.classList.add('hidden');
+  }
+
+  function setTab(tab) {
+    currentTab = tab;
+    const isLogin = tab === 'login';
+    const ln = $id('auth-tab-login'), rg = $id('auth-tab-register');
+    if (ln) ln.className = isLogin
+      ? 'flex-1 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-pink-500 to-indigo-600 text-white btn-bouncy'
+      : 'flex-1 py-2.5 rounded-xl text-xs font-bold text-slate-400 bg-night-900 btn-bouncy';
+    if (rg) rg.className = !isLogin
+      ? 'flex-1 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-pink-500 to-indigo-600 text-white btn-bouncy'
+      : 'flex-1 py-2.5 rounded-xl text-xs font-bold text-slate-400 bg-night-900 btn-bouncy';
+
+    const nameRow = $id('auth-name-row'), pass2Row = $id('auth-pass2-row');
+    const hint = $id('auth-tab-hint');
+    const btn = $id('auth-submit');
+    if (nameRow) nameRow.classList.toggle('hidden', isLogin);
+    if (pass2Row) pass2Row.classList.toggle('hidden', isLogin);
+    if (btn) btn.textContent = isLogin ? 'Đăng nhập' : 'Tạo tài khoản';
+    if (hint) hint.textContent = isLogin
+      ? 'Chưa có tài khoản? Bấm “Đăng ký” để tạo mới — dữ liệu sẽ tự gửi cho Admin.'
+      : 'Đã có tài khoản? Bấm “Đăng nhập”. Mỗi người dùng sẽ tự đăng ký một tài khoản riêng.';
+    authError('');
+  }
+
+  function authError(msg) {
+    const el = $id('auth-error');
+    if (el) {
+      el.textContent = msg || '';
+      el.classList.toggle('hidden', !msg);
+    }
+  }
+
+  function authBusy(busy) {
+    const btn = $id('auth-submit');
+    if (btn) {
+      btn.disabled = !!busy;
+      btn.textContent = busy ? 'Đang xử lý…' : (currentTab === 'login' ? 'Đăng nhập' : 'Tạo tài khoản');
+    }
+  }
+
+  function mapAuthError(e) {
+    const code = (e && e.code) || '';
+    const map = {
+      'auth/invalid-email': 'Email không hợp lệ.',
+      'auth/user-not-found': 'Không tìm thấy tài khoản. Hãy đăng ký trước.',
+      'auth/wrong-password': 'Mật khẩu sai. Thử lại nhé.',
+      'auth/email-already-in-use': 'Email này đã có tài khoản. Hãy đăng nhập.',
+      'auth/weak-password': 'Mật khẩu quá ngắn (cần ít nhất 6 ký tự).',
+      'auth/too-many-requests': 'Thao tác quá nhiều lần. Chờ một chút rồi thử lại.',
+      'auth/network-request-failed': 'Không có mạng. Kiểm tra kết nối rồi thử lại.',
+      'auth/invalid-credential': 'Email hoặc mật khẩu không đúng.',
+      'auth/missing-password': 'Vui lòng nhập mật khẩu.',
+      'auth/operation-not-allowed': 'Chưa bật đăng nhập Email/Mật khẩu trong Firebase.'
+    };
+    return map[code] || (e && e.message) || 'Có lỗi xảy ra, thử lại sau.';
+  }
+
+  /* ---------------------------- xác thực ---------------------------- */
+  function submit() {
+    if (currentTab === 'login') doLogin(); else doRegister();
+  }
+
+  function doLogin() {
+    if (!auth) return;
+    const email = vn(($id('auth-email') || {}).value || '');
+    const pass = ($id('auth-pass') || {}).value || '';
+    if (!email || !pass) { authError('Nhập đủ email và mật khẩu.'); return; }
+    authBusy(true);
+    auth.signInWithEmailAndPassword(email, pass)
+      .catch((e) => { authError(mapAuthError(e)); authBusy(false); });
+  }
+
+  function doRegister() {
+    if (!auth) return;
+    const name = vn(($id('auth-name') || {}).value || '');
+    const email = vn(($id('auth-email') || {}).value || '');
+    const pass = ($id('auth-pass') || {}).value || '';
+    const pass2 = ($id('auth-pass2') || {}).value || '';
+    if (!name || !email || !pass) { authError('Nhập đủ họ tên, email và mật khẩu.'); return; }
+    if (pass.length < 6) { authError('Mật khẩu cần ít nhất 6 ký tự.'); return; }
+    if (pass !== pass2) { authError('Hai mật khẩu không khớp.'); return; }
+    authBusy(true);
+    auth.createUserWithEmailAndPassword(email, pass)
+      .then(async (cred) => {
+        try { await cred.user.updateProfile({ displayName: name }); } catch (e) { /* bỏ qua */ }
+        return ensureUserDoc(cred.user, name);
+      })
+      .catch((e) => { authError(mapAuthError(e)); authBusy(false); });
+  }
+
+  async function ensureUserDoc(fireUser, name) {
+    if (!db) return;
+    const doc = db.collection('users').doc(fireUser.uid);
+    try {
+      const snap = await doc.get();
+      const now = nowMs();
+      if (snap.exists) {
+        await doc.update({ lastSeenAt: now });
+      } else {
+        const role = isAdminEmail(fireUser.email) ? 'admin' : 'member';
+        await doc.set({
+          uid: fireUser.uid,
+          email: fireUser.email || '',
+          name: name || fireUser.displayName || (fireUser.email ? fireUser.email.split('@')[0] : 'Thành viên'),
+          role,
+          createdAt: now,
+          lastSeenAt: now
+        });
+      }
+    } catch (e) { try { console.warn('[SM] ensureUserDoc:', e); } catch (err) {} }
+  }
+
+  function doSignOut() {
+    if (auth) auth.signOut().catch(() => {});
+    stopSync();
+    user = null;
+    renderAccountChip();
+    if (typeof window !== 'undefined') window.location.reload();
+  }
+
+  function demoBypass() {
+    hideGate();
+    if (typeof showToast === 'function') {
+      showToast('Chế độ dùng thử', 'Chưa cấu hình Firebase — dữ liệu chỉ lưu trên máy này.', 'warn');
+    }
+  }
+
+  /* ------------------------- chip tài khoản ------------------------- */
+  function isAdminEmail(email) {
+    return ADMIN_EMAILS.indexOf(String(email || '').toLowerCase()) !== -1;
+  }
+
+  function renderAccountChip() {
+    const holder = $id('account-chip-holder');
+    if (!holder) return;
+    if (!user) { holder.innerHTML = ''; return; }
+    const name = user.name || 'Thành viên';
+    const initial = (name.trim().charAt(0) || 'M').toUpperCase();
+    const isAdmin = user.role === 'admin' || isAdminEmail(user.email);
+    const adminBtn = isAdmin
+      ? `<button onclick="SM_ACCT.openAdmin()" class="w-full text-left px-3 py-2 text-xs text-violet-300 hover:bg-violet-500/10 font-bold flex items-center gap-2">
+           <i class="fa-solid fa-gauge-high"></i> Bảng điều khiển Admin
+         </button>` : '';
+    holder.innerHTML = `
+      <div class="relative">
+        <button onclick="SM_ACCT.toggleMenu()" class="flex items-center gap-1.5 text-xs bg-night-900/90 px-2.5 py-1.5 rounded-full border border-slate-800 hover:border-slate-600 btn-bouncy">
+          <span class="w-5 h-5 rounded-full bg-gradient-to-tr from-pink-500 to-indigo-500 text-white text-[10px] font-bold flex items-center justify-center shrink-0">${initial}</span>
+          <span class="font-bold text-slate-200 max-w-[90px] truncate">${name}</span>
+          <i class="fa-solid fa-chevron-down text-slate-500 text-[9px]"></i>
+        </button>
+        <div id="acct-menu" class="absolute right-0 mt-1 w-56 bg-night-900 border border-slate-700 rounded-2xl shadow-2xl overflow-hidden hidden z-[70]">
+          <div class="px-3 py-2 border-b border-slate-800">
+            <p class="text-[11px] font-bold text-white truncate">${name}</p>
+            <p class="text-[10px] text-slate-500 truncate">${user.email || ''}</p>
+          </div>
+          ${adminBtn}
+          <button onclick="SM_ACCT.openInbox()" class="w-full text-left px-3 py-2 text-xs text-slate-300 hover:bg-night-800 flex items-center gap-2">
+            <i class="fa-solid fa-envelope text-amber-400"></i> Tin nhắn từ Admin
+            <span id="inbox-badge" class="ml-auto bg-rose-500 text-white text-[9px] font-bold rounded-full px-1.5 hidden">0</span>
+          </button>
+          <button onclick="SM_ACCT.signOut()" class="w-full text-left px-3 py-2 text-xs text-rose-300 hover:bg-rose-500/10 flex items-center gap-2">
+            <i class="fa-solid fa-right-from-bracket"></i> Đăng xuất
+          </button>
+        </div>
+      </div>`;
+  }
+
+  function toggleMenu() {
+    const m = $id('acct-menu');
+    if (m) m.classList.toggle('hidden');
+  }
+  function openAdmin() { window.location.href = './admin.html'; }
+  function signOut() { doSignOut(); }
+
+  /* ------------------------ đóng gói số liệu ------------------------ */
+  function dayMetrics() {
+    const limitSec = (S.screenLimitMin || 30) * 60;
+    const limitOk = (S.usage.activeSec || 0) <= limitSec;
+    const curfewH = parseInt(String(S.curfew || '23:00').split(':')[0], 10) || 23;
+    let lateSec = 0;
+    for (const k of Object.keys((S.usage && S.usage.hourly) || {})) {
+      const h = Number(k);
+      if ((h >= curfewH) || (h < (typeof CUTOFF_HOUR === 'number' ? CUTOFF_HOUR : 4))) {
+        lateSec += Number(S.usage.hourly[k]) || 0;
+      }
+    }
+    const curfewOk = lateSec <= 60;
+    const perfect = limitOk && curfewOk;
+    return { limitOk, curfewOk, perfect, lateSec: Math.round(lateSec) };
+  }
+
+  function currentSnapshot() {
+    const m = dayMetrics();
+    return {
+      sleepDay: (typeof sleepDayKey === 'function' ? sleepDayKey() : S.sleepDay),
+      activeSec: Math.round(S.usage.activeSec || 0),
+      idleSec: Math.round(S.usage.idleSec || 0),
+      bgSec: Math.round(S.usage.bgSec || 0),
+      opens: S.usage.opens || 0,
+      leaves: S.usage.leaves || 0,
+      lockouts: S.usage.lockouts || 0,
+      discipline: Math.round(S.discipline || 0),
+      streak: S.streak || 0,
+      screenLimitMin: S.screenLimitMin || 30,
+      curfew: S.curfew || '23:00',
+      limitOk: !!m.limitOk,
+      curfewOk: !!m.curfewOk,
+      perfect: !!m.perfect,
+      lateSec: m.lateSec,
+      hourly: (S.usage && S.usage.hourly) || {},
+      updatedAt: nowMs()
+    };
+  }
+
+  /* ---------------------------- đồng bộ ---------------------------- */
+  function pushDay(overrides) {
+    if (!db || !user) return;
+    try {
+      const snap = Object.assign(currentSnapshot(), overrides || {});
+      const dayKey = snap.sleepDay;
+      db.collection('users').doc(user.uid).collection('days').doc(dayKey)
+        .set(snap, { merge: true })
+        .then(() => {
+          db.collection('users').doc(user.uid).update({ lastSeenAt: nowMs() }).catch(() => {});
+        })
+        .catch((e) => { try { console.warn('[SM] pushDay:', e); } catch (err) {} });
+    } catch (e) { /* bỏ qua */ }
+  }
+
+  function pushLock(reason, source, block) {
+    if (!db || !user) return;
+    try {
+      db.collection('users').doc(user.uid).collection('locks').add({
+        at: nowMs(),
+        reason: String(reason || ''),
+        source: String(source || ''),
+        label: block && block.label ? block.label : '',
+        start: block && block.start ? block.start : '',
+        end: block && block.end ? block.end : ''
+      }).catch(() => {});
+    } catch (e) { /* bỏ qua */ }
+  }
+
+  function startSync() {
+    stopSync();
+    if (!db || !user) return;
+    pushDay();
+    syncTimer = setInterval(() => {
+      try {
+        if (typeof rolloverIfNeeded === 'function') rolloverIfNeeded();
+      } catch (e) {}
+      pushDay();
+      try { if (typeof refreshAll === 'function') refreshAll(); } catch (e) {}
+    }, 45000);
+    subscribeInbox();
+    subscribeRules();
+  }
+
+  function stopSync() {
+    if (syncTimer) { clearInterval(syncTimer); syncTimer = null; }
+    if (unsubInbox) { try { unsubInbox(); } catch (e) {} unsubInbox = null; }
+    if (unsubRules) { try { unsubRules(); } catch (e) {} unsubRules = null; }
+  }
+
+  /* ----------------------- luật nhóm từ Admin ----------------------- */
+  function applyGroupRules(rules) {
+    if (!rules || rules.enabled === false) return;
+    let changed = false;
+    if (typeof setCurfew === 'function' && rules.curfew && /^\d{2}:\d{2}$/.test(rules.curfew)) {
+      if (S.curfew !== rules.curfew) { setCurfew(rules.curfew, true); changed = true; }
+    }
+    const lim = Number(rules.screenLimitMin);
+    if (Number.isFinite(lim) && lim > 0 && lim <= 240) {
+      const val = Math.round(lim);
+      if (S.screenLimitMin !== val) {
+        if (typeof setScreenLimit === 'function') setScreenLimit(val);
+        else { S.screenLimitMin = val; if (typeof save === 'function') save(); }
+        changed = true;
+      }
+    }
+    if (rules.week && typeof normalizeWeek === 'function') {
+      const w = normalizeWeek(rules.week);
+      if (JSON.stringify(w) !== JSON.stringify(S.week)) {
+        S.week = w;
+        changed = true;
+        if (typeof save === 'function') save(true);
+      }
+    }
+    if (changed) {
+      try { if (typeof refreshAll === 'function') refreshAll(); } catch (e) {}
+      try { if (typeof renderWeek === 'function') renderWeek(); } catch (e) {}
+      if (typeof showToast === 'function') {
+        showToast('Luật mới từ Admin', rules.note || 'Admin đã cập nhật giới nghiêm / hạn mức cho bạn.', 'info');
+      }
+    }
+  }
+
+  function subscribeRules() {
+    if (!db || !user) return;
+    unsubRules = db.collection('config').doc('groupRules').onSnapshot(
+      (doc) => {
+        if (!doc.exists) return;
+        const rules = doc.data() || {};
+        const sig = JSON.stringify({ c: rules.curfew, l: rules.screenLimitMin, w: rules.week, e: rules.enabled });
+        if (sig !== appliedRulesSig) {
+          appliedRulesSig = sig;
+          applyGroupRules(rules);
+        }
+      },
+      (e) => { try { console.warn('[SM] rules:', e); } catch (err) {} }
+    );
+  }
+
+  /* ---------------------- hộp thư (Admin nhắn) ---------------------- */
+  function subscribeInbox() {
+    if (!db || !user) return;
+    try { lastInboxAt = Number(localStorage.getItem('sm.lastInboxAt') || 0) || 0; } catch (e) { lastInboxAt = 0; }
+    unsubInbox = db.collection('users').doc(user.uid).collection('inbox')
+      .orderBy('at', 'desc').limit(10)
+      .onSnapshot((snap) => {
+        let unread = 0;
+        snap.forEach((d) => {
+          const msg = d.data() || {};
+          if (!msg.read && msg.at > lastInboxAt && msg.at > 0) {
+            unread++;
+            if (typeof showToast === 'function') {
+              showToast('📨 Tin từ Admin', vn(msg.text).slice(0, 90), 'info');
+            }
+          }
+        });
+        const badge = $id('inbox-badge');
+        if (badge) { if (unread > 0) { badge.textContent = String(unread); badge.classList.remove('hidden'); } else badge.classList.add('hidden'); }
+        saveInboxCache(snap);
+      }, (e) => { try { console.warn('[SM] inbox:', e); } catch (err) {} });
+  }
+
+  function saveInboxCache(snap) {
+    const list = [];
+    snap.forEach((d) => {
+      const m = d.data() || {};
+      list.push({ id: d.id, at: m.at || 0, text: vn(m.text), read: !!m.read });
+    });
+    try { localStorage.setItem('sm.inbox.cache', JSON.stringify(list.slice(0, 20))); } catch (e) {}
+  }
+
+  function readInboxCache() {
+    try { return JSON.parse(localStorage.getItem('sm.inbox.cache') || '[]'); } catch (e) { return []; }
+  }
+
+  function fmtClockSafe(ts) {
+    if (typeof fmtClock === 'function') return fmtClock(ts);
+    try { return new Date(ts).toLocaleString('vi-VN'); } catch (e) { return ''; }
+  }
+
+  function openInbox() {
+    toggleMenu();
+    const list = readInboxCache();
+    const box = $id('inbox-list');
+    if (box) {
+      box.innerHTML = list.length
+        ? list.map((m) => `<div class="flex items-start gap-2 p-2.5 rounded-xl bg-night-950 border border-slate-800">
+            <i class="fa-solid fa-envelope ${m.read ? 'text-slate-600' : 'text-rose-400'} mt-0.5 shrink-0"></i>
+            <div class="min-w-0 flex-1">
+              <p class="text-[11px] text-slate-200 break-words">${vn(m.text)}</p>
+              <p class="text-[9px] text-slate-500 font-mono mt-0.5">${fmtClockSafe(m.at)}</p>
+            </div>
+          </div>`).join('')
+        : '<p class="text-[11px] text-slate-500 text-center py-4">Chưa có tin nhắn nào từ Admin.</p>';
+    }
+    const modal = $id('inbox-modal');
+    if (modal) modal.classList.remove('hidden');
+    try { localStorage.setItem('sm.lastInboxAt', String(nowMs())); } catch (e) {}
+    const badge = $id('inbox-badge');
+    if (badge) badge.classList.add('hidden');
+    if (db && user) {
+      db.collection('users').doc(user.uid).collection('inbox')
+        .where('read', '==', false).get().then((snap) => {
+          const batch = db.batch();
+          snap.forEach((d) => batch.update(d.ref, { read: true }));
+          return batch.commit().catch(() => {});
+        }).catch(() => {});
+    }
+  }
+
+  function closeInbox() {
+    const modal = $id('inbox-modal');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  /* ------------------- móc vào luồng hiện có ------------------- */
+  function installHooks() {
+    if (hooksInstalled) return;
+    hooksInstalled = true;
+    try {
+      const _lock = window.triggerHardcoreLockout;
+      if (typeof _lock === 'function') {
+        window.triggerHardcoreLockout = function (reason, opts) {
+          _lock(reason, opts);
+          pushLock(reason, opts && opts.source ? opts.source : (S.lockSource || ''), opts && opts.block ? opts.block : null);
+        };
+      }
+    } catch (e) { /* bỏ qua */ }
+    try {
+      const _roll = window.rolloverIfNeeded;
+      if (typeof _roll === 'function') {
+        window.rolloverIfNeeded = function () {
+          pushDay({ sleepDay: S.sleepDay });   // chốt snapshot ngày cũ
+          const r = _roll();                    // reset ngày mới
+          if (r) pushDay();                     // đẩy ngày mới
+          return r;
+        };
+      }
+    } catch (e) { /* bỏ qua */ }
+  }
+
+  /* ------------------- khi đã xác thực ------------------- */
+  function onReady(mode) {
+    hideGate();
+    installHooks();
+    startSync();
+    if (typeof showToast === 'function') {
+      if (user && user.name) {
+        showToast('Chào ' + user.name.trim().split(/\s+/).pop(), 'Dữ liệu của bạn sẽ được đồng bộ để Admin theo dõi giấc ngủ.', 'ok');
+      } else if (mode !== 'user') {
+        showToast('Đã sẵn sàng', 'Chế độ dùng thử — dữ liệu chỉ lưu trên máy này.', 'info');
+      }
+    }
+  }
+
+  /* ------------------- khởi động ------------------- */
+  function init() {
+    setTab('login');
+
+    if (!CONFIGURED || !initSDK()) {
+      renderAccountChip();   // trống khi chưa đăng nhập
+      showPanel(true, false); // màn hướng dẫn cấu hình + nút dùng thử
+      return;
+    }
+
+    showPanel(false, true); // đã có SDK: hiện form đăng nhập
+    auth.onAuthStateChanged(async (fireUser) => {
+      if (!fireUser) {
+        user = null;
+        stopSync();
+        renderAccountChip();
+        showPanel(false, true);
+        return;
+      }
+      try {
+        const snap = db ? await db.collection('users').doc(fireUser.uid).get() : null;
+        const data = (snap && snap.exists && snap.data()) || {};
+        user = {
+          uid: fireUser.uid,
+          email: fireUser.email || data.email || '',
+          name: data.name || fireUser.displayName || (fireUser.email ? fireUser.email.split('@')[0] : 'Thành viên'),
+          role: data.role || (isAdminEmail(fireUser.email) ? 'admin' : 'member')
+        };
+        renderAccountChip();
+        onReady('user');
+      } catch (e) {
+        try { console.error('[SM] onAuth:', e); } catch (err) {}
+        user = user || { uid: fireUser.uid, email: fireUser.email || '', name: fireUser.displayName || '', role: 'member' };
+        renderAccountChip();
+        hideGate();
+        installHooks();
+        startSync();
+      }
+    });
+  }
+
+  // đóng menu khi bấm ra ngoài
+  if (typeof document !== 'undefined') {
+    document.addEventListener('click', (e) => {
+      const menu = $id('acct-menu');
+      if (menu && !menu.classList.contains('hidden')) {
+        const chip = $id('account-chip-holder');
+        if (chip && !chip.contains(e.target)) menu.classList.add('hidden');
+      }
+    });
+  }
+
+  return {
+    init,
+    login: doLogin,
+    register: doRegister,
+    submit,
+    toggleAuthTab: setTab,
+    signOut,
+    demoBypass,
+    openAdmin,
+    openInbox,
+    closeInbox,
+    toggleMenu,
+    isAdmin: () => !!(user && (user.role === 'admin' || isAdminEmail(user.email)))
+  };
+})();
+
+/* tự chạy khi DOM sẵn sàng */
+(function bootSM_ACCT() {
+  function run() {
+    try {
+      if (window.SM_ACCT && typeof window.SM_ACCT.init === 'function') window.SM_ACCT.init();
+    } catch (e) { /* bỏ qua */ }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+  else run();
+})();
 </script>
 </body>
 </html>

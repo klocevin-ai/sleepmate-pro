@@ -1,17 +1,13 @@
 rules_version = '2';
 // ============================================================
-//  SLEEPMATE Pro â€” Firestore Security Rules (v3.2)
-//  ------------------------------------------------------------
-//  QUAN TRá»ŒNG: thay "klocevin@gmail.com" bÃªn dÆ°á»›i báº±ng
-//  ÄÃšNG email admin cá»§a báº¡n (giá»‘ng email báº¡n Ä‘Ã£ Ä‘iá»n trong
-//  file firebase-config.js -> SLEEPMATE_ADMIN_EMAILS).
+//  SLEEPMATE Pro — Firestore Security Rules (v3.2.1)
+//  Admin: klocevin@gmail.com
 //
-//  NguyÃªn táº¯c:
-//   - ThÃ nh viÃªn chá»‰ Ä‘á»c/ghi dá»¯ liá»‡u Cá»¦A CHÃNH MÃŒNH.
-//   - KhÃ´ng ai Ä‘Æ°á»£c tá»± phong mÃ¬nh lÃ m admin (vai trÃ² 'admin'
-//     chá»‰ dÃ nh cho email náº±m trong danh sÃ¡ch bÃªn dÆ°á»›i).
-//   - Admin (email trong danh sÃ¡ch) Ä‘á»c Ä‘Æ°á»£c má»i ngÆ°á»i dÃ¹ng,
-//     gá»­i inbox, cÃ i luáº­t nhÃ³m config/groupRules.
+//  Nguyên tắc:
+//   - Thành viên chỉ đọc/ghi dữ liệu CỦA CHÍNH MÌNH.
+//   - Không ai được tự phong mình làm admin.
+//   - Admin (email trong danh sách) đọc được mọi người dùng,
+//     gửi inbox, cài luật nhóm config/groupRules, xoá dữ liệu.
 // ============================================================
 service cloud.firestore {
   match /databases/{database}/documents {
@@ -24,15 +20,15 @@ service cloud.firestore {
       return signedIn() && request.auth.uid == uid;
     }
 
-    // Admin = email trong danh sÃ¡ch cá»©ng bÃªn dÆ°á»›i.
+    // Admin = email trong danh sách cứng bên dưới.
     function isAdmin() {
       return signedIn()
         && request.auth.token.email != null
         && string(request.auth.token.email).lower() in ['klocevin@gmail.com'];
     }
 
-    // ThÃ nh viÃªn khi tá»± táº¡o há»“ sÆ¡ chá»‰ Ä‘Æ°á»£c phÃ©p ghi cÃ¡c trÆ°á»ng
-    // cÆ¡ báº£n vÃ  Báº®T BUá»˜C vai trÃ² lÃ  'member' (khÃ´ng thá»ƒ tá»± nÃ¢ng admin).
+    // Thành viên tự tạo hồ sơ chỉ được ghi trường cơ bản
+    // và BẮT BUỘC vai trò 'member' (không thể tự nâng admin).
     function validUserCreate() {
       return request.resource.data.keys().hasOnly([
           'uid', 'email', 'name', 'role', 'createdAt', 'lastSeenAt'
@@ -41,8 +37,6 @@ service cloud.firestore {
         && request.resource.data.uid == request.auth.uid;
     }
 
-    // Cáº­p nháº­t há»“ sÆ¡: admin toÃ n quyá»n; chá»§ sá»Ÿ há»¯u chá»‰ Ä‘Æ°á»£c
-    // cáº­p nháº­t cÃ¡c trÆ°á»ng thÃ´ng tin cá»§a mÃ¬nh, khÃ´ng Ä‘Æ°á»£c Ä‘á»•i vai trÃ².
     function validUserUpdate() {
       return !('role' in request.resource.data)
         || request.resource.data.role == 'member';
@@ -54,20 +48,21 @@ service cloud.firestore {
       allow update: if isAdmin() || (isOwner(uid) && validUserUpdate());
       allow delete: if isAdmin();
 
-      // Dá»¯ liá»‡u giáº¥c ngá»§ theo ngÃ y
+      // Dữ liệu giấc ngủ theo ngày (member ghi, admin xoá được)
       match /days/{day} {
         allow read: if isOwner(uid) || isAdmin();
         allow write: if isOwner(uid);
+        allow delete: if isAdmin();
       }
 
-      // Lá»‹ch sá»­ cÃ¡c láº§n khoÃ¡ mÃ¡y
+      // Lịch sử các lần khoá máy
       match /locks/{lock} {
         allow read: if isOwner(uid) || isAdmin();
         allow create: if isOwner(uid);
         allow delete: if isAdmin();
       }
 
-      // Há»™p thÆ°: Admin gá»­i vÃ o, chá»§ sá»Ÿ há»¯u Ä‘á»c & Ä‘Ã¡nh dáº¥u Ä‘Ã£ Ä‘á»c
+      // Hộp thư: Admin gửi vào, chủ sở hữu đọc & đánh dấu đã đọc
       match /inbox/{msg} {
         allow read: if isOwner(uid) || isAdmin();
         allow create: if isAdmin();
@@ -75,7 +70,7 @@ service cloud.firestore {
       }
     }
 
-    // Luáº­t chung do Admin quáº£n lÃ½
+    // Luật chung do Admin quản lý
     match /config/groupRules {
       allow read: if signedIn();
       allow write: if isAdmin();

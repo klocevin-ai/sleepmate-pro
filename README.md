@@ -63,8 +63,19 @@ Muốn nhắc nhở hoạt động cả khi đã đóng hẳn app trên Android 
 
 1. Sửa `../sleepmate-pro.html` (nguồn chân lý duy nhất)
 2. Copy đè sang `index.html`
-3. Nếu đổi logic hoặc thêm file vào app shell: tăng `CORE_CACHE` và `RUNTIME_CACHE` trong `sw.js` (hiện là `v6`) — bắt buộc, nếu không người dùng cũ vẫn chạy bản cache cũ
+3. Nếu đổi logic hoặc thêm file vào app shell: tăng `CORE_CACHE` và `RUNTIME_CACHE` trong `sw.js` (hiện là `v7`) — bắt buộc, nếu không người dùng cũ vẫn chạy bản cache cũ
 4. Deploy lại
+
+## Tính năng mới ở v3.2.1 — Firebase đã bật thật
+
+- **Firebase đã cấu hình xong** (`sleepmate-pro`) — app bắt buộc đăng nhập thật, dữ liệu lên cloud
+- Admin: **klocevin@gmail.com**
+- Sửa lỗi: nút "Lưu & áp dụng" luật nhóm thất bại do Firestore **cấm mảng lồng mảng**
+  (`week.days` giờ lưu dạng map `{"0":[…], … "6":[…]}`) — `normalizeWeek()` đọc được cả 2 dạng
+- Chế độ dùng thử **bị vô hiệu khi đã cấu hình Firebase** (tránh lách đăng nhập)
+- Rules cho phép Admin xoá `days`/`locks`/`inbox` của thành viên
+- Service worker cache `v7`
+- APK `versionCode 4` / `versionName 3.2.1`
 
 ## Tính năng mới ở v3.2 — Nhiều người dùng & Admin
 

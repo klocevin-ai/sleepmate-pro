@@ -1,12 +1,12 @@
 /* =====================================================================
-   SLEEPMATE Pro — Service Worker
-   - Cache app shell để mở được khi mất mạng
-   - Nhận notificationclick / push (nếu sau này gắn Web Push)
-   Khi cập nhật app: tăng CORE_CACHE và RUNTIME_CACHE bên dưới.
+   SLEEPMATE Pro â€” Service Worker
+   - Cache app shell Ä‘á»ƒ má»Ÿ Ä‘Æ°á»£c khi máº¥t máº¡ng
+   - Nháº­n notificationclick / push (náº¿u sau nÃ y gáº¯n Web Push)
+   Khi cáº­p nháº­t app: tÄƒng CORE_CACHE vÃ  RUNTIME_CACHE bÃªn dÆ°á»›i.
    ===================================================================== */
 
-const CORE_CACHE = 'sleepmate-core-v6';
-const RUNTIME_CACHE = 'sleepmate-runtime-v6';
+const CORE_CACHE = 'sleepmate-core-v7';
+const RUNTIME_CACHE = 'sleepmate-runtime-v7';
 
 const APP_SHELL = [
   './',
@@ -20,9 +20,9 @@ const APP_SHELL = [
   './apple-touch-icon.png'
 ];
 
-/* ---------- Cài đặt: nạp sẵn app shell ----------
-   Nạp lần lượt từng file (thay vì song song) để không làm nghẽn server yếu,
-   và thử lại 1 lần nếu mạng chập chờn. Nhờ vậy cache luôn đủ 7 file. */
+/* ---------- CÃ i Ä‘áº·t: náº¡p sáºµn app shell ----------
+   Náº¡p láº§n lÆ°á»£t tá»«ng file (thay vÃ¬ song song) Ä‘á»ƒ khÃ´ng lÃ m ngháº½n server yáº¿u,
+   vÃ  thá»­ láº¡i 1 láº§n náº¿u máº¡ng cháº­p chá»n. Nhá» váº­y cache luÃ´n Ä‘á»§ 7 file. */
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
     const cache = await caches.open(CORE_CACHE);
@@ -30,14 +30,14 @@ self.addEventListener('install', (event) => {
       try {
         await cache.add(url);
       } catch (e) {
-        try { await cache.add(url); } catch (e2) { /* bỏ qua file lỗi, lần fetch sau sẽ bù */ }
+        try { await cache.add(url); } catch (e2) { /* bá» qua file lá»—i, láº§n fetch sau sáº½ bÃ¹ */ }
       }
     }
     await self.skipWaiting();
   })());
 });
 
-/* ---------- Kích hoạt: dọn cache cũ ---------- */
+/* ---------- KÃ­ch hoáº¡t: dá»n cache cÅ© ---------- */
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys()
@@ -50,14 +50,14 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-/* ---------- Cho phép trang yêu cầu cập nhật ngay ---------- */
+/* ---------- Cho phÃ©p trang yÃªu cáº§u cáº­p nháº­t ngay ---------- */
 self.addEventListener('message', (event) => {
   if (event.data === 'SKIP_WAITING' || (event.data && event.data.type === 'SKIP_WAITING')) {
     self.skipWaiting();
   }
 });
 
-/* ---------- Điều hướng: ưu tiên mạng, fallback cache ---------- */
+/* ---------- Äiá»u hÆ°á»›ng: Æ°u tiÃªn máº¡ng, fallback cache ---------- */
 function handleNavigation(request) {
   return fetch(request)
     .then((response) => {
@@ -71,7 +71,7 @@ function handleNavigation(request) {
     );
 }
 
-/* ---------- Tài nguyên cùng tên miền: cache-first ---------- */
+/* ---------- TÃ i nguyÃªn cÃ¹ng tÃªn miá»n: cache-first ---------- */
 function handleSameOrigin(request) {
   return caches.match(request).then((hit) => {
     if (hit) return hit;
@@ -85,7 +85,7 @@ function handleSameOrigin(request) {
   });
 }
 
-/* ---------- Tài nguyên ngoài (Tailwind, Font Awesome, fonts): stale-while-revalidate ---------- */
+/* ---------- TÃ i nguyÃªn ngoÃ i (Tailwind, Font Awesome, fonts): stale-while-revalidate ---------- */
 function handleCrossOrigin(request) {
   return caches.match(request).then((hit) => {
     const network = fetch(request)
@@ -124,7 +124,7 @@ self.addEventListener('fetch', (event) => {
   }
 });
 
-/* ---------- Bấm vào thông báo: mở/focus app ---------- */
+/* ---------- Báº¥m vÃ o thÃ´ng bÃ¡o: má»Ÿ/focus app ---------- */
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
   const target = (event.notification.data && event.notification.data.url) || './';
@@ -142,18 +142,18 @@ self.addEventListener('notificationclick', (event) => {
   );
 });
 
-/* ---------- Web Push (dự phòng cho tương lai) ---------- */
+/* ---------- Web Push (dá»± phÃ²ng cho tÆ°Æ¡ng lai) ---------- */
 self.addEventListener('push', (event) => {
-  let data = { title: 'SLEEPMATE', body: 'Đến giờ đi ngủ rồi!' };
+  let data = { title: 'SLEEPMATE', body: 'Äáº¿n giá» Ä‘i ngá»§ rá»“i!' };
   try {
     if (event.data) data = Object.assign(data, event.data.json());
   } catch (e) {
-    try { data.body = event.data.text(); } catch (err) { /* bỏ qua */ }
+    try { data.body = event.data.text(); } catch (err) { /* bá» qua */ }
   }
 
   event.waitUntil(
     self.registration.showNotification(data.title || 'SLEEPMATE', {
-      body: data.body || 'Đến giờ đi ngủ rồi!',
+      body: data.body || 'Äáº¿n giá» Ä‘i ngá»§ rá»“i!',
       icon: './icon-192.png',
       badge: './icon-192.png',
       tag: 'sleepmate-push',
@@ -164,3 +164,4 @@ self.addEventListener('push', (event) => {
     })
   );
 });
+

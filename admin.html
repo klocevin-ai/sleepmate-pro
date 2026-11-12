@@ -629,7 +629,11 @@ window.ADMIN = (function () {
     const bedStart = $id('rule-bed-start').value || '23:00';
     const bedEnd = $id('rule-bed-end').value || '06:00';
     const note = vn($id('rule-note').value);
-    const week = { enabled: bedOn, days: Array.from({ length: 7 }, () => [{ on: bedOn, start: bedStart, end: bedEnd, label: 'Giờ ngủ (Admin)' }]) };
+    const block = { on: bedOn, start: bedStart, end: bedEnd, label: 'Giờ ngủ (Admin)' };
+    // Firestore KHÔNG cho phép mảng lồng mảng -> lưu days dạng map {"0":[...] ... "6":[...]}
+    const days = {};
+    for (let d = 0; d < 7; d++) days[String(d)] = [Object.assign({}, block)];
+    const week = { enabled: bedOn, days };
     await db.collection('config').doc('groupRules').set({ enabled, curfew, screenLimitMin: limit, week, note, updatedAt: Date.now() })
       .then(() => toast('Đã áp dụng luật', 'Luật mới đang tự đồng bộ tới mọi thành viên.', 'ok'))
       .catch((e) => toast('Lưu thất bại', mapAuthError(e) + ' (kiểm tra Firestore rules)', 'warn'));
@@ -648,7 +652,8 @@ window.ADMIN = (function () {
       $id('rule-enabled').checked = !!r.enabled; $id('rule-curfew').value = r.curfew || '23:00'; $id('rule-limit').value = r.screenLimitMin || 30;
       const w = r.week || {};
       $id('rule-bed-enabled').checked = !!w.enabled;
-      const first = (w.days && w.days[0] && w.days[0][0]) || {};
+      const day0 = w.days && (Array.isArray(w.days) ? w.days[0] : w.days['0']);
+      const first = (Array.isArray(day0) && day0[0]) || {};
       $id('rule-bed-start').value = first.start || '23:00'; $id('rule-bed-end').value = first.end || '06:00'; $id('rule-note').value = r.note || '';
     } catch (e) { toast('Chưa đọc được luật', 'Bạn cần quyền ghi config/groupRules.', 'warn'); }
   }

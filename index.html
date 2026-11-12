@@ -1754,10 +1754,13 @@ const WEEK_PRESETS = {
 
 function normalizeWeek(raw) {
   const out = { enabled: false, days: [[], [], [], [], [], [], []] };
-  if (!raw || !Array.isArray(raw.days)) return out;
+  // Firestore không cho phép mảng lồng mảng -> admin lưu days dạng object {"0":[...],...}
+  const daysRaw = raw ? raw.days : null;
+  if (!raw || (!Array.isArray(daysRaw) && (typeof daysRaw !== 'object' || daysRaw === null))) return out;
   out.enabled = !!raw.enabled;
   for (let d = 0; d < 7; d++) {
-    const list = Array.isArray(raw.days[d]) ? raw.days[d] : [];
+    const src = Array.isArray(daysRaw) ? daysRaw[d] : daysRaw[String(d)];
+    const list = Array.isArray(src) ? src : [];
     out.days[d] = list
       .filter((b) => b && typeof b === 'object')
       .map((b) => ({
@@ -5031,6 +5034,15 @@ window.SM_ACCT = (function () {
   }
 
   function demoBypass() {
+    // Chế độ dùng thử CHỈ dành cho lúc chưa cấu hình Firebase.
+    // Khi đã cấu hình, bắt buộc đăng nhập để dữ liệu đồng bộ về Admin.
+    if (CONFIGURED) {
+      if (typeof showToast === 'function') {
+        showToast('Cần đăng nhập', 'Hệ thống đã kết nối Firebase — hãy đăng nhập hoặc đăng ký tài khoản.', 'warn');
+      }
+      showPanel(false, true);
+      return;
+    }
     hideGate();
     if (typeof showToast === 'function') {
       showToast('Chế độ dùng thử', 'Chưa cấu hình Firebase — dữ liệu chỉ lưu trên máy này.', 'warn');

@@ -23,17 +23,17 @@
    ============================================================ */
 
 window.SLEEPMATE_FB_CONFIG = {
-  apiKey: "DAN_VAO_DAY",
-  authDomain: "DAN_VAO_DAY.firebaseapp.com",
-  projectId: "DAN_VAO_DAY",
-  storageBucket: "DAN_VAO_DAY.appspot.com",
-  messagingSenderId: "DAN_VAO_DAY",
-  appId: "DAN_VAO_DAY",
-  measurementId: ""
+  apiKey: "AIzaSyDPSx_R0M0vPkHjUxUkMU3GvJIDeZNjY84",
+  authDomain: "sleepmate-pro.firebaseapp.com",
+  projectId: "sleepmate-pro",
+  storageBucket: "sleepmate-pro.firebasestorage.app",
+  messagingSenderId: "274398455799",
+  appId: "1:274398455799:web:81e5d45fd111c412e1b0f2",
+  measurementId: "G-ZZNKZE81PL"
 };
 
 /* Email này sẽ là ADMIN — ví dụ: ["thayco@truong.edu.vn"] */
-window.SLEEPMATE_ADMIN_EMAILS = ["DAN_VAO_DAY_EMAIL_ADMIN"];
+window.SLEEPMATE_ADMIN_EMAILS = ["klocevin@gmail.com"];
 
 /* Tên hiển thị của hệ thống (tuỳ chọn) */
 window.SLEEPMATE_SYSTEM_NAME = "SLEEPMATE Pro";

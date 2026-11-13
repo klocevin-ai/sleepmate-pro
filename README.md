@@ -79,7 +79,14 @@ Muốn nhắc nhở hoạt động cả khi đã đóng hẳn app trên Android 
   và nút **Sao chép báo cáo** để dán vào báo cáo cho ban giám khảo.
 - Tracker chạy trên **Firebase app riêng** (`sm-tracker`) nên **không** ảnh hưởng
   trạng thái đăng nhập của app chính.
-- Service worker cache `v8`.
+- Service worker cache `v9`.
+
+### Tối ưu cho ~500 người dùng (v3.3.1)
+- Trang admin đọc tối đa **1000** người dùng (trước là 300).
+- Có **cache số liệu theo uid**: chỉ đọc lại người vừa có hoạt động, người không đổi
+  thì dùng lại kết quả cũ.
+- **Gộp cập nhật** (debounce 1.2s) và chia lô 8 truy vấn/lượt để không đốt hạn mức đọc
+  Firestore khi nhiều người đăng ký cùng lúc.
 
 ### Điều kiện để bộ đếm hoạt động
 1. Đã dán `firestore.rules` mới vào Firebase Console (Rules → Publish).

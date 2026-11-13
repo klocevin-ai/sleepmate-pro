@@ -5,8 +5,8 @@
    Khi cáº­p nháº­t app: tÄƒng CORE_CACHE vÃ  RUNTIME_CACHE bÃªn dÆ°á»›i.
    ===================================================================== */
 
-const CORE_CACHE = 'sleepmate-core-v8';
-const RUNTIME_CACHE = 'sleepmate-runtime-v8';
+const CORE_CACHE = 'sleepmate-core-v9';
+const RUNTIME_CACHE = 'sleepmate-runtime-v9';
 
 const APP_SHELL = [
   './',

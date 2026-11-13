@@ -487,32 +487,78 @@ window.ADMIN = (function () {
   /* ---------- đăng ký lắng nghe người dùng ---------- */
   function subscribe() {
     stop();
-    unsubUsers = db.collection('users').limit(300).onSnapshot(
+    unsubUsers = db.collection('users').limit(1000).onSnapshot(
       (snap) => {
         allUsers = [];
         snap.forEach((d) => allUsers.push({ id: d.id, doc: d.data() || {} }));
-        computeAll();
+        scheduleCompute();
       },
       (e) => toast('Lỗi dữ liệu', 'Không đọc được danh sách người dùng — kiểm tra Firestore rules.', 'warn')
     );
   }
 
+  /* Gộp nhiều lần cập nhật liên tiếp thành 1 lượt tính.
+     Với ~500 người dùng, mỗi lần có người mới đăng ký mà tính lại toàn bộ
+     sẽ đốt hết hạn mức đọc Firestore (mỗi người = 1 truy vấn 14 ngày). */
+  let computeTimer = null;
+  function scheduleCompute() {
+    if (computeTimer) clearTimeout(computeTimer);
+    computeTimer = setTimeout(() => { computeTimer = null; computeAll(); }, 1200);
+  }
+
   function stop() {
     if (unsubUsers) { try { unsubUsers(); } catch (e) {} unsubUsers = null; }
     if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
+    if (computeTimer) { clearTimeout(computeTimer); computeTimer = null; }
+  }
+
+  /* Cache số liệu theo uid — chỉ đọc lại người có dữ liệu thay đổi.
+     lastSeenAt đổi nghĩa là có hoạt động mới → cần tính lại. */
+  const metricsCache = new Map();   // uid -> { sig, metrics }
+
+  function userSig(u) {
+    return String(u.doc.lastSeenAt || 0) + '|' + String(u.doc.updatedAt || 0) + '|' + String(u.doc.name || '');
   }
 
   async function computeAll() {
     renderTable(); // render sớm với thông tin có sẵn
     const keys = lastNDayKeys(7);
-    const rows = await Promise.all(allUsers.map(async (u) => {
-      const m = await userMetrics(u, keys);
-      return Object.assign({ uid: u.id, name: u.doc.name || '—', email: u.doc.email || '', role: u.doc.role || 'member', lastSeenAt: u.doc.lastSeenAt || 0 }, m);
-    }));
+    const sigs = new Map();
+    allUsers.forEach((u) => sigs.set(u.id, userSig(u)));
+
+    // Xoá cache của người đã rời danh sách
+    for (const uid of Array.from(metricsCache.keys())) {
+      if (!sigs.has(uid)) metricsCache.delete(uid);
+    }
+
+    // Chỉ đọc những người thực sự thay đổi
+    const toLoad = allUsers.filter((u) => {
+      const c = metricsCache.get(u.id);
+      return !c || c.sig !== sigs.get(u.id);
+    });
+
+    // Chia lô để không mở hàng trăm truy vấn cùng lúc
+    const CHUNK = 8;
+    for (let i = 0; i < toLoad.length; i += CHUNK) {
+      const batch = toLoad.slice(i, i + CHUNK);
+      await Promise.all(batch.map(async (u) => {
+        const m = await userMetrics(u, keys);
+        metricsCache.set(u.id, { sig: sigs.get(u.id), metrics: m });
+      }));
+    }
+
+    const rows = allUsers.map((u) => {
+      const base = { uid: u.id, name: u.doc.name || '—', email: u.doc.email || '', role: u.doc.role || 'member', lastSeenAt: u.doc.lastSeenAt || 0 };
+      const c = metricsCache.get(u.id);
+      return Object.assign(base, (c && c.metrics) || {
+        perfectPct: null, participation: 0, discAvg: null, streak: 0, today: null, days: []
+      });
+    });
     rowCache = rows;
     updateStats(rows);
     renderTable();
-    $id('last-updated').textContent = 'Cập nhật lúc ' + new Date().toLocaleTimeString('vi-VN') + ' · tự động đồng bộ';
+    $id('last-updated').textContent = 'Cập nhật lúc ' + new Date().toLocaleTimeString('vi-VN') +
+      ' · ' + allUsers.length + ' người · tự động đồng bộ';
   }
 
   async function userMetrics(u, keys) {

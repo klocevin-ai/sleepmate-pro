@@ -65,9 +65,11 @@ window.SLEEPMATE_ADMIN_EMAILS = ["klocevin@gmail.com"];
 
 ---
 
-## 3. Bảo mật (Firestore Rules v3.2.1)
+## 3. Bảo mật (Firestore Rules v3.3)
 
-File: [`firestore.rules`](./firestore.rules) — **đã publish** lên Firebase.
+File: [`firestore.rules`](./firestore.rules) — **bản v3.2.1 đã publish**; bản v3.3 (thêm
+`visits` / `sessions` / `visitsDaily` cho bộ đếm lượt truy cập) **cần Publish lại**
+theo hướng dẫn ở mục 8.
 
 | Đối tượng | Quyền |
 |---|---|
@@ -105,6 +107,16 @@ config/groupRules
   ├─ enabled, curfew ('HH:MM'), screenLimitMin (15–240), note
   ├─ week { enabled, days: { "0":[block…] … "6":[block…] } }
   └─ updatedAt, updatedBy
+
+visits/{visitorId}              (bộ đếm lượt truy cập)
+  ├─ visitorId, firstAt, lastAt, firstDay, lastDay, visitsCount
+  ├─ os, browser, mode, screen, lang, source
+  ├─ uid, ownerUid            (uid Firebase ẩn danh của chính máy đó)
+  └─ sessions/{autoId}        at, day, os, browser, mode, source, newVisitor, ownerUid
+
+visitsDaily/{yyyy-mm-dd}
+  ├─ day, sessions, newVisitors, returning, updatedAt
+  └─ os_Android, os_iOS, os_Windows, …   (mỗi hệ điều hành 1 field đếm)
 ```
 
 > ⚠️ **`week.days` là MAP, không phải mảng lồng mảng.** Firestore cấm nested array;
@@ -135,7 +147,22 @@ Console → Firestore Database → Data → `users` / `config`.
 
 ### Kiểm tra chi phí
 Gói **Spark (miễn phí)**: 50k reads + 20k writes + 20k deletes / ngày,
-1 GiB lưu trữ. Với quy mô 1 lớp (~40 người, sync 45s) vẫn nằm trong hạn mức.
+1 GiB lưu trữ.
+
+**Với ~500 người dùng, hạn mức này rất dễ cạn.** Ước tính mỗi ngày:
+- App chính: 500 máy × ~1.920 lượt sync (45 giây/lần) × vài thao tác ⇒ hàng chục nghìn writes.
+- Bộ đếm lượt truy cập: 500 người × 4 writes = ~2.000 writes.
+- Trang admin: mỗi lần mở ≈ 1.000 (users) + ~3.500 (chỉ số 7 ngày) reads.
+
+Khi cạn hạn mức, mọi thao tác trả `429 Quota exceeded` (RESOURCE_EXHAUSTED) và
+hạn mức chỉ được đặt lại vào **0h giờ Thái Bình Dương** (khoảng 14–15h giờ Việt Nam).
+
+Cách xử lý:
+1. **Nâng lên gói Blaze** (vẫn có hạn mức miễn phí tương đương Spark, chỉ trả tiền phần vượt)
+   và đặt **Budget alert** ở mức thấp (VD 1 USD) để không bị bất ngờ.
+2. Hoặc giảm tần suất sync của app (45 giây → 3–5 phút) khi chạy đợt demo đông người.
+3. Trang admin đã có **cache theo uid + debounce 1,2 giây** (v3.3.1) để không đọc lại
+   người không thay đổi — hạn chế mở/refresh admin liên tục.
 
 ---
 
@@ -161,3 +188,32 @@ Gói **Spark (miễn phí)**: 50k reads + 20k writes + 20k deletes / ngày,
 | `permission-denied` khi đọc list users | Đăng nhập bằng tài khoản không phải admin | Đúng email trong `SLEEPMATE_ADMIN_EMAILS` |
 | Nút "Lưu & áp dụng" báo lỗi | (Đã sửa ở v3.2.1) nested array | Cập nhật bản mới |
 | Admin vào `admin.html` bị "Không có quyền" | Email chưa khớp danh sách | Sửa cả 2 file như mục 5 |
+
+---
+
+## 8. Bộ đếm lượt truy cập (v3.3)
+
+File: [`tracker.js`](./tracker.js) — nạp trong `index.html`, chạy nền sau khi trang tải xong.
+
+- Mỗi máy sinh 1 mã `sm_visitor_id` (localStorage) ⇒ mở nhiều lần không đếm trùng người.
+- Tracker dùng **Firebase app riêng tên `sm-tracker`** nên không đụng trạng thái
+  đăng nhập của app chính (app vẫn khoá sau màn hình đăng nhập).
+- Đăng nhập để ghi dữ liệu: ưu tiên **Anonymous Auth**; nếu chưa bật thì tự tạo
+  **tài khoản khách** `guest-<mã máy>@sleepmate-guest.local` (mật khẩu ngẫu nhiên lưu trên máy).
+- Ghi vào `visits/{visitorId}`, `visits/{visitorId}/sessions`, `visitsDaily/{ngày}`.
+  Mỗi lượt mở ≈ **4 writes**; trang admin đọc `visits` + `visitsDaily` khi mở.
+
+### ✅ 3 việc phải làm trong Firebase Console (chỉ 1 lần)
+
+| # | Việc | Đường dẫn |
+|---|---|---|
+| 1 | Dán toàn bộ `firestore.rules` mới → **Publish** | Firestore Database → **Rules** |
+| 2 | Bật **Anonymous** (khuyến nghị) | Authentication → **Sign-in method** → Anonymous → Enable |
+| 3 | Kiểm tra hạn mức còn hay đã cạn | Console → Usage and billing |
+
+> Nếu chưa Publish rules, bộ đếm sẽ báo `[SM track] ghi visits: permission-denied`
+> và **không ghi được số nào**. Đây là lỗi cấu hình, không phải lỗi app.
+
+### Cách kiểm tra bộ đếm đã chạy
+Mở app, bấm F12 → Console. Nếu **không** thấy dòng `[SM track] ghi visits: ...`
+nghĩa là đã ghi thành công. Sau đó vào `admin.html` → mục **Lượt truy cập** để xem số.

@@ -120,6 +120,66 @@ tailwind.config = {
     </div>
   </div>
 
+  <!-- ===== THỐNG KÊ LƯỢT TRUY CẬP ===== -->
+  <div class="glass-panel border border-slate-800 rounded-3xl p-4 sm:p-5 mt-5">
+    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+      <h2 class="text-sm font-black text-white flex items-center gap-2"><i class="fa-solid fa-chart-line text-pink-400"></i> Lượt truy cập <span id="visit-range" class="text-[10px] font-bold text-slate-500">(30 ngày)</span></h2>
+      <div class="flex items-center gap-1.5">
+        <button onclick="ADMIN.setVisitRange(7)" data-vrange="7" class="vrange-btn px-2.5 py-1 rounded-full text-[10px] font-bold border border-slate-700 text-slate-300 btn-bouncy">7 ngày</button>
+        <button onclick="ADMIN.setVisitRange(30)" data-vrange="30" class="vrange-btn px-2.5 py-1 rounded-full text-[10px] font-bold border border-slate-700 text-slate-300 btn-bouncy">30 ngày</button>
+        <button onclick="ADMIN.setVisitRange(90)" data-vrange="90" class="vrange-btn px-2.5 py-1 rounded-full text-[10px] font-bold border border-slate-700 text-slate-300 btn-bouncy">90 ngày</button>
+        <button onclick="ADMIN.loadVisits()" class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-night-950 border border-slate-700 text-slate-300 btn-bouncy"><i class="fa-solid fa-rotate"></i></button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div class="bg-night-950 border border-slate-800 rounded-2xl p-3.5">
+        <p class="text-[9px] font-bold text-slate-500 uppercase tracking-wider"><i class="fa-solid fa-users text-pink-400 mr-1"></i> Tổng người truy cập</p>
+        <p class="text-2xl font-black text-white mt-0.5" id="visit-unique">—</p>
+        <p class="text-[9px] text-slate-600 mt-0.5">số máy khác nhau đã vào</p>
+      </div>
+      <div class="bg-night-950 border border-slate-800 rounded-2xl p-3.5">
+        <p class="text-[9px] font-bold text-slate-500 uppercase tracking-wider"><i class="fa-solid fa-door-open text-cyan-400 mr-1"></i> Tổng lượt mở</p>
+        <p class="text-2xl font-black text-white mt-0.5" id="visit-sessions">—</p>
+        <p class="text-[9px] text-slate-600 mt-0.5">tính cả mở lại nhiều lần</p>
+      </div>
+      <div class="bg-night-950 border border-slate-800 rounded-2xl p-3.5">
+        <p class="text-[9px] font-bold text-slate-500 uppercase tracking-wider"><i class="fa-solid fa-user-plus text-emerald-400 mr-1"></i> Khách mới kỳ này</p>
+        <p class="text-2xl font-black text-white mt-0.5" id="visit-new">—</p>
+        <p class="text-[9px] text-slate-600 mt-0.5">lần đầu vào trong kỳ</p>
+      </div>
+      <div class="bg-night-950 border border-slate-800 rounded-2xl p-3.5">
+        <p class="text-[9px] font-bold text-slate-500 uppercase tracking-wider"><i class="fa-solid fa-arrow-rotate-left text-amber-400 mr-1"></i> Quay lại</p>
+        <p class="text-2xl font-black text-white mt-0.5" id="visit-returning">—</p>
+        <p class="text-[9px] text-slate-600 mt-0.5">lượt của người đã từng vào</p>
+      </div>
+    </div>
+
+    <div class="mt-4 p-4 bg-night-950 border border-slate-800 rounded-2xl">
+      <div class="flex items-center justify-between gap-2 mb-1">
+        <h3 class="text-[11px] font-bold uppercase tracking-wider text-cyan-300 flex items-center gap-1.5"><i class="fa-solid fa-chart-column"></i> Số lượt mở theo ngày</h3>
+        <span class="text-[10px] font-mono text-slate-500" id="visit-peak">—</span>
+      </div>
+      <div id="visit-chart" class="flex items-end gap-1 h-28 pt-2"></div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-3">
+      <div class="p-4 bg-night-950 border border-slate-800 rounded-2xl">
+        <h3 class="text-[11px] font-bold uppercase tracking-wider text-pink-300 flex items-center gap-1.5 mb-2"><i class="fa-solid fa-mobile-screen"></i> Thiết bị / trình duyệt</h3>
+        <div id="visit-devices" class="space-y-1.5 text-[11px] text-slate-400">Chưa có dữ liệu.</div>
+      </div>
+      <div class="p-4 bg-night-950 border border-slate-800 rounded-2xl">
+        <h3 class="text-[11px] font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5 mb-2"><i class="fa-solid fa-bullseye"></i> Nguồn truy cập</h3>
+        <div id="visit-sources" class="space-y-1.5 text-[11px] text-slate-400">Chưa có dữ liệu.</div>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-2 mt-3">
+      <button onclick="ADMIN.copyVisitReport()" class="px-3 py-1.5 rounded-full text-[10px] font-bold bg-gradient-to-r from-cyan-500 to-sky-600 text-white btn-bouncy"><i class="fa-solid fa-copy mr-1"></i> Sao chép báo cáo</button>
+      <span id="visit-hint" class="text-[10px] text-slate-600">Dữ liệu ghi từ <code class="text-slate-400">tracker.js</code> · chỉ đếm máy, không lấy thông tin cá nhân.</span>
+    </div>
+  </div>
+
   <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 mt-5">
     <!-- LUẬT NHÓM -->
     <div class="glass-panel border border-slate-800 rounded-3xl p-5">
@@ -290,6 +350,10 @@ window.ADMIN = (function () {
   let sortMode = 'perfect';
   let selectedUid = null;
   let refreshTimer = null;
+  let visitRange = 30;
+  let visitRows = [];
+  let visitDaily = [];
+  let visitCache = { devices: [], sources: [] };
 
   const $id = (id) => document.getElementById(id);
   const vn = (s) => String(s == null ? '' : s).trim();
@@ -394,6 +458,7 @@ window.ADMIN = (function () {
       show('admin-app', true);
       subscribe();
       loadRules();
+      loadVisits();
     });
   }
 
@@ -658,15 +723,173 @@ window.ADMIN = (function () {
     } catch (e) { toast('Chưa đọc được luật', 'Bạn cần quyền ghi config/groupRules.', 'warn'); }
   }
 
+  /* ================= THỐNG KÊ LƯỢT TRUY CẬP ================= */
+
+  function setVisitRange(n) {
+    visitRange = Number(n) || 30;
+    document.querySelectorAll('.vrange-btn').forEach((b) => {
+      const on = Number(b.dataset.vrange) === visitRange;
+      b.className = on
+        ? 'vrange-btn px-2.5 py-1 rounded-full text-[10px] font-bold bg-gradient-to-r from-pink-500 to-indigo-600 text-white btn-bouncy'
+        : 'vrange-btn px-2.5 py-1 rounded-full text-[10px] font-bold border border-slate-700 text-slate-300 btn-bouncy';
+    });
+    const lbl = $id('visit-range');
+    if (lbl) lbl.textContent = '(' + visitRange + ' ngày)';
+    renderVisits();
+  }
+
+  /* Đọc dữ liệu: visitsDaily (tổng hợp nhanh) + visits (hồ sơ người) */
+  async function loadVisits() {
+    if (!db) return;
+    const days = [];
+    for (let i = visitRange - 1; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      days.push(sleepDayKey(d));
+    }
+    const minDay = days[0] || sleepDayKey();
+    setVisitRange(visitRange);
+
+    try {
+      const snap = await db.collection('visitsDaily').orderBy('day', 'desc').limit(visitRange).get();
+      visitDaily = [];
+      snap.forEach((d) => visitDaily.push(Object.assign({ day: d.id }, d.data() || {})));
+    } catch (e) {
+      visitDaily = [];
+      toast('Chưa đọc được thống kê truy cập', 'Kiểm tra Firestore rules cho collection visitsDaily.', 'warn');
+    }
+
+    try {
+      const snap = await db.collection('visits').orderBy('lastAt', 'desc').limit(3000).get();
+      visitRows = [];
+      snap.forEach((d) => visitRows.push(Object.assign({ id: d.id }, d.data() || {})));
+    } catch (e) { visitRows = []; }
+
+    renderVisits();
+  }
+
+  function renderVisits() {
+    const days = [];
+    for (let i = visitRange - 1; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      days.push(sleepDayKey(d));
+    }
+    const byDay = {};
+    visitDaily.forEach((d) => { byDay[d.day] = d; });
+    const series = days.map((k) => ({ day: k, sessions: Number((byDay[k] || {}).sessions) || 0 }));
+
+    const totalSessions = series.reduce((s, x) => s + x.sessions, 0);
+    const newVisitors = days.reduce((s, k) => s + (Number((byDay[k] || {}).newVisitors) || 0), 0);
+    const returning = days.reduce((s, k) => s + (Number((byDay[k] || {}).returning) || 0), 0);
+
+    // Số người khác nhau: ưu tiên visits (chính xác), dự phòng theo newVisitors của visitsDaily
+    let unique = visitRows.length;
+    if (!unique) unique = newVisitors || 0;
+
+    $id('visit-unique').textContent = unique ? unique.toLocaleString('vi-VN') : '0';
+    $id('visit-sessions').textContent = totalSessions ? totalSessions.toLocaleString('vi-VN') : '0';
+    $id('visit-new').textContent = newVisitors ? newVisitors.toLocaleString('vi-VN') : '0';
+    $id('visit-returning').textContent = returning ? returning.toLocaleString('vi-VN') : '0';
+
+    // Biểu đồ cột
+    const max = Math.max(1, ...series.map((x) => x.sessions));
+    const chart = $id('visit-chart');
+    chart.innerHTML = series.map((x) => {
+      const h = Math.round((x.sessions / max) * 100);
+      const d = new Date(x.day + 'T00:00:00');
+      const label = `${d.getDate()}/${d.getMonth() + 1}`;
+      const isPeak = x.sessions === max && x.sessions > 0;
+      return `<div class="flex-1 flex flex-col items-center justify-end h-full gap-1 group" title="${label}: ${x.sessions} lượt">
+        <span class="text-[8px] font-mono ${isPeak ? 'text-pink-300 font-bold' : 'text-slate-600'} opacity-0 group-hover:opacity-100 transition">${x.sessions || ''}</span>
+        <div class="w-full rounded-t ${isPeak ? 'bg-gradient-to-t from-pink-600 to-pink-400' : 'bg-gradient-to-t from-indigo-700 to-cyan-500'}" style="height:${Math.max(x.sessions ? 6 : 2, h)}%"></div>
+        <span class="text-[7px] text-slate-600 font-mono whitespace-nowrap">${series.length > 30 ? '' : label}</span>
+      </div>`;
+    }).join('');
+
+    const peak = series.slice().sort((a, b) => b.sessions - a.sessions)[0];
+    $id('visit-peak').textContent = peak && peak.sessions
+      ? `Cao nhất: ${peak.sessions} lượt/ngày`
+      : 'Chưa có lượt nào';
+
+    // Thiết bị / trình duyệt — gộp từ visitsDaily (os_*) và visits (browser)
+    const osCount = {};
+    visitDaily.forEach((d) => {
+      Object.keys(d).forEach((k) => {
+        if (k.indexOf('os_') === 0) osCount[k.slice(3)] = (osCount[k.slice(3)] || 0) + (Number(d[k]) || 0);
+      });
+    });
+    const osTotal = Object.values(osCount).reduce((a, b) => a + b, 0);
+    $id('visit-devices').innerHTML = osTotal
+      ? Object.entries(osCount).sort((a, b) => b[1] - a[1]).map(([os, n]) =>
+        bar(os, n, osTotal, 'from-pink-500 to-indigo-500')
+      ).join('')
+      : '<p class="text-slate-600">Chưa có dữ liệu.</p>';
+
+    // Nguồn truy cập — từ visits
+    const srcCount = {};
+    visitRows.forEach((v) => {
+      const s = String(v.source || 'unknown');
+      srcCount[s] = (srcCount[s] || 0) + (Number(v.visitsCount) || 1);
+    });
+    const srcTotal = Object.values(srcCount).reduce((a, b) => a + b, 0);
+    $id('visit-sources').innerHTML = srcTotal
+      ? Object.entries(srcCount).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([s, n]) =>
+        bar(s === 'direct' ? 'Truy cập trực tiếp' : s, n, srcTotal, 'from-emerald-500 to-teal-500')
+      ).join('')
+      : '<p class="text-slate-600">Chưa có dữ liệu.</p>';
+  }
+
+  function bar(label, n, total, grad) {
+    const pct = total ? Math.round(n / total * 100) : 0;
+    return `<div class="flex items-center gap-2">
+      <span class="w-24 shrink-0 truncate text-slate-300">${label}</span>
+      <div class="flex-1 h-1.5 rounded-full bg-night-900 overflow-hidden"><div class="h-full rounded-full bg-gradient-to-r ${grad}" style="width:${pct}%"></div></div>
+      <span class="font-mono text-slate-400 w-12 text-right shrink-0">${n} · ${pct}%</span>
+    </div>`;
+  }
+
+  function copyVisitReport() {
+    const lines = [];
+    lines.push('BÁO CÁO LƯỢT TRUY CẬP — SLEEPMATE Pro');
+    lines.push('Thời điểm xuất: ' + new Date().toLocaleString('vi-VN'));
+    lines.push('Kỳ báo cáo: ' + visitRange + ' ngày gần nhất');
+    lines.push('');
+    lines.push('Tổng người truy cập (máy khác nhau): ' + $id('visit-unique').textContent);
+    lines.push('Tổng lượt mở app: ' + $id('visit-sessions').textContent);
+    lines.push('Khách mới trong kỳ: ' + $id('visit-new').textContent);
+    lines.push('Lượt quay lại: ' + $id('visit-returning').textContent);
+    lines.push('');
+    lines.push('Chi tiết theo ngày:');
+    visitDaily.slice().sort((a, b) => String(a.day).localeCompare(String(b.day))).forEach((d) => {
+      lines.push(`  ${d.day}: ${Number(d.sessions) || 0} lượt (mới ${Number(d.newVisitors) || 0})`);
+    });
+    const text = lines.join('\n');
+    const done = () => toast('Đã sao chép', 'Dán vào báo cáo là xong.', 'ok');
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+    } else fallbackCopy(text, done);
+  }
+
+  function fallbackCopy(text, done) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); done();
+    } catch (e) { toast('Không sao chép được', 'Trình duyệt chặn clipboard — bấm Ctrl+C sau khi chọn.', 'warn'); }
+  }
+
   function refresh() {
     if (unsubUsers) { try { unsubUsers(); } catch (e) {} unsubUsers = null; }
     if (db) subscribe();
     loadRules();
+    loadVisits();
     toast('Đang làm mới', 'Đồng bộ lại dữ liệu người dùng…', 'info');
   }
 
   init();
-  return { login, signOut, refresh, renderTable, setSort, openMember, closeMember, sendToSelected, broadcast, saveRules, loadRules };
+  return {
+    login, signOut, refresh, renderTable, setSort, openMember, closeMember, sendToSelected,
+    broadcast, saveRules, loadRules, loadVisits, setVisitRange, copyVisitReport
+  };
 })();
 </script>
 </body>

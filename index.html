@@ -4847,6 +4847,7 @@ initAI();
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script src="./firebase-config.js"></script>
+<script src="./tracker.js"></script>
 <script>
 /* ============================================================================
    SLEEPMATE Pro — TÀI KHOẢN & ĐỒNG BỘ ĐÁM MÂY (v3.2)
@@ -4889,7 +4890,7 @@ window.SM_ACCT = (function () {
     try {
       firebaseSdk = window.firebase;
       if (!firebaseSdk) return false;
-      if (!firebaseSdk.apps || !firebaseSdk.apps.length) firebaseSdk.initializeApp(CONFIG);
+      if (!firebaseSdk.apps || !firebaseSdk.apps.some((a) => a.name === '[DEFAULT]')) firebaseSdk.initializeApp(CONFIG);
       auth = firebaseSdk.auth();
       db = firebaseSdk.firestore();
       return true;
@@ -5424,6 +5425,12 @@ window.SM_ACCT = (function () {
   function run() {
     try {
       if (window.SM_ACCT && typeof window.SM_ACCT.init === 'function') window.SM_ACCT.init();
+    } catch (e) { /* bỏ qua */ }
+    /* Bộ đếm lượt truy cập — chạy nền, không ảnh hưởng giao diện */
+    try {
+      if (window.SLEEPMATE_TRACK && typeof window.SLEEPMATE_TRACK.start === 'function') {
+        window.SLEEPMATE_TRACK.start();
+      }
     } catch (e) { /* bỏ qua */ }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);

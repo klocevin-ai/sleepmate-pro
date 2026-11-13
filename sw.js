@@ -5,13 +5,14 @@
    Khi cáº­p nháº­t app: tÄƒng CORE_CACHE vÃ  RUNTIME_CACHE bÃªn dÆ°á»›i.
    ===================================================================== */
 
-const CORE_CACHE = 'sleepmate-core-v7';
-const RUNTIME_CACHE = 'sleepmate-runtime-v7';
+const CORE_CACHE = 'sleepmate-core-v8';
+const RUNTIME_CACHE = 'sleepmate-runtime-v8';
 
 const APP_SHELL = [
   './',
   './index.html',
   './firebase-config.js',
+  './tracker.js',
   './admin.html',
   './manifest.webmanifest',
   './icon-192.png',

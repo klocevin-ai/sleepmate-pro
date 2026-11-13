@@ -30,6 +30,7 @@ Thư mục này tự chứa, deploy nguyên thư mục lên bất kỳ hosting t
 ```
 ├── index.html              # Toàn bộ app — 1 file, không cần build
 ├── firebase-config.js      # Cấu hình Firebase + email Admin (dán thông số vào đây)
+├── tracker.js              # Bộ đếm lượt truy cập (ghi vào Firestore)
 ├── admin.html              # Bảng điều khiển Admin (thống kê, xếp hạng, nhắc nhở, luật)
 ├── firestore.rules         # Luật bảo mật dữ liệu (dán vào Firestore → Rules)
 ├── FIREBASE-SETUP.md       # Hướng dẫn bật Firebase từng bước
@@ -65,6 +66,27 @@ Muốn nhắc nhở hoạt động cả khi đã đóng hẳn app trên Android 
 2. Copy đè sang `index.html`
 3. Nếu đổi logic hoặc thêm file vào app shell: tăng `CORE_CACHE` và `RUNTIME_CACHE` trong `sw.js` (hiện là `v7`) — bắt buộc, nếu không người dùng cũ vẫn chạy bản cache cũ
 4. Deploy lại
+
+## Tính năng mới ở v3.3 — Đếm lượt truy cập
+
+- **`tracker.js`** đếm số người vào app: mỗi máy = 1 mã ngẫu nhiên (localStorage),
+  mở nhiều lần không bị đếm trùng.
+- Dữ liệu ghi vào Firestore: `visits/` (hồ sơ máy), `visits/{id}/sessions` (từng phiên),
+  `visitsDaily/{ngày}` (tổng hợp theo ngày).
+- Không lấy thông tin cá nhân — chỉ loại thiết bị, trình duyệt, nguồn truy cập.
+- **Bảng điều khiển Admin** có thêm mục *Lượt truy cập*: tổng người, tổng lượt mở,
+  khách mới, lượt quay lại, biểu đồ theo ngày (7/30/90 ngày), thiết bị, nguồn,
+  và nút **Sao chép báo cáo** để dán vào báo cáo cho ban giám khảo.
+- Tracker chạy trên **Firebase app riêng** (`sm-tracker`) nên **không** ảnh hưởng
+  trạng thái đăng nhập của app chính.
+- Service worker cache `v8`.
+
+### Điều kiện để bộ đếm hoạt động
+1. Đã dán `firestore.rules` mới vào Firebase Console (Rules → Publish).
+2. Firebase Console → Authentication → Sign-in method:
+   - Bật **Anonymous** (khuyến nghị), hoặc
+   - Để **Email/Password** đang bật — tracker tự tạo "tài khoản khách" cho mỗi máy.
+3. Còn hạn mức Firestore miễn phí (xem mục *Giới hạn* bên dưới).
 
 ## Tính năng mới ở v3.2.1 — Firebase đã bật thật
 

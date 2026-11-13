@@ -75,5 +75,33 @@ service cloud.firestore {
       allow read: if signedIn();
       allow write: if isAdmin();
     }
+
+    // ============================================================
+    //  BỘ ĐẾM LƯỢT TRUY CẬP (tracker.js)
+    //  - Mỗi máy khách đăng nhập ẩn danh, chỉ ghi được hồ sơ CỦA MÌNH
+    //    (visitorId lưu trong localStorage, không trùng uid Firebase).
+    //  - Khách KHÔNG đọc được dữ liệu → không xem được số liệu của nhau.
+    //  - Chỉ Admin đọc toàn bộ để làm báo cáo.
+    // ============================================================
+
+    // Hồ sơ người truy cập: 1 document / 1 máy
+    // ownerUid = uid đăng nhập ẩn danh của chính máy đó → không sửa được của máy khác.
+    match /visits/{visitorId} {
+      allow create: if signedIn() && request.resource.data.ownerUid == request.auth.uid;
+      allow update: if signedIn() && resource.data.ownerUid == request.auth.uid;
+      allow read, delete: if isAdmin();
+
+      // Mỗi lần mở app = 1 phiên
+      match /sessions/{sessionId} {
+        allow create: if signedIn() && request.resource.data.ownerUid == request.auth.uid;
+        allow read, delete: if isAdmin();
+      }
+    }
+
+    // Tổng hợp theo ngày — khách chỉ được cộng dồn, không đọc
+    match /visitsDaily/{day} {
+      allow create, update: if signedIn();
+      allow read, delete: if isAdmin();
+    }
   }
 }

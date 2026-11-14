@@ -65,11 +65,14 @@ window.SLEEPMATE_ADMIN_EMAILS = ["klocevin@gmail.com"];
 
 ---
 
-## 3. Bảo mật (Firestore Rules v3.3)
+## 3. Bảo mật (Firestore Rules v3.4)
 
-File: [`firestore.rules`](./firestore.rules) — **bản v3.2.1 đã publish**; bản v3.3 (thêm
-`visits` / `sessions` / `visitsDaily` cho bộ đếm lượt truy cập) **cần Publish lại**
-theo hướng dẫn ở mục 8.
+File: [`firestore.rules`](./firestore.rules) — đây là **bản gộp mới nhất**: luật v3.4
+(`sessions/{nightId}` + các trường đo thật do APK gửi) **và** luật bộ đếm
+(`visits` / `visits/sessions` / `visitsDaily`).
+
+> ⚠️ Bản đang publish trên Firebase là **v3.2.1** (chưa có `visits`) → phải Publish lại
+> bản này theo hướng dẫn ở mục 8, nếu không bộ đếm sẽ báo `permission-denied`.
 
 | Đối tượng | Quyền |
 |---|---|
